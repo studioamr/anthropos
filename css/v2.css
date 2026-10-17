@@ -295,3 +295,31 @@ figcaption{position:absolute;left:16px;bottom:14px;color:#fff;text-shadow:0 1px 
 .steps .n{font-family:var(--serif);font-size:clamp(70px,7vw,120px);line-height:1;color:var(--acc)}
 .steps h3{font-weight:300;font-size:clamp(28px,2.6vw,42px);letter-spacing:-.03em;line-height:1.05;margin:10px 0 16px}
 @media (max-width:900px){.steps{grid-template-columns:1fr}.steps article{padding:26px 0!important;border-left:0!important;border-bottom:1px solid var(--line)}}
+
+/* tarjeta: giro continuo y credencial al reverso */
+.steel{transition:none}
+.steel .back{background:linear-gradient(135deg,#e4e6e8 0%,#c2c6ca 28%,#eef0f2 52%,#a9aeb3 78%,#d5d8db 100%)}
+.idc{position:absolute;inset:0;padding:7% 7.5%;display:grid;grid-template-columns:38% 1fr;grid-template-rows:auto auto auto 1fr auto;gap:8px 10px;color:#2a2c2f;font-family:var(--mono);text-transform:uppercase}
+.id-top{grid-column:1/-1;display:flex;align-items:center;gap:8px;border-bottom:1px solid rgba(42,44,47,.35);padding-bottom:8px}
+.id-top b{display:block;font-family:var(--sans);font-weight:600;font-size:10.5px;letter-spacing:.14em}
+.id-top span{font-size:7.5px;letter-spacing:.12em;opacity:.8}
+.id-em svg{width:24px;height:24px}
+.id-photo{grid-row:2/4;aspect-ratio:5/6;border:1px solid rgba(42,44,47,.45);background:linear-gradient(160deg,rgba(255,255,255,.55),rgba(150,155,160,.35));display:grid;place-items:end center;overflow:hidden}
+.id-photo svg{width:82%;fill:none;stroke:#3a3d41;stroke-width:1.4}
+.id-chip{width:34px;height:26px;border-radius:5px;background:linear-gradient(135deg,#d8bb84,#a8854a 60%,#e1c792);box-shadow:inset 0 0 0 1px rgba(0,0,0,.2);position:relative;justify-self:start}
+.id-chip::before,.id-chip::after{content:"";position:absolute;inset:6px 0;border-top:1px solid rgba(0,0,0,.28);border-bottom:1px solid rgba(0,0,0,.28)}
+.id-chip::after{inset:0 11px;border:0;border-left:1px solid rgba(0,0,0,.28);border-right:1px solid rgba(0,0,0,.28)}
+.id-data{grid-column:2;grid-row:3/5;display:grid;grid-template-columns:1fr 1fr;gap:6px 8px;align-content:start}
+.id-data div{grid-column:1/-1}.id-data div.h{grid-column:auto}
+.id-data dt{font-size:6.5px;letter-spacing:.14em;opacity:.65}
+.id-data dd{font-size:9px;letter-spacing:.06em;font-weight:500;margin-top:1px}
+.id-sig{grid-column:1;grid-row:4;align-self:end}
+.id-sig svg{width:100%;fill:none;stroke:#2a2c2f;stroke-width:1.3}
+.id-sig span{display:block;font-size:6px;letter-spacing:.12em;opacity:.6;border-top:1px solid rgba(42,44,47,.4);padding-top:2px}
+.id-qr{position:absolute;right:7.5%;bottom:21%;width:46px;height:46px;display:grid;grid-template-columns:repeat(11,1fr);gap:0}
+.id-qr i{background:#2a2c2f}
+.id-qr i.o{background:transparent}
+.id-mrz{grid-column:1/-1;align-self:end;font-size:7.6px;letter-spacing:.11em;line-height:1.55;border-top:1px solid rgba(42,44,47,.35);padding-top:6px;white-space:nowrap;overflow:hidden}
+/* "Meet me in the city" sin cortes: la máscara deja aire para la cursiva */
+.wd{padding:0 .12em .16em 0;margin:0 -.12em -.16em 0}
+.finale h2{line-height:.98}

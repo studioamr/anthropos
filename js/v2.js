@@ -100,16 +100,35 @@ $('#lifeGrid').innerHTML = LIFE.map(([k, t]) => `<figure><img src="img/${k}.jpg"
 const FROM = ['Founders', 'Engineers', 'Researchers', 'Artists', 'Musicians', 'Architects', 'Writers', 'Athletes', 'Filmmakers', 'Designers'];
 $('#fromTrack').innerHTML = [...FROM, ...FROM].map((t) => `<span>${t}</span>`).join('');
 
-// ── tarjeta de acero ──
-const steel = $('#steel'); let fl = false, rx = 0, ry = 0;
-const ap = () => (steel.style.transform = `rotateX(${rx}deg) rotateY(${ry + (fl ? 180 : 0)}deg)`);
-$('#cardStage').addEventListener('pointermove', (e) => { if (e.pointerType === 'touch') return; const r = steel.getBoundingClientRect(), x = (e.clientX - r.left) / r.width - 0.5, y = (e.clientY - r.top) / r.height - 0.5; rx = -y * 16; ry = x * 22; steel.classList.add('fast'); ap(); steel.style.setProperty('--sx', `${x * 60}%`); steel.style.setProperty('--sy', `${y * 60}%`); });
-$('#cardStage').addEventListener('pointerleave', () => { rx = ry = 0; steel.classList.remove('fast'); ap(); });
-const flip = () => { fl = !fl; steel.classList.remove('fast'); ap(); };
-steel.onclick = flip; steel.onkeydown = (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), flip());
+// ── tarjeta de acero: gira sola; al reverso, la credencial de miembro ──
+['#idMark'].forEach((q) => $(q) && ($(q).innerHTML = EMBLEM));
+{ let r = 7; const RQ = () => ((r = (r * 16807) % 2147483647) - 1) / 2147483646; const fin = (x, y) => (x < 3 && y < 3) || (x > 7 && y < 3) || (x < 3 && y > 7);
+  $('#idQr').innerHTML = Array.from({ length: 121 }, (_, i) => { const x = i % 11, y = (i / 11) | 0; const on = fin(x, y) ? !(x % 10 === 1 || y % 10 === 1) || (x === 1 && y === 1) || (x === 9 && y === 1) || (x === 1 && y === 9) : RQ() > 0.5; return `<i class="${on ? '' : 'o'}"></i>`; }).join(''); }
+function spinCard(el, stage) {
+  let ang = 20, target = null, rx = 0, hover = false, auto = !reduce, last = performance.now();
+  const sheen = (y) => { const k = Math.cos((y * Math.PI) / 180); el.style.setProperty('--sx', `${-Math.sin((y * Math.PI) / 180) * 40}%`); el.style.setProperty('--sy', `${k * 10}%`); };
+  const tick = (t) => {
+    const dt = Math.min(64, t - last); last = t;
+    if (target !== null) { ang += (target - ang) * 0.12; if (Math.abs(target - ang) < 0.1) { ang = target; target = null; } }
+    else if (auto && !hover) ang += dt * 0.022;
+    el.style.transform = `rotateX(${rx}deg) rotateY(${ang}deg)`; sheen(ang);
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+  if (stage) {
+    stage.addEventListener('pointermove', (e) => { if (e.pointerType === 'touch') return; const b = el.getBoundingClientRect(), x = (e.clientX - b.left) / b.width - 0.5, y = (e.clientY - b.top) / b.height - 0.5; hover = true; rx = -y * 14; if (target === null) { const face = Math.round(ang / 180) * 180; ang += (face + x * 26 - ang) * 0.18; } });
+    stage.addEventListener('pointerleave', () => { hover = false; rx = 0; });
+  }
+  const api = { flip: () => { auto = false; target = (Math.round(ang / 180) + 1) * 180; }, reset: () => { auto = !reduce; target = Math.round(ang / 360) * 360; rx = 0; } };
+  el.addEventListener('click', api.flip);
+  el.addEventListener('keydown', (e) => (e.key === 'Enter' || e.key === ' ') && (e.preventDefault(), api.flip()));
+  return api;
+}
+const card = spinCard($('#steel'), $('#cardStage'));
 const modal = $('#cardModal');
-$$('[data-c]').forEach((b) => (b.onclick = () => { const c = b.dataset.c; if (c === 'flip') flip(); if (c === 'reset') { fl = false; rx = ry = 0; steel.classList.remove('fast'); ap(); } if (c === 'enlarge') { const k = steel.cloneNode(true); k.id = ''; k.style.transform = ''; let f2 = false; k.onclick = () => { f2 = !f2; k.style.transform = `rotateY(${f2 ? 180 : 0}deg)`; }; $('.slot', modal).replaceChildren(k); modal.classList.add('open'); } }));
+$$('[data-c]').forEach((b) => (b.onclick = () => { const c = b.dataset.c; if (c === 'flip') card.flip(); if (c === 'reset') card.reset(); if (c === 'enlarge') { const k = $('#steel').cloneNode(true); k.id = ''; $('.slot', modal).replaceChildren(k); spinCard(k, modal); modal.classList.add('open'); } }));
 $('.x', modal).onclick = () => modal.classList.remove('open'); modal.onclick = (e) => e.target === modal && modal.classList.remove('open');
+addEventListener('keydown', (e) => e.key === 'Escape' && modal.classList.remove('open'));
 
 // ── gobiernos e ideas ──
 $('#govMail').href = `mailto:${CONFIG.email}?subject=${encodeURIComponent('Government partnership · Anthropos Cities')}`;

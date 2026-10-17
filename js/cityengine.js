@@ -103,7 +103,8 @@ export function mountView(root, build, opts = {}) {
   const cv = root.querySelector('canvas');
   const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, powerPreference: 'high-performance' });
   renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
-  const scene = new THREE.Scene(); scene.background = new THREE.Color(PAPER);
+  const dark = opts.theme === 'dark';
+  const scene = new THREE.Scene(); scene.background = new THREE.Color(dark ? 0x0e0e0d : PAPER);
   const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 12000);
   const ctl = new OrbitControls(cam, cv);
   ctl.enableDamping = true; ctl.dampingFactor = 0.08; ctl.minZoom = 0.35; ctl.maxZoom = 24;
@@ -124,10 +125,10 @@ export function mountView(root, build, opts = {}) {
   function compile({ ink, zones }) {
     const group = new THREE.Group(), geos = [];
     const add = (arr, mk) => { if (!arr.length) return null; const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3)); const o = mk(g); geos.push(g); group.add(o); return g; };
-    const fg = add(ink.faces, (g) => { g.setAttribute('color', new THREE.Float32BufferAttribute(ink.colors, 3)); return new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, side: THREE.DoubleSide })); });
-    const eg = add(ink.edges, (g) => new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0x161616 })));
-    const lg = add(ink.details, (g) => new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0xa2a29b })));
-    const pg = add(ink.dots, (g) => new THREE.Points(g, new THREE.PointsMaterial({ color: 0x8a8a84, size: 1.4, sizeAttenuation: false })));
+    const fg = add(ink.faces, (g) => { g.setAttribute('color', new THREE.Float32BufferAttribute(dark ? ink.colors.map((c) => 0.055 + (c - 0.9) * 0.55) : ink.colors, 3)); return new THREE.Mesh(g, new THREE.MeshBasicMaterial({ vertexColors: true, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1, side: THREE.DoubleSide })); });
+    const eg = add(ink.edges, (g) => new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: dark ? 0xe6e3da : 0x161616 })));
+    const lg = add(ink.details, (g) => new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: dark ? 0x4a4945 : 0xa2a29b })));
+    const pg = add(ink.dots, (g) => new THREE.Points(g, new THREE.PointsMaterial({ color: dark ? 0x77756f : 0x8a8a84, size: 1.4, sizeAttenuation: false })));
     // marcas ordenadas: primero el paisaje (d = -1), luego del centro hacia afuera
     const marks = ink.marks;
     const reveal = (p) => {

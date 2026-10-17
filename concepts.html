@@ -37,8 +37,8 @@
 <section class="page-top">
   <div class="wrap">
     <div class="crumbs"><a href="index.html">Home</a><span>/</span><a href="city.html">The city</a><span>/</span><span>Concepts</span></div>
-    <h1 class="h-xl mt-16">Eight cities.<br>Choose one.</h1>
-    <p class="lede mt-16" style="max-width:720px">Eight ways to lay out the first city on the same stretch of Pacific coast. Explore each one in 3D, then vote for the one you would move to. Members decide.</p>
+    <h1 class="h-xl mt-16">Nine cities.<br>Choose one.</h1>
+    <p class="lede mt-16" style="max-width:720px">Nine ways to lay out the first city on the same stretch of Pacific coast. Explore each one in 3D, then vote for the one you would move to. Members decide.</p>
   </div>
 </section>
 
@@ -57,7 +57,7 @@
   <div class="wrap">
     <div class="cc-detail" id="detail"></div>
     <div class="cc-grid mt-64" id="grid"></div>
-    <p class="caption mt-16">Concept studies by the <span data-name>Anthropos</span> Design Office. Same site, eight plans. Drawings are diagrams, not final designs.</p>
+    <p class="caption mt-16">Concept studies by the <span data-name>Anthropos</span> Design Office. Same site, nine plans. Drawings are diagrams, not final designs.</p>
   </div>
 </section>
 
@@ -68,7 +68,7 @@ import { mountView } from './js/cityengine.js';
 import { submit, toast } from './js/forms.js';
 import { esc } from './js/site.js';
 const $ = (s) => document.querySelector(s);
-let cur = byId(new URLSearchParams(location.search).get('c') || 'anthropos');
+let cur = byId(new URLSearchParams(location.search).get('c') || 'metropolis');
 const view = mountView($('#city3d'), () => cur.build());
 const voted = () => localStorage.getItem('anthropos-concept');
 function paint() {

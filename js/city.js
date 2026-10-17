@@ -1,4 +1,4 @@
-// LYCEON · Campaña I (city.html)
+// ANTHROPOS · Campaña I (city.html)
 import { CONFIG } from './config.js';
 import { $, $$, fmtUSD, stats } from './site.js';
 import { mountCity } from './city3d.js';

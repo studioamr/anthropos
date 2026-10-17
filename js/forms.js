@@ -1,4 +1,4 @@
-// LYCEON · envíos, chips, invitar, aviso
+// ANTHROPOS · envíos, chips, invitar, aviso
 import { CONFIG } from './config.js';
 
 // Si hay endpoint, POST JSON. Si no, abre el correo con el resumen (nunca se pierde una solicitud).

@@ -1,4 +1,4 @@
-// LYCEON · encabezado, menú, pie, revelado y utilidades comunes
+// ANTHROPOS · encabezado, menú, pie, revelado y utilidades comunes
 import { CONFIG } from './config.js';
 
 export const $ = (s, r = document) => r.querySelector(s);
@@ -10,9 +10,10 @@ export const fmtUSD = (n) => n >= 1e9 ? `$${(n / 1e9).toFixed(2)}B` : n >= 1e6 ?
 export const EMBLEM = `<svg viewBox="0 0 40 40" fill="none" stroke="currentColor" stroke-width="1.1" aria-hidden="true">
   <circle cx="20" cy="20" r="18.4"/><path d="M8.5 15.5h23M9.5 13.2h21"/><path d="M12 15.5v13M17.3 15.5v13M22.7 15.5v13M28 15.5v13"/>
   <path d="M8 28.8h24M7 31h26"/><path d="M14.5 13.2a5.5 5.5 0 0 1 11 0" /></svg>`;
-export const WORDMARK = (h = 26) => `<svg viewBox="0 0 196 40" height="${h}" fill="currentColor" aria-label="${CONFIG.name}">
+export const WORDMARK = (h = 26) => `<svg viewBox="0 0 208 40" height="${h}" fill="currentColor" aria-label="${CONFIG.brand}">
   <g fill="none" stroke="currentColor" stroke-width="1.1">${EMBLEM.replace(/<\/?svg[^>]*>/g, '')}</g>
-  <text x="52" y="27.5" font-family="Jost,Futura,Helvetica Neue,Arial,sans-serif" font-size="17" font-weight="400" letter-spacing="6.2">${CONFIG.name.toUpperCase()}</text></svg>`;
+  <text x="50" y="22" font-family="Jost,Futura,Helvetica Neue,Arial,sans-serif" font-size="15.5" font-weight="400" letter-spacing="4.4">${CONFIG.name.toUpperCase()}</text>
+  <text x="50.5" y="35.5" font-family="Jost,Futura,Helvetica Neue,Arial,sans-serif" font-size="7.4" font-weight="400" letter-spacing="5.2">CITIES</text></svg>`;
 
 const NAV = [
   ['index.html#republic', 'The Republic', 'I'],
@@ -65,11 +66,11 @@ function menu() {
 function footer() {
   if (document.body.dataset.footer === 'none') return;
   const f = document.createElement('footer');
-  f.innerHTML = `${document.body.dataset.cta === 'none' ? '' : `<section class="cta-band"><div class="wrap"><h2 class="h-lg">Meet me in the Lyceum</h2><a class="btn" href="join.html">Join ${CONFIG.name}</a></div></section>`}
+  f.innerHTML = `${document.body.dataset.cta === 'none' ? '' : `<section class="cta-band"><div class="wrap"><h2 class="h-lg">Cities for human beings</h2><a class="btn" href="join.html">Join ${CONFIG.name}</a></div></section>`}
   <div class="ftr"><div class="wrap">
     <div class="row"><span style="width:30px;color:var(--ink)">${EMBLEM}</span>
       <nav>${NAV.map(([href, t]) => `<a href="${href}">${t}</a>`).join('')}</nav></div>
-    <div class="legal"><span>© ${CONFIG.year} ${CONFIG.name}. A founding-stage project. Renderings are concept studies, not offers.</span>
+    <div class="legal"><span>© ${CONFIG.year} ${CONFIG.brand}. A founding-stage project. Renderings are concept studies, not offers.</span>
       <span><a href="privacy.html">Privacy</a> · <a href="privacy.html#terms">Terms</a> · <a href="mailto:${CONFIG.email}">${CONFIG.email}</a></span></div>
   </div></div>`;
   document.body.append(f);

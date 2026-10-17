@@ -1,4 +1,4 @@
-// LYCEON · bandera ondeando (canvas 2D, sin video)
+// ANTHROPOS · bandera ondeando (canvas 2D, sin video)
 import { EMBLEM } from './site.js';
 
 export function flag(cv) {

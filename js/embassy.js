@@ -1,4 +1,4 @@
-// LYCEON · embajada: mosaico, axonometría del estudio y voto de la próxima ciudad
+// ANTHROPOS · embajada: mosaico, axonometría del estudio y voto de la próxima ciudad
 import { CONFIG } from './config.js';
 import { $, EMBLEM } from './site.js';
 import { submit, toast } from './forms.js';

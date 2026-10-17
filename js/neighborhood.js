@@ -1,4 +1,4 @@
-// LYCEON · constructor de vecindario: elige tu casa, invita a tu gente, exporta la imagen
+// ANTHROPOS · constructor de vecindario: elige tu casa, invita a tu gente, exporta la imagen
 import { CONFIG } from './config.js';
 import { $, $$, WORDMARK, esc } from './site.js';
 import { makeIso, STYLES, INK } from './houses.js';

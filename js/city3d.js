@@ -1,4 +1,4 @@
-// LYCEON · la ciudad en nube de puntos (Three.js). Todo el trazo sale de este archivo.
+// ANTHROPOS · la ciudad en nube de puntos (Three.js). Todo el trazo sale de este archivo.
 import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 

@@ -1,4 +1,4 @@
-// LYCEON · recorrido ilustrativo: escuchar → proponer → ejecutar (cifras de ejemplo, rotuladas como tales)
+// ANTHROPOS · recorrido ilustrativo: escuchar → proponer → ejecutar (cifras de ejemplo, rotuladas como tales)
 const STEPS = [
   {
     tab: 'Aggregate preferences', kicker: 'What superintelligence could uncover',

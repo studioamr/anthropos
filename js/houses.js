@@ -1,4 +1,4 @@
-// LYCEON · motor isométrico y las 8 casas (dibujo de línea en canvas 2D)
+// ANTHROPOS · motor isométrico y las 8 casas (dibujo de línea en canvas 2D)
 const C30 = Math.cos(Math.PI / 6);
 export const INK = '#141414';
 

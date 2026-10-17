@@ -1,4 +1,4 @@
-/* LYCEON · constructor de vecindario */
+/* ANTHROPOS · constructor de vecindario */
 .hood{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:28px;align-items:start;padding-bottom:80px}
 @media (max-width:1000px){.hood{grid-template-columns:1fr}}
 .hood-stage{padding:22px}

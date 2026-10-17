@@ -1,4 +1,4 @@
-// LYCEON · página principal
+// ANTHROPOS · página principal
 import { CONFIG } from './config.js';
 import { $, $$, esc, fmtUSD, EMBLEM, stats } from './site.js';
 import { DISPATCHES, ESSAYS } from './content.js';

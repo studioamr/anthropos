@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Lyceon Embassy</title>
+<meta name="description" content="Rooms to work on something new, find your collaborators, and stay late. The first Lyceon embassy is planned for Mexico City.">
+<meta property="og:image" content="img/embassy-1.jpg">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-hdr="dark">
+
+<section class="emb-hero">
+  <div class="emb-tiles" id="tiles"></div>
+  <div class="emb-in">
+    <span id="embMark"></span>
+    <div class="wm" data-name>Lyceon</div>
+    <div class="sub">EMBASSY</div>
+    <p>Rooms to work on something new, find your collaborators, and stay late. Gathering the <span data-name>Lyceon</span> community, and connecting the world to our first city in <span data-country>Panama</span>.</p>
+  </div>
+</section>
+
+<section class="sec flush">
+  <div class="wrap split rv">
+    <div class="l"><div class="eyebrow">Mexico City Studio</div><h2 class="h-lg mt-16">Opening 2027,<br>by invitation.</h2></div>
+    <div class="r"><p class="body">Our first creative space, and the prototype for every embassy after it. Planned for a modernist building in Mexico City and open by invitation to founders, artists, musicians, and designers from the city and from our network: a place to work, meet, and make things, with dinners, listening sessions, and late nights.</p>
+      <p class="caption mt-16">Location under negotiation. Members will hear first.</p></div>
+  </div>
+  <div class="wrap mt-64 emb-grid rv">
+    <figure><svg class="axo" id="axo" viewBox="0 0 900 600" role="img" aria-label="Axonometric drawing of the Mexico City studio"></svg><figcaption class="caption">Axonometric study: worktables, listening room, bar, and stage.</figcaption></figure>
+    <div class="emb-photos">
+      <div class="img zoom"><img src="img/embassy-1.jpg" alt="Studio loft with long worktables, concept" loading="lazy"></div>
+      <div class="img zoom"><img src="img/embassy-2.jpg" alt="Members' salon at night, concept" loading="lazy"></div>
+      <div class="img zoom"><img src="img/life-music.jpg" alt="Music room, concept" loading="lazy"></div>
+      <div class="img zoom"><img src="img/life-rooftop.jpg" alt="Rooftop at dusk, concept" loading="lazy"></div>
+    </div>
+  </div>
+  <div class="wrap mt-64 rv"><div class="eyebrow">Our members will come from</div><div class="for-strip" id="forStrip"></div></div>
+</section>
+
+<section class="sec">
+  <div class="wrap center rv">
+    <h2 class="h-lg">A global network.<br>You decide where we go next.</h2>
+    <div class="route">
+      <div class="node"><b>Mexico City</b><span>The first embassy</span></div>
+      <div class="line"></div>
+      <div class="node mid"><b><span data-name>Lyceon</span> <span data-country>Panama</span></b></div>
+      <div class="line"></div>
+      <div class="node"><b>Your city</b><span>The next campaign</span></div>
+    </div>
+    <form class="vote-city" id="voteCity"><input name="city" placeholder="Name the next embassy city" required aria-label="City"><button class="btn" type="submit">Vote</button></form>
+    <p class="caption" id="voteNote">Each vote is counted toward the next campaign.</p>
+  </div>
+</section>
+
+<script type="module" src="js/site.js"></script>
+<script type="module" src="js/embassy.js"></script>
+</body>
+</html>

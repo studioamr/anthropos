@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Help bring a city into existence · Lyceon</title>
+<meta name="description" content="Campaign I: commit to move. Help turn shared demand into a new city on Panama's Pacific coast.">
+<meta property="og:image" content="img/og.jpg">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+
+<section class="page-top">
+  <div class="wrap center">
+    <div class="eyebrow rv">Campaign I · Commitment to move</div>
+    <h1 class="h-xl mt-16 rv">Help bring a city<br>into existence.</h1>
+    <p class="lede mt-16 rv">Commit to move. Help turn shared demand into a place to live.</p>
+    <p class="mono mt-16 rv" id="liveLine" style="color:var(--muted)">Loading live commitments…</p>
+  </div>
+</section>
+
+<div class="wrap-wide rv" style="margin-top:40px"><div class="city3d tall" id="city3d">
+  <canvas aria-label="An interactive point-cloud model of the city"></canvas>
+  <div class="c3-loading"><span class="mono">Drawing the city…</span></div>
+  <div class="c3-ui">
+    <div class="c3-label eyebrow">The city</div>
+    <div class="c3-views" role="tablist" aria-label="Views"><button role="tab" aria-selected="true" data-view="center">Center</button><button role="tab" data-view="beach">Beach</button><button role="tab" data-view="hills">Hills</button><button role="tab" data-view="plan">Plan</button></div>
+    <div class="c3-tools"><button data-act="replay">Replay</button><button data-act="in" aria-label="Zoom in">+</button><button data-act="out" aria-label="Zoom out">−</button></div>
+  </div>
+  <div class="c3-hint mono">Drag to explore · Scroll or pinch to zoom</div>
+</div></div>
+
+<section class="sec flush" style="padding-top:28px">
+  <div class="wrap">
+    <div class="progress card rv">
+      <div class="p-col">
+        <div class="eyebrow">Checking progress</div>
+        <div class="p-big"><span id="pCount">—</span><small>people have committed to move</small></div>
+        <div class="p-bar"><i id="pBar"></i></div>
+        <div class="p-goal mono"><span id="pPct">—</span><span>Goal <b id="pGoal">1,000</b></span></div>
+      </div>
+      <div class="p-col">
+        <div class="eyebrow">Housing demand</div>
+        <div class="p-big"><span id="pDemand">—</span><small>sum of stated home budgets</small></div>
+        <div class="p-bar"><i id="pBar2"></i></div>
+        <div class="p-goal mono"><span>First goal</span><b id="pGoal2">$1.00B</b></div>
+      </div>
+      <div class="p-acts"><a class="btn" href="#commit">Commit to move</a><a class="btn ghost" href="neighborhood.html">Build your neighborhood</a><button class="btn ghost" id="invite">Invite friends</button></div>
+    </div>
+    <p class="caption">Concept studies for <span data-name>Lyceon</span>, by the <span data-name>Lyceon</span> Design Office. Counts are real and update as commitments are verified.</p>
+  </div>
+</section>
+
+<section class="sec">
+  <div class="wrap">
+    <div class="center rv"><div class="eyebrow">From a commitment to a city</div><h2 class="h-xl mt-16">You make it possible.</h2>
+      <p class="lede mt-24" style="max-width:720px;margin-left:auto;margin-right:auto">Tell us what your ideal city looks like. Superintelligence turns our preferences into a single proposal that governments, financiers, and developers can compete to build.</p></div>
+    <div class="steps3 mt-64 rv">
+      <div><div class="mono">01</div><div class="eyebrow mt-16">First goal</div><h3 class="h-md mt-8">1,000 commitments</h3><p class="body mt-16">A shared signal that people want this city to exist.</p></div>
+      <div><div class="mono">02</div><div class="eyebrow mt-16">Next</div><h3 class="h-md mt-8">Shape the proposal</h3><p class="body mt-16">Turn members’ preferences into a plan for the city, then vote on it.</p></div>
+      <div><div class="mono">03</div><div class="eyebrow mt-16">Then</div><h3 class="h-md mt-8">Put our demand to bid</h3><p class="body mt-16">Seek a location, financing, and partners to build it, and publish the terms.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="sec paper" id="commit">
+  <div class="wrap split">
+    <div class="l rv"><div class="eyebrow">Commit to move</div><h2 class="h-lg mt-16">Describe your city.<br>Then commit.</h2>
+      <p class="body mt-24">Two minutes. Your answers stay private to the founding office and are only ever published in aggregate.</p>
+      <ul class="fine mt-24">
+        <li>A commitment is a statement of intent: not a deposit, a purchase, or an investment.</li>
+        <li>You can withdraw at any time by writing to us.</li>
+        <li>We will write to you before every step of the campaign.</li>
+      </ul></div>
+    <form class="r commit card rv" id="commitForm" novalidate>
+      <div class="steps-head mono"><span id="stepNo">1 / 3</span><span id="stepName">About you</span></div>
+      <fieldset data-step="1">
+        <label class="field"><span>Name</span><input name="name" autocomplete="name" required></label>
+        <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+        <label class="field"><span>Where you live now</span><input name="from" placeholder="City, country"></label>
+        <label class="field"><span>What you do</span><select name="vocation"><option value="">Choose one</option><option>Founder</option><option>Engineer or researcher</option><option>Artist or musician</option><option>Designer or architect</option><option>Writer or scholar</option><option>Athlete or coach</option><option>Investor</option><option>Other</option></select></label>
+      </fieldset>
+      <fieldset data-step="2" hidden>
+        <div class="field"><span>Setting</span><div class="chips" data-chips="setting" data-single>
+          <button type="button" class="chip">Center</button><button type="button" class="chip">Beach</button><button type="button" class="chip">Hills</button></div></div>
+        <label class="field"><span>Home budget (USD)</span><select name="budget"><option value="">Choose a range</option><option value="350000">Under $500k</option><option value="750000">$500k – $1M</option><option value="1500000">$1M – $2M</option><option value="3000000">$2M – $4M</option><option value="6000000">Over $4M</option><option value="0">I'd rent first</option></select></label>
+        <label class="field"><span>Household</span><select name="household"><option>Just me</option><option>Two of us</option><option>Family with children</option><option>A group of friends</option></select></label>
+        <label class="field"><span>When could you move?</span><select name="when"><option>Within 12 months</option><option>Within 24 months</option><option>Within 3–5 years</option><option>Part of the year</option></select></label>
+      </fieldset>
+      <fieldset data-step="3" hidden>
+        <div class="field"><span>What would your city need?</span><div class="chips" data-chips="needs">
+          <button type="button" class="chip">Studios</button><button type="button" class="chip">A school</button><button type="button" class="chip">A clinic</button><button type="button" class="chip">Fast internet</button><button type="button" class="chip">Sports</button><button type="button" class="chip">Nightlife</button><button type="button" class="chip">A marina</button><button type="button" class="chip">Coworking</button><button type="button" class="chip">A library</button><button type="button" class="chip">Restaurants</button></div></div>
+        <label class="field"><span>Describe your ideal city in one sentence</span><textarea name="dream" placeholder="A walkable town on the water where I can make music and surf before work."></textarea></label>
+        <label class="field"><span>Friends who would come with you (optional emails)</span><input name="friends" placeholder="ana@…, leo@…"></label>
+        <label class="check"><input type="checkbox" name="ok" required> <span>I understand a commitment is not a purchase or an investment, and I agree to the <a href="privacy.html">privacy notice</a>.</span></label>
+      </fieldset>
+      <div class="form-err mono" id="formErr" role="alert"></div>
+      <div class="form-nav"><button type="button" class="btn ghost sm" id="prev" hidden>Back</button><span></span><button type="button" class="btn sm" id="next">Continue</button></div>
+      <div class="done" id="done" hidden>
+        <div class="eyebrow">Committed</div><h3 class="h-md mt-8">Welcome to Campaign I.</h3>
+        <p class="body mt-16" id="doneMsg">We will write to you before every step.</p>
+        <div class="ctas mt-24"><a class="btn sm" href="neighborhood.html">Build your neighborhood</a><button type="button" class="btn ghost sm" id="invite2">Invite friends</button></div>
+      </div>
+    </form>
+  </div>
+</section>
+
+<section class="sec" id="nation">
+  <div class="wrap split rv">
+    <div class="l"><div class="eyebrow">An autonomous civic entity</div><h2 class="h-lg mt-16">Superintelligence for<br>collective action</h2></div>
+    <div class="r"><p class="body">We are building toward an autonomous republic that uses superintelligence to understand its members, coordinate shared goals, and improve with every campaign. It is bound by a written charter, overseen by human citizens who vote, and funded by a common budget of compute.</p></div>
+  </div>
+  <div class="wrap mt-40 rv"><div class="demo card" id="demo"></div></div>
+</section>
+
+<script type="module" src="js/site.js"></script>
+<script type="module" src="js/city.js"></script>
+</body>
+</html>

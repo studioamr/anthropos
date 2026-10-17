@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<title>Lyceon</title>
+<meta name="description" content="">
+</head>
+<body>
+<article>
+  <header class="art-hero wrap center">
+    <div class="crumbs" style="justify-content:center"><a href="index.html">Home</a><span>/</span><a href="content.html" id="crumb">Ideas</a></div>
+    <div class="eyebrow mt-24" id="kicker"></div>
+    <h1 id="title"></h1>
+    <p class="dek" id="dek"></p>
+    <div class="art-meta" id="meta"></div>
+  </header>
+  <div class="wrap art-cover"><div class="img"><img id="cover" alt=""></div></div>
+  <div class="wrap"><div class="prose" id="body"></div></div>
+  <div class="wrap" style="max-width:760px"><div id="next"></div></div>
+</article>
+<script type="module" src="js/site.js"></script>
+<script type="module">
+import { ALL, ESSAYS, DISPATCHES, readMin } from './js/content.js';
+import { CONFIG } from './js/config.js';
+import { esc } from './js/site.js';
+const slug = new URLSearchParams(location.search).get('a');
+const e = ALL.find(x => x.slug === slug) || ESSAYS[0];
+const isEssay = ESSAYS.includes(e);
+const list = isEssay ? ESSAYS : DISPATCHES;
+document.title = e.title + ' · ' + CONFIG.name;
+document.querySelector('meta[name=description]').content = e.dek;
+document.querySelector('#crumb').textContent = isEssay ? 'Ideas' : 'Dispatches';
+document.querySelector('#crumb').href = isEssay ? 'content.html' : 'news.html';
+document.querySelector('#kicker').textContent = (e.kicker || e.kind) + (e.n && e.n !== '—' ? ' ' + e.n : '');
+document.querySelector('#title').textContent = e.title;
+document.querySelector('#dek').textContent = e.dek;
+document.querySelector('#meta').innerHTML = `<span>${esc(e.date)}</span><span>${readMin(e)} min read</span><span>The founding office</span>`;
+document.querySelector('#cover').src = e.cover;
+document.querySelector('#body').innerHTML = e.body;
+const n = list[(list.indexOf(e) + 1) % list.length];
+document.querySelector('#next').innerHTML = `<a class="next-art" href="article.html?a=${n.slug}"><div><div class="eyebrow">Next</div><h3>${esc(n.title)}</h3></div><span class="link-arrow">Read →</span></a>`;
+</script>
+</body>
+</html>

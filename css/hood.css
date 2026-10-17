@@ -1,0 +1,34 @@
+/* LYCEON · constructor de vecindario */
+.hood{display:grid;grid-template-columns:minmax(0,1fr) 380px;gap:28px;align-items:start;padding-bottom:80px}
+@media (max-width:1000px){.hood{grid-template-columns:1fr}}
+.hood-stage{padding:22px}
+.hs-top{display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+.hs-mark svg{height:24px;width:auto}
+.hs-tip{margin-top:10px}
+.hs-hint{color:var(--ink-2);margin:14px 0 10px}
+.hs-canvas{position:relative;height:min(64vh,620px);min-height:380px;border:1px solid var(--line);background:#fbfbf9;overflow:hidden;touch-action:none;cursor:grab}
+.hs-canvas:active{cursor:grabbing}
+.hs-canvas canvas{width:100%;height:100%;display:block}
+.hs-tools{position:absolute;left:0;right:0;bottom:0;display:flex;align-items:center;gap:14px;padding:10px 12px;border-top:1px solid var(--line);background:rgba(255,255,255,.92)}
+.hs-tools .sp{flex:1}
+.hs-tools button{font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:5px 10px;border:1px solid var(--line)}
+.hs-tools button:hover{border-color:var(--ink)}
+.hood-panel{position:sticky;top:calc(var(--hdr) + 16px)}
+.lots{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.lots button{font-family:var(--sans);font-size:13px;font-weight:300;padding:11px 12px;border:1px solid var(--line-2);text-align:left;background:#fff;display:flex;justify-content:space-between}
+.lots button[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.lots button small{font-family:var(--mono);font-size:10px;opacity:.7}
+.lots-foot{display:flex;justify-content:space-between;margin-top:10px;font-size:11px}
+.lots-foot button{font-size:11px;text-decoration:underline;text-underline-offset:3px}
+.lots-foot button:disabled{opacity:.35;text-decoration:none}
+.styles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.styles button{border:1px solid var(--line-2);background:#fff;padding:8px 8px 10px;text-align:center;position:relative;transition:border-color .2s}
+.styles button[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.styles button[aria-pressed="true"]::before{content:"✓";position:absolute;top:6px;left:8px;font-size:11px}
+.styles canvas{width:100%;height:92px;display:block}
+.styles b{display:block;font-family:var(--sans);font-weight:400;font-size:11px;letter-spacing:.16em;text-transform:uppercase;margin-top:6px}
+.styles small{display:block;font-family:var(--sans);font-weight:300;font-size:10.5px;color:var(--muted);margin-top:2px}
+details.field summary{cursor:pointer;font-size:12px;padding:6px 0}
+details.field input{font-family:var(--sans);font-weight:300;font-size:15px;padding:10px 12px;border:1px solid var(--line-2)}
+.saved{border:1px solid var(--ink);padding:16px;margin-top:14px}
+.saved .ctas{display:flex;gap:8px;flex-wrap:wrap}

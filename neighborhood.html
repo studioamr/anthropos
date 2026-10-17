@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Build your neighborhood · Lyceon</title>
+<meta name="description" content="Choose your house. Bring your people. Design a neighborhood in the first Lyceon city and invite your friends.">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/pages.css">
+<link rel="stylesheet" href="css/hood.css">
+</head>
+<body data-cta="none">
+<section class="page-top" style="padding-top:calc(var(--hdr) + 28px)">
+  <div class="wrap">
+    <a class="crumbs" href="city.html" style="text-decoration:none">← Back to the city</a>
+    <h1 class="h-lg mt-16">Build your neighborhood.</h1>
+    <p class="lede mt-8">Choose your house. Bring your people.</p>
+  </div>
+  <div class="wrap hood mt-24">
+    <div class="hood-stage card">
+      <div class="hs-top">
+        <div><span class="hs-mark" id="hsMark"></span><div class="eyebrow mt-8">Neighborhood concept</div></div>
+        <button class="btn sm" id="export" disabled>Export image</button>
+      </div>
+      <p class="caption hs-tip" id="tip">Choose and save your house to export the image.</p>
+      <p class="hs-hint mono">Click a house to choose it. Save your house, then invite your friends.</p>
+      <div class="hs-canvas" id="hsWrap"><canvas id="hood" aria-label="Isometric drawing of your neighborhood"></canvas>
+        <div class="hs-tools"><span class="mono" id="hoodTitle">Your neighborhood</span><span class="mono" id="hoodSet">The Center</span><span class="sp"></span><button data-z="in" aria-label="Zoom in">+</button><button data-z="out" aria-label="Zoom out">−</button><button data-z="reset">Reset view</button></div>
+      </div>
+      <p class="caption" id="count">4 houses. Who’s coming with you?</p>
+    </div>
+    <aside class="hood-panel">
+      <label class="field"><span>Your display name</span><input id="dname" maxlength="24" placeholder="Your first name or handle"></label>
+      <p class="caption" style="margin-top:-10px">Shown on your house and shared images.</p>
+      <div class="field mt-24"><span>Choose your house</span><div class="lots" id="lots"></div>
+        <div class="lots-foot"><button id="addLot" class="mono">+ Add a house</button><span class="mono" id="lotCount">4 of 8 houses</span></div></div>
+      <div class="field mt-24"><span>Your house style</span><div class="styles" id="styles"></div>
+        <p class="caption">Eight homes inspired by architectural traditions. Preview your choice, then save it.</p></div>
+      <label class="field mt-24"><span>Neighborhood name</span><input id="hname" maxlength="32" placeholder="e.g. Olive Row"></label>
+      <div class="field"><span>Setting</span><div class="chips" id="setting"><button type="button" class="chip" data-s="center">Center</button><button type="button" class="chip" data-s="beach">Beach</button><button type="button" class="chip" data-s="hills">Hills</button></div></div>
+      <details class="field"><summary class="mono">Add a group chat <span style="color:var(--muted)">Optional</span></summary><input id="chat" class="mt-8" placeholder="WhatsApp, Signal, or Telegram invite link" style="width:100%"></details>
+      <button class="btn" id="save" style="width:100%">Choose this house</button>
+      <div class="saved" id="saved" hidden>
+        <div class="eyebrow">Saved</div><p class="body mt-8" id="savedMsg"></p>
+        <div class="ctas mt-16"><button class="btn sm" id="share">Invite friends</button><a class="btn ghost sm" href="city.html#commit">Commit to move</a></div>
+      </div>
+    </aside>
+  </div>
+</section>
+<script type="module" src="js/site.js"></script>
+<script type="module" src="js/neighborhood.js"></script>
+</body>
+</html>

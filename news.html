@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<title>Dispatches · Lyceon</title>
+<meta name="description" content="Dispatches from the Lyceon founding office: announcements, letters, field notes, and the charter.">
+</head>
+<body>
+<section class="page-top"><div class="wrap">
+  <div class="crumbs"><a href="index.html">Home</a><span>/</span><span>Dispatches</span></div>
+  <h1 class="h-xl mt-16">Dispatches.</h1>
+  <p class="lede mt-16" style="max-width:640px">From the founding office: every announcement, letter, and field note, in order. When the press writes about us, it will be listed here too, with a link.</p>
+  <div id="years"></div>
+</div></section>
+<script type="module" src="js/site.js"></script>
+<script type="module">
+import { DISPATCHES, ESSAYS } from './js/content.js';
+import { esc } from './js/site.js';
+const all = [...DISPATCHES, ...ESSAYS.map(e => ({ ...e, kind: e.kicker, year: 2026 }))];
+const by = {}; all.forEach(d => (by[d.year] ||= []).push(d));
+document.querySelector('#years').innerHTML = Object.keys(by).sort((a,b)=>b-a).map(y => `<div class="press-year"><h2>${y}</h2><div class="press-list">${by[y].map(d => `<a href="article.html?a=${d.slug}"><span class="s">${esc(d.kind)}</span><span class="mono" style="color:var(--muted)">${esc(d.date)}</span><span class="t">${esc(d.title)}</span></a>`).join('')}</div></div>`).join('');
+</script>
+</body>
+</html>

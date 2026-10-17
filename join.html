@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Join Lyceon · Apply</title>
+<meta name="description" content="Apply to join Lyceon, the superintelligence republic. Citizen and Steel membership, and fellowships for artists and founders.">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/pages.css">
+</head>
+<body data-cta="none">
+<div class="join">
+  <div class="side"><img src="img/res-pool.jpg" alt="The main pool and colonnade, concept study">
+    <div class="cap"><div class="eyebrow" style="color:rgba(255,255,255,.8)">Apply to join</div><div class="h-lg mt-8">Meet me in<br>the Lyceum.</div></div></div>
+  <div class="main">
+    <div id="apply">
+      <div class="eyebrow">Application</div>
+      <h1 class="h-lg mt-16">Join <span data-name>Lyceon</span>.</h1>
+      <p class="body mt-16">We read every application. Members are admitted by vocation and character, never by origin. Membership opens with the founding vote.</p>
+      <form id="joinForm" class="mt-24" novalidate>
+        <div class="tierpick" role="radiogroup" aria-label="Membership">
+          <label><input type="radio" name="tier" value="Citizen" checked><div class="eyebrow">Citizen</div><div class="h-md mt-8">Online</div><p class="caption">App, campaigns, dispatches, and a vote on the charter.</p></label>
+          <label><input type="radio" name="tier" value="Steel"><div class="eyebrow">Steel</div><div class="h-md mt-8">Founding</div><p class="caption">Steel card, priority in Phase I, and embassy access.</p></label>
+          <label style="grid-column:1/-1" id="fellowship"><input type="radio" name="tier" value="Fellowship"><div class="eyebrow">Fellowship</div><p class="caption mt-8">For young artists, musicians, designers, writers, scholars, and founders who want to move to Panama. A place to live and space to work.</p></label>
+        </div>
+        <label class="field"><span>Full name</span><input name="name" autocomplete="name" required></label>
+        <label class="field"><span>Email</span><input name="email" type="email" autocomplete="email" required></label>
+        <label class="field"><span>City</span><input name="city" placeholder="Where you live now"></label>
+        <label class="field"><span>Your work</span><select name="vocation"><option value="">Choose one</option><option>Founder</option><option>Engineer or researcher</option><option>Artist or musician</option><option>Designer or architect</option><option>Writer or scholar</option><option>Athlete or coach</option><option>Investor</option><option>Other</option></select></label>
+        <label class="field"><span>A link to your work</span><input name="link" type="url" placeholder="Website, portfolio, GitHub, or LinkedIn"></label>
+        <label class="field"><span>What would you build in a new city?</span><textarea name="why" required></textarea></label>
+        <label class="field"><span>Who referred you (optional)</span><input name="ref"></label>
+        <label class="check"><input type="checkbox" name="ok" required> <span>I agree to the <a href="privacy.html">privacy notice</a>. I understand membership is not an investment and carries no financial return.</span></label>
+        <div class="form-err mono" id="err" role="alert"></div>
+        <button class="btn mt-16" type="submit">Submit application</button>
+      </form>
+      <div id="thanks" hidden><div class="eyebrow">Received</div><h2 class="h-md mt-8">Thank you.</h2><p class="body mt-16" id="thanksMsg"></p><div style="display:flex;gap:10px;flex-wrap:wrap" class="mt-24"><a class="btn sm" href="city.html#commit">Commit to move</a><a class="btn ghost sm" href="neighborhood.html">Build your neighborhood</a></div></div>
+    </div>
+    <hr class="rule mt-64" id="signin">
+    <div class="mt-40"><div class="eyebrow">Sign in</div><h2 class="h-md mt-8">The members’ app</h2>
+      <p class="body mt-16">The <span data-name>Lyceon</span> app opens to admitted members with the founding vote. If you applied, we will write to you with access. Questions: <a id="mail"></a></p></div>
+  </div>
+</div>
+<script type="module" src="js/site.js"></script>
+<script type="module">
+import { CONFIG } from './js/config.js';
+import { submit } from './js/forms.js';
+const $ = (s) => document.querySelector(s);
+$('#mail').href = 'mailto:' + CONFIG.email; $('#mail').textContent = CONFIG.email;
+if (location.hash === '#fellowship') { $('#fellowship input').checked = true; }
+$('#joinForm').onsubmit = async (e) => {
+  e.preventDefault(); const f = Object.fromEntries(new FormData(e.target));
+  let err = '';
+  if (!f.name?.trim()) err = 'Please tell us your name.';
+  else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email || '')) err = 'Please use a valid email.';
+  else if (!f.why?.trim()) err = 'Tell us, in a sentence, what you would build.';
+  else if (!f.ok) err = 'Please accept the privacy notice.';
+  $('#err').textContent = err; if (err) return;
+  const how = await submit('application', { ...f, at: new Date().toISOString() }, `Application · ${f.tier} · ${f.name}`);
+  $('#joinForm').hidden = true; $('#thanks').hidden = false;
+  $('#thanksMsg').textContent = how === 'mail' ? 'Your email app opened with your application. Send it and we will reply within two weeks.' : 'Your application is in. We will reply within two weeks.';
+};
+</script>
+</body>
+</html>

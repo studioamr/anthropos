@@ -57,8 +57,12 @@ export class Ink {
 }
 
 // ── Paisaje común: mar, playa, curvas de nivel (marching squares) y árboles ──
-export function landscape(ink, { coast, height, X = 900, Z0 = -380, Z1 = 820, step = 9, contour = 8, avoid = () => false, trees = 520, sea = 18 }) {
-  for (let k = 1; k <= sea; k++) {
+export function landscape(ink, { coast, height, X = 900, Z0 = -380, Z1 = 820, step = 9, contour = 8, avoid = () => false, trees = 520, sea = 18, parallel = false }) {
+  if (parallel) { // mar en líneas paralelas continuas que siguen la orilla, cada vez más separadas
+    let off = 3; for (let k = 0; k < 26; k++) { const p = []; for (let x = -X; x <= X; x += 8) p.push([x, 0, coast(x) - off]); ink.line(p, false, true); off += 2.2 + k * 0.55; }
+    for (let x = -X; x <= X; x += 9) ink.dot(x, 0.2, coast(x) + 30);
+  }
+  for (let k = 1; k <= (parallel ? 0 : sea); k++) {
     const pts = []; let on = true;
     for (let x = -X; x <= X; x += 6) {
       const z = coast(x) - k * 15 - 3 * Math.sin(x / 40 + k), gap = Math.sin(x / 31 + k * 1.7) + Math.sin(x / 11 + k) > -0.4;
@@ -69,7 +73,7 @@ export function landscape(ink, { coast, height, X = 900, Z0 = -380, Z1 = 820, st
   }
   const shore = []; for (let x = -X; x <= X; x += 4) shore.push([x, 0, coast(x)]); ink.line(shore);
   const dune = []; for (let x = -X; x <= X; x += 5) dune.push([x, 0, coast(x) + 52]); ink.line(dune, false, true);
-  for (let i = 0; i < 7000; i++) { const x = lerp(-X, X, rnd()), t = rnd() ** 1.7; ink.dot(x, 0, coast(x) + 2 + t * 48); }
+  if (!parallel) for (let i = 0; i < 7000; i++) { const x = lerp(-X, X, rnd()), t = rnd() ** 1.7; ink.dot(x, 0, coast(x) + 2 + t * 48); }
   // curvas de nivel con marching squares
   const nx = Math.ceil((2 * X) / step), nz = Math.ceil((Z1 - Z0) / step), H = new Float32Array((nx + 1) * (nz + 1));
   for (let j = 0; j <= nz; j++) for (let i = 0; i <= nx; i++) { const x = -X + i * step, z = Z0 + j * step; H[j * (nx + 1) + i] = z < coast(x) + 52 ? -1 : height(x, z); }
@@ -143,7 +147,7 @@ export function mountView(root, build, opts = {}) {
   let tz = null;
   function frame(name = view, instant = false) {
     view = name; const b = zones[name] || zones.all; const t = new THREE.Vector3((b[0] + b[3]) / 2, Math.min(30, (b[1] + b[4]) / 2), (b[2] + b[5]) / 2);
-    const off = plan ? new THREE.Vector3(0.0001, 2600, -0.04) : new THREE.Vector3(...(opts.angle || [900, 1250, -1650]));
+    const off = plan ? new THREE.Vector3(0.0001, 2600, -0.04) : new THREE.Vector3(...(opts.angle || [-1000, 1320, -1770]));
     const from = { p: cam.position.clone(), t: ctl.target.clone(), z: cam.zoom };
     ctl.target.copy(t); cam.position.copy(t).add(off); cam.lookAt(t); cam.updateMatrixWorld();
     const xs = [], ys = [];

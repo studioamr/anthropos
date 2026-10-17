@@ -34,19 +34,19 @@ const zonesFor = (c, beachX = 0) => ({
 // ── ANTHROPOS: el programa del mapa de Praxis (bahía, centro denso, rotonda, eje, 4 bulevares,
 //    5 parques, playa en hileras, 4 aldeas en 4 colinas, puerta en el eje) con trazo y proporciones propios.
 const bay = (x) => -40 - 92 * (x / 560) ** 2 - 7 * Math.sin(x * 0.0105);
-const HUB = [0, 200], RING = 98;
+const HUB = [0, 220], RING = 95;
 const PARKS = [
-  { name: 'Botanical garden', x: -132, z: 150, rx: 54, rz: 60, kind: 'botanic' },
-  { name: 'Great lawn', x: 140, z: 300, rx: 70, rz: 44, kind: 'lawn' },
+  { name: 'Botanical garden', x: -118, z: 150, rx: 50, rz: 62, kind: 'botanic' },
+  { name: 'Great lawn', x: 130, z: 275, rx: 66, rz: 44, kind: 'lawn' },
   { name: 'Seafront garden', x: 0, z: bay(0) + 86, rx: 50, rz: 40, kind: 'parterre' },
-  { name: 'West forest', x: -96, z: 530, rx: 48, rz: 70, kind: 'forest' },
-  { name: 'East reserve', x: 372, z: 600, rx: 56, rz: 72, kind: 'forest' },
+  { name: 'West forest', x: -88, z: 525, rx: 44, rz: 68, kind: 'forest' },
+  { name: 'East reserve', x: 352, z: 610, rx: 53, rz: 70, kind: 'forest' },
 ];
-const BLVD = [[HUB, [-350, bay(-350) + 70]], [HUB, [350, bay(350) + 70]], [HUB, [-300, 420]], [HUB, [300, 420]]];
-const VILLAGES = [[-185, 540], [185, 556], [-455, 640], [445, 668]];
+const BLVD = [[HUB, [-325, bay(-325) + 34]], [HUB, [325, bay(325) + 34]], [HUB, [-270, 400]], [HUB, [270, 400]]];
+const VILLAGES = [[-190, 470], [195, 482], [-445, 590], [440, 612]];
 const terrain = (x, z) => {
-  const t = smooth(370, 460, z), g = (cx, cz, r, h) => h * Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / (r * r));
-  return t * (14 + g(-200, 560, 100, 62) + g(205, 580, 104, 56) + g(-450, 650, 92, 44) + g(440, 690, 100, 36)) + 0.6;
+  const t = smooth(345, 425, z), g = (cx, cz, r, h) => h * Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / (r * r));
+  return t * (14 + g(-190, 478, 98, 64) + g(195, 492, 102, 58) + g(-445, 600, 92, 44) + g(440, 622, 100, 38)) + 0.6;
 };
 const segD = (x, z, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz))); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz); };
 const inPark = (x, z, m = 0) => PARKS.some((p) => (x - p.x) ** 2 / (p.rx + m) ** 2 + (z - p.z) ** 2 / (p.rz + m) ** 2 < 1);
@@ -76,12 +76,12 @@ function parkDraw(ink, p) {
   if (p.kind === 'forest') { const pts = []; for (let i = 0; i <= 20; i++) { const t = i / 20, z = p.z - p.rz * 0.9 + t * p.rz * 1.8, x = p.x + Math.sin(t * 6) * p.rx * 0.35; pts.push([x, terrain(x, z) + 0.5, z]); } ink.line(pts, false, true); }
 }
 const ANTHROPOS = {
-  id: 'anthropos', name: 'Anthropos', kind: 'Bay city', tagline: 'A dense center around a rotunda, a beach of low houses, and four hill villages.',
-  desc: 'The full plan: a city on a bay. At the center, an odeon with a colonnade and a dome stands on a ring road, and from it run a main axis from the hills to the sea and four diagonal boulevards. Courtyard blocks of four to six floors fill the flat ground. Low houses run along the beach in rows. Four villages sit on four hills, joined by a monumental gateway on the axis. Five parks: a botanical garden, a great lawn, a seafront garden, a forest, and a reserve.',
+  id: 'anthropos', name: 'Anthropos', kind: 'Bay city', tagline: 'A dense center around a rotunda, a beach of low houses, and four hills of homes.',
+  desc: 'The full plan: a city on a bay. At the center, an odeon with a colonnade and a dome stands on a ring road, and from it run a main axis from the hills to the sea and four diagonal boulevards. Courtyard blocks of four to six floors fill the flat ground. Low houses run along the beach in rows. Behind it, houses climb four hills like domes, reached through a monumental gateway on the axis. Five parks: a botanical garden, a great lawn, a seafront garden, a forest, and a reserve.',
   pros: ['Three ways of living in one city: center, beach, and hills', 'Five large parks and an axis that orders everything'], cons: ['The most ambitious; it is built in three phases'],
   build() {
     reseed(97); const ink = new Ink();
-    landscape(ink, { coast: bay, height: terrain, avoid: (x, z) => z < 380 && Math.abs(x) < 520 || inPark(x, z, 6) || VILLAGES.some((v) => D(x, z, ...v) < 120), trees: 380 });
+    landscape(ink, { coast: bay, height: terrain, avoid: (x, z) => z < 370 && Math.abs(x) < 470 || inPark(x, z, 6) || VILLAGES.some((v, i) => D(x, z, ...v) < (i > 1 ? 95 : 125)), trees: 1700, X: 760, Z1: 760, parallel: true });
     const it = [];
     // vías: eje, anillo, bulevares
     it.push({ d: 0, f: () => {
@@ -90,34 +90,38 @@ const ANTHROPOS = {
       BLVD.forEach(([a, b]) => { const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), nx = -dz / L, nz = dx / L; for (const o of [-7, 7]) { const p = []; for (let i = 0; i <= 20; i++) { const t = 0.2 + 0.8 * i / 20, x = a[0] + dx * t + nx * o, z = a[1] + dz * t + nz * o; p.push([x, terrain(x, z) + 0.2, z]); } ink.line(p); } });
     } });
     it.push({ d: 1, f: () => odeon(ink, HUB[0], 0.3, HUB[1]) });
-    // centro: manzanas de 24 m con casas en hilera alrededor de un patio
-    for (let gx = -19; gx <= 19; gx++) for (let gz = -7; gz <= 8; gz++) {
-      const x = gx * 24, z = HUB[1] + gz * 24; if (z < bay(x) + 150 || z > 380) continue;
-      const pts = [[0, -8.5, 0], [8.5, 0, Math.PI / 2], [0, 8.5, Math.PI], [-8.5, 0, -Math.PI / 2]];
-      if (pts.every(([dx, dz]) => reserved(x + dx, z + dz, 3))) continue;
-      const fl = 4 + ((rnd() * 3) | 0);
-      it.push({ d: D(x * 0.9, z, ...HUB), f: () => { for (const [dx, dz, r] of pts) { if (reserved(x + dx, z + dz, 3)) continue; ink.fbox(x + dx, 0.3, z + dz, 15, fl * 3.1, 5, r, 5); } } });
+    // Casas pequeñas en tres zonas, ordenadas por cercanía: así forman las manchas (trébol, franja, cúpulas).
+    const center = [], beach = [], hill = [];
+    for (let gx = -23; gx <= 23; gx++) for (let gz = -5; gz <= 8; gz++) {
+      const bx = gx * 19, bz = HUB[1] + gz * 19; if (bz > HUB[1] + 155 || bz < bay(bx) + 132) continue;
+      for (let side = 0; side < 4; side++) for (let k = -2; k <= 2; k++) {
+        const a = side * Math.PI / 2, dx = k * 2.2, dz = 6.6, x = bx + dx * Math.cos(a) + dz * Math.sin(a), z = bz - dx * Math.sin(a) + dz * Math.cos(a);
+        if (reserved(x, z, 2)) continue;
+        center.push({ x, z, r: a, rank: (bx * 0.84) ** 2 + (bz - HUB[1]) ** 2 + k * 0.01, fl: 4 + ((rnd() * 3) | 0) });
+      }
     }
-    // playa: hileras de casas bajas siguiendo la bahía
-    for (let gx = -78; gx <= 78; gx++) for (let row = 0; row < 7; row++) {
-      const x = gx * 8.6 + (row % 2) * 4.3, z = bay(x) + 66 + row * 11; if (reserved(x, z, 4) || z > bay(x) + 150) continue;
-      const r = Math.atan((bay(x + 1) - bay(x - 1)) / 2), fl = rnd() > 0.8 ? 2 : 1;
-      it.push({ d: 520 + Math.abs(x) * 0.5 + row * 3, f: () => ink.fbox(x, 0.3, z, 5.4, fl * 3.2, 6.5, r) });
+    for (let gx = -92; gx <= 92; gx++) for (let row = 0; row < 11; row++) {
+      const x = gx * 7.6, z = bay(x) + 44 + row * 8.2; if (reserved(x, z, 3.4)) continue;
+      beach.push({ x, z, r: Math.atan((bay(x + 1) - bay(x - 1)) / 2), w: 3.1 + rnd() * 0.8, fl: rnd() > 0.82 ? 2 : 1, rank: (x * 0.7) ** 2 + (z - (bay(x) + 85)) ** 2 });
     }
-    // colinas: cuatro aldeas, casas mirando a su centro y con cimiento
-    for (let gx = -52; gx <= 52; gx++) for (let row = 0; row < 18; row++) {
-      const x = gx * 12 + Math.sin(row * 0.6) * 2.5, z = 420 + row * 14 + Math.sin(gx * 0.4) * 2.5;
-      if (reserved(x, z, 5) || Math.abs(x) < 42) continue;
-      const v = VILLAGES.reduce((b, c) => (D(x, z, ...c) < D(x, z, ...b) ? c : b)); if (D(x, z, ...v) > 105) continue;
-      const rot = Math.atan2(v[0] - x, v[1] - z), y = terrain(x, z), fl = rnd() > 0.8 ? 2 : 1;
-      it.push({ d: 900 + D(x, z, ...v) + VILLAGES.indexOf(v) * 40, f: () => { const lo = Math.min(terrain(x - 4, z - 4), terrain(x + 4, z + 4)); ink.fbox(x, lo, z, 6, y - lo + 0.8, 7.5, rot); ink.fbox(x, y + 0.8, z, 5.2, fl * 3.1, 6.4, rot); } });
+    for (let gx = -58; gx <= 58; gx++) for (let row = 0; row < 23; row++) {
+      const x = gx * 11 + Math.sin(row * 0.6) * 2, z = 431 + row * 12 + Math.sin(gx * 0.4) * 2;
+      if (reserved(x, z, 4) || Math.abs(x) < 38) continue;
+      const vi = VILLAGES.reduce((bi, c, i) => (D(x, z, ...c) < D(x, z, ...VILLAGES[bi]) ? i : bi), 0), v = VILLAGES[vi];
+      hill.push({ x, z, r: Math.atan2(v[0] - x, v[1] - z), w: 3.6 + rnd() * 1.1, fl: rnd() > 0.8 ? 2 : 1, rank: D(x, z, ...v) ** 2 + (vi > 1 ? 25000 : 0) });
     }
-    VILLAGES.forEach((v) => it.push({ d: 890, f: () => { const y = terrain(...v); ink.ring(v[0], y + 0.3, v[1], 14, false); ink.cyl(v[0], y, v[1], 4, 16, 12); ink.cone(v[0], y + 16, v[1], 5, 6, 12); } }));
-    it.push({ d: 880, f: () => propylon(ink, 0, terrain(0, 440), 440) });
+    const pick = (arr, n) => arr.sort((p, q) => p.rank - q.rank).slice(0, n);
+    pick(center, 3300).forEach((p, i) => it.push({ d: 2 + i * 0.1, f: () => ink.fbox(p.x, 0.3, p.z, 1.9 * 1.15, p.fl * 1.15 * 1.15, 2.6 * 1.15, p.r) }));
+    pick(beach, 1250).forEach((p, i) => it.push({ d: 340 + i * 0.1, f: () => ink.fbox(p.x, 0.3, p.z, p.w * 1.15, p.fl * 1.7, 3.9 * 1.15, p.r) }));
+    pick(hill, 1100).forEach((p, i) => it.push({ d: 470 + i * 0.1, f: () => {
+      const hs = [-1, 1].flatMap((a) => [-1, 1].map((b) => terrain(p.x + a * 2.6, p.z + b * 2.6))), y = Math.max(...hs) + 0.8, lo = Math.min(...hs);
+      ink.fbox(p.x, lo, p.z, p.w * 1.15, y - lo + 0.4, 4.6, p.r); ink.fbox(p.x, y, p.z, p.w * 1.15, p.fl * 1.7, 4.7, p.r);
+    } }));
+    it.push({ d: 460, f: () => propylon(ink, 0, terrain(0, 392), 392) });
     PARKS.forEach((p) => it.push({ d: D(p.x, p.z, ...HUB) + 60, f: () => parkDraw(ink, p) }));
     it.push({ d: 600, f: () => { const z0 = bay(0); ink.box(0, 0, z0 - 60, 10, 1.3, 120); ink.box(0, 0, z0 - 124, 40, 1.3, 10); } });
     grow(ink, it);
-    return { ink, zones: { all: [-620, 0, -150, 620, 90, 760], center: [-230, 0, 60, 230, 30, 360], beach: [-460, 0, bay(0) - 60, 460, 15, bay(0) + 160], hills: [-560, 0, 400, 560, 100, 760] } };
+    return { ink, zones: { all: [-600, 0, -110, 600, 70, 720], center: [-210, 0, 90, 210, 25, 380], beach: [-470, 0, bay(0) - 50, 470, 12, bay(0) + 140], hills: [-560, 0, 400, 560, 80, 720] } };
   },
 };
 

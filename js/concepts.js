@@ -1,5 +1,6 @@
 // ANTHROPOS · seis conceptos de ciudad sobre la misma costa. Cada uno devuelve { ink, zones } para el motor.
 import { Ink, landscape, rnd, reseed, lerp, smooth } from './cityengine.js';
+import { buildPolis } from './polis.js';
 
 const coast = (x) => -110 + 38 * Math.sin(x / 250) + 14 * Math.sin(x / 83 + 1.3);
 const hills = (x, z, flat = () => 0) => {
@@ -237,66 +238,9 @@ function plaza(ink, x, y, z, k) {
 }
 const POLIS = {
   id: 'metropolis', name: 'Anthropos Polis', kind: 'Metropolis', tagline: 'A full city for more than one hundred thousand people: seven districts, a river and a great park.',
-  desc: 'The same ink language at the scale of a real city. A river comes down from the hills to the sea. A great park with a lake sits at the heart, and seven districts each have their own plaza, around a high downtown with a domed capitol. Radial boulevards and a ring order everything. Low houses line the beach, and the hills hold a university and villages. A stadium, a port and a lighthouse complete it: some fifteen thousand buildings.',
+  desc: 'The same ink language at the scale of a real city: every district has its own street grid, and every block is a ring of buildings around a garden courtyard. A river comes down from the hills to the sea. A great park with a lake sits at the heart, and seven districts each have their own plaza, around a high downtown with a domed capitol. Radial boulevards and a ring order everything. Low houses line the beach, and the hills hold a university and villages. A stadium, a port and a lighthouse complete it: some fifteen thousand buildings.',
   pros: ['Room for more than 100,000 people', 'Each district is a village with its own plaza'], cons: ['Built over decades, district by district'],
-  build() {
-    reseed(211); const ink = new Ink();
-    landscape(ink, { coast: bayP, height: terrainP, X: 1250, Z0: -420, Z1: 1050, step: 12, contour: 9, trees: 1700, parallel: true,
-      avoid: (x, z) => DISTRICTS.some((d, i) => D(x, z, ...d) < DRAD[i] * 0.95) || z < bayP(x) + 80 || inParkP(x, z, 4) || nearRiver(x, z, 4) || D(x, z, 640, 420) < 75 || D(x, z, 120, 820) < 110 });
-    const it = [];
-    // río con orillas, agua rayada y puentes
-    it.push({ d: 0, f: () => {
-      for (const o of [-20, 20]) { const p = []; for (let z = bayP(river(0)) - 6; z <= 1040; z += 6) p.push([river(z) + o, terrainP(river(z) + o, z) + 0.3, z]); ink.line(p); }
-      for (let z = bayP(river(0)) + 4; z <= 1040; z += 7) { const x = river(z); ink.line([[x - 17, terrainP(x, z) + 0.15, z], [x + 17, terrainP(x, z) + 0.15, z]], false, true); }
-      for (const z of [90, 210, 330, 470, 610]) { const x = river(z); ink.box(x, 0.3, z, 50, 1.6, 9); }
-    } });
-    // bulevares radiales y el anillo
-    it.push({ d: 1, f: () => {
-      RADIALS.forEach(([a, b]) => { const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), nx = -dz / L, nz = dx / L; for (const o of [-8, 8]) ink.line([[a[0] + nx * o + dx * 0.08, 0.25, a[1] + nz * o + dz * 0.08], [b[0] + nx * o - dx * 0.06, 0.25, b[1] + nz * o - dz * 0.06]]); });
-      for (const r of [163, 177]) { const p = []; for (let i = 0; i <= 160; i++) { const t = i / 160 * 6.283; p.push([DOWN[0] + Math.cos(t) * r * 1.35, 0.25, DOWN[1] + Math.sin(t) * r]); } ink.line(p); }
-      for (const o of [-10, 10]) ink.line([[o, 0.25, DOWN[1] + 40], [o, 0.25, PARK.z - PARK.rz]]);
-      const pr = []; for (let x = -1080; x <= 1080; x += 8) pr.push([x, 0.3, bayP(x) + 58]); ink.line(pr);
-    } });
-    it.push({ d: 2, f: () => capitol(ink, DOWN[0], 0.3, DOWN[1]) });
-    DISTRICTS.slice(1).forEach((d, k) => it.push({ d: D(...d, ...DOWN), f: () => plaza(ink, d[0], terrainP(...d), d[1], k) }));
-    // el tejido: manzanas con la cuadrícula girada hacia la plaza de su barrio
-    const step = 15, P = [];
-    for (let x = -1060; x <= 1060; x += step) for (let z = -40; z <= 700; z += step) {
-      const di = DISTRICTS.reduce((b, c, i) => (D(x, z, ...c) < D(x, z, ...DISTRICTS[b]) ? i : b), 0), d = DISTRICTS[di];
-      const ang = Math.atan2(d[1] - z, d[0] - x), q = Math.round(ang / (Math.PI / 2)) * (Math.PI / 2), rot = ang - q;
-      const jx = x + Math.sin(rot) * 3, jz = z + Math.cos(rot) * 3;
-      if (resP(jx, jz, 3)) continue;
-      const ra = Math.atan2(jz - d[1], jx - d[0]), lim = DRAD[di] * (1 + 0.13 * Math.sin(ra * 5 + di) + 0.07 * Math.sin(ra * 11 + di * 2));
-      if (D(jx, jz, ...d) > lim) continue;
-      const second = DISTRICTS.reduce((b, c, i) => (i !== di && D(jx, jz, ...c) < b ? D(jx, jz, ...c) : b), 1e9);
-      if (second - D(jx, jz, ...d) < 26 && di !== 0) continue;               // franja verde entre barrios
-      const dd = D(jx, jz, ...DOWN), downtown = Math.max(0, 1 - Math.hypot((jx - DOWN[0]) / 1.35, jz - DOWN[1]) / 230);
-      const fl = Math.round(2 + downtown * downtown * 14 + (di === 0 ? 2 : 0) + R2() * 2);
-      P.push({ x: jx, z: jz, r: rot + q, fl, rank: dd + R2() * 30 });
-    }
-    function R2() { return rnd(); }
-    P.sort((a, b) => a.rank - b.rank).forEach((p, i) => it.push({ d: 3 + i * 0.05, f: () => { const w = p.fl > 8 ? 9 : 10.5; ink.fbox(p.x, terrainP(p.x, p.z), p.z, w, p.fl * 3, p.fl > 8 ? 9 : 8, p.r, p.fl > 8 ? 0 : 3); } }));
-    // playa: casas bajas
-    for (let gx = -150; gx <= 150; gx++) for (let row = 0; row < 4; row++) {
-      const x = gx * 7.2 + (row % 2) * 3.6, z = bayP(x) + 22 + row * 9; if (nearRiver(x, z, 2)) continue;
-      it.push({ d: 600 + Math.abs(x) * 0.2, f: () => ink.fbox(x, 0.3, z, 4.6, 3.4, 5.6, Math.atan((bayP(x + 1) - bayP(x - 1)) / 2)) });
-    }
-    // estadio, universidad, aldeas en los cerros, puerto y faro
-    it.push({ d: 500, f: () => { const sx = 640, sz = 420; for (let k = 0; k < 10; k++) { const p = []; for (let i = 0; i < 72; i++) { const t = i / 72 * 6.283; p.push([sx + (52 + k * 3.2) * Math.cos(t), k * 1.6, sz + (32 + k * 3.2) * Math.sin(t)]); } ink.line(p, true); } ink.ring(sx, 0.4, sz, 26, true); } });
-    it.push({ d: 760, f: () => { const ux = 120, uz = 820, y = terrainP(ux, uz); ink.box(ux, y, uz, 140, 2, 70); ink.cyl(ux, y + 2, uz, 22, 10, 40); ink.dome(ux, y + 12, uz, 22, 20); for (const sx of [-1, 1]) { ink.fbox(ux + sx * 58, y + 2, uz, 22, 14, 60, 0, 6); ink.fbox(ux + sx * 30, y + 2, uz + 48, 40, 10, 16, 0, 5); } } });
-    for (let i = 0; i < 900; i++) { const vx = [-520, 700, -950][i % 3], vz = [860, 860, 800][i % 3], t = rnd() * 6.283, r = Math.sqrt(rnd()) * 120, x = vx + Math.cos(t) * r, z = vz + Math.sin(t) * r * 0.7;
-      if (nearRiver(x, z, 6)) continue; const y = terrainP(x, z); it.push({ d: 800 + r, f: () => ink.fbox(x, y - 1, z, 5, 4.6, 6, Math.atan2(vx - x, vz - z)) }); }
-    it.push({ d: 650, f: () => { const z0 = bayP(380); for (let i = 0; i < 4; i++) { const x = 300 + i * 50; ink.box(x, 0, z0 - 55, 8, 1.4, 110); } ink.box(380, 0, z0 - 118, 220, 1.6, 10); const lx = -980, lz = bayP(-980) - 10; ink.cyl(lx, 0, lz, 6, 34, 16); ink.cone(lx, 34, lz, 7, 9, 16); } });
-    // el gran parque: contorno, lago, sendas y árboles
-    it.push({ d: 240, f: () => {
-      const o = []; for (let i = 0; i < 120; i++) { const t = i / 120 * 6.283; o.push([PARK.x + PARK.rx * Math.cos(t), 0.3, PARK.z + PARK.rz * Math.sin(t)]); } ink.line(o, true);
-      const l = []; for (let i = 0; i < 80; i++) { const t = i / 80 * 6.283; l.push([PARK.x + 40 + 70 * Math.cos(t) * (1 + 0.15 * Math.sin(3 * t)), 0.2, PARK.z + 34 * Math.sin(t)]); } ink.line(l, true); for (let k = 1; k < 6; k++) ink.line(l.map(([x, y, z]) => [PARK.x + 40 + (x - PARK.x - 40) * (1 - k * 0.15), y, PARK.z + (z - PARK.z) * (1 - k * 0.15)]), true, true);
-      for (let i = 0; i < 260; i++) { const t = rnd() * 6.283, r = Math.sqrt(rnd()), x = PARK.x + PARK.rx * 0.95 * r * Math.cos(t), z = PARK.z + PARK.rz * 0.95 * r * Math.sin(t); if ((x - PARK.x - 40) ** 2 / 80 ** 2 + (z - PARK.z) ** 2 / 42 ** 2 < 1) continue; ink.tree(x, 0.3, z, 0.9 + rnd() * 0.5, rnd() < 0.25 ? 1 : 0); }
-      const pth = []; for (let i = 0; i <= 40; i++) { const t = i / 40, x = PARK.x - PARK.rx + t * PARK.rx * 2, z = PARK.z + Math.sin(t * 6) * 40; pth.push([x, 0.35, z]); } ink.line(pth, false, true);
-    } });
-    grow(ink, it);
-    return { ink, zones: { all: [-1120, 0, -200, 1120, 90, 1000], center: [-300, 0, 60, 300, 60, 440], beach: [-800, 0, -260, 800, 15, 60], hills: [-1000, 0, 700, 1000, 120, 1050] } };
-  },
+  build: buildPolis,
 };
 
 export const CONCEPTS = [

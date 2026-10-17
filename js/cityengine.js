@@ -42,9 +42,18 @@ export class Ink {
     this.ring(x, y, z, r, false);
     for (let k = 0; k < ribs; k++) { const t = (k / ribs) * Math.PI * 2, pts = []; for (let i = 0; i <= 10; i++) { const a = (i / 10) * Math.PI / 2; pts.push([x + Math.cos(t) * r * Math.cos(a), y + r * Math.sin(a), z + Math.sin(t) * r * Math.cos(a)]); } this.line(pts, false, true); }
   }
+  // árbol rápido: copa de 8 caras (o pino de 4) empujada directo a los buffers, sin EdgesGeometry
   tree(x, y, z, s = 1, kind = 0) {
-    if (kind) this.cone(x, y, z, 2.2 * s, 11 * s, 7);
-    else { this.line([[x, y, z], [x, y + 3 * s, z]]); this.solid(new THREE.IcosahedronGeometry(3.6 * s, 0), x, y + 5.5 * s, z, rnd() * 3, 20); }
+    const tri = (A, B, C, sh) => { this.faces.push(...A, ...B, ...C); this.colors.push(sh, sh, sh * 0.996, sh, sh, sh * 0.996, sh, sh, sh * 0.996); };
+    if (kind) {
+      const r = 2.3 * s, h = 11 * s, top = [x, y + h, z], b = [[x - r, y, z - r], [x + r, y, z - r], [x + r, y, z + r], [x - r, y, z + r]];
+      for (let i = 0; i < 4; i++) { const p = b[i], q = b[(i + 1) % 4]; tri(p, q, top, 0.93 + 0.02 * i); this.edges.push(...p, ...top); }
+      for (let i = 0; i < 4; i++) this.edges.push(...b[i], ...b[(i + 1) % 4]);
+      return;
+    }
+    const r = 3.6 * s, cy = y + 5.5 * s, T = [x, cy + r, z], B = [x, cy - r * 0.8, z], E = [[x + r, cy, z], [x, cy, z + r], [x - r, cy, z], [x, cy, z - r]];
+    this.edges.push(x, y, z, x, cy - r * 0.8, z);
+    for (let i = 0; i < 4; i++) { const p = E[i], q = E[(i + 1) % 4]; tri(p, q, T, 0.985); tri(q, p, B, 0.93); this.edges.push(...p, ...q, ...p, ...T); }
   }
   line(pts, close = false, detail = false) {
     const t = detail ? this.details : this.edges;
@@ -102,7 +111,7 @@ export function landscape(ink, { coast, height, X = 900, Z0 = -380, Z1 = 820, st
 export function mountView(root, build, opts = {}) {
   const cv = root.querySelector('canvas');
   const renderer = new THREE.WebGLRenderer({ canvas: cv, antialias: true, powerPreference: 'high-performance' });
-  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, 1.5));
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, opts.maxDpr || 1.5));
   const dark = opts.theme === 'dark';
   const scene = new THREE.Scene(); scene.background = new THREE.Color(dark ? 0x0e0e0d : PAPER);
   const cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0.1, 12000);

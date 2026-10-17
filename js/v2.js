@@ -23,12 +23,9 @@ addEventListener('pointermove', (e) => { cur.style.transform = `translate(${e.cl
 addEventListener('pointerover', (e) => cur.classList.toggle('big', !!e.target.closest('a,button,figure,.steel,.strip')));
 
 // ── aparición y paralaje ──
-$$('.blk-h, .row-h, .news, .counters, .map, .campaign, .wide, .mason, .strip, .duo, .life, .from, .mem, .split > *, .ideas, .statement > *').forEach((el) => el.classList.add('rv'));
+$$('.blk-h, .row-h, .news, .counters, .map, .campaign, .wide, .mason, .strip, .duo, .life, .from, .mem, .split > *, .ideas, .statement > *, .steps').forEach((el) => el.classList.add('rv'));
 const io = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px' });
 $$('.rv').forEach((el) => io.observe(el));
-const par = $$('.parallax img');
-const parS = () => par.forEach((im) => { const r = im.parentElement.getBoundingClientRect(); if (r.bottom < 0 || r.top > innerHeight) return; const p = (r.top + r.height / 2 - innerHeight / 2) / innerHeight; im.style.transform = `translateY(${p * -7}%)`; });
-if (!reduce) addEventListener('scroll', parS, { passive: true });
 const once = (el, fn, m = '250px') => { const o = new IntersectionObserver(([e]) => { if (e.isIntersecting) { o.disconnect(); fn(); } }, { rootMargin: m }); o.observe(el); };
 const countUp = (el, to, f, dur = 1800) => { if (reduce) return (el.textContent = f(to)); const t0 = performance.now(); const tk = (t) => { const p = Math.min(1, (t - t0) / dur); el.textContent = f(to * (1 - Math.pow(1 - p, 4))); if (p < 1) requestAnimationFrame(tk); }; requestAnimationFrame(tk); };
 
@@ -61,16 +58,10 @@ const watch = (el, m = '-12%') => { const o = new IntersectionObserver(([e]) => 
 const heroEl = $('.hero'); $$('.hero h1 .ln').forEach((ln, k) => splitChars(ln, 0.2 + k * 0.45));
 requestAnimationFrame(() => setTimeout(() => heroEl.classList.add('go'), 60));
 // títulos de sección palabra por palabra; párrafos con desenfoque; etiquetas tipo máquina
-$$('.blk-h h2, .h2, .h2b, .ch h3, .ch .h, .finale h2, .campaign h3').forEach((h) => { splitWords(h); watch(h); });
-$$('.blk .body, .ch p, .feats, .credit').forEach((p) => { p.classList.add('fade'); watch(p); });
-$$('.blk .mono.acc, .ch .mono.acc, .row-h .mono').forEach((m) => { typeIn(m); watch(m); });
-$$('.nc, .feats li, .row-h').forEach((l) => { l.classList.add('line-in'); watch(l); });
-// recorrido: imágenes que cambian con cada capítulo
-const stackImgs = $$('#stack img');
-const NAMES = ['Superintelligence for collective action', 'Aggregate preferences', 'Create proposal', 'Execute'];
-const chIO = new IntersectionObserver((es) => es.forEach((e) => { if (e.isIntersecting) { const s = +e.target.dataset.state; stackImgs.forEach((im, i) => im.classList.toggle('on', i === s)); $('#hudName').textContent = NAMES[s]; } }), { threshold: 0.55 });
-$$('.ch').forEach((c) => chIO.observe(c));
-
+$$('.blk-h h2, .h2, .h2b, .steps h3, .finale h2, .campaign h3').forEach((h) => { splitWords(h); watch(h); });
+$$('.blk .body, .feats, .credit').forEach((p) => { p.classList.add('fade'); watch(p); });
+$$('.blk-h .mono.acc, .mem-r .mono.acc, .split .mono.acc, .row-h .mono').forEach((m) => { typeIn(m); watch(m); });
+$$('.nc, .feats li, .row-h, .steps article').forEach((l) => { l.classList.add('line-in'); watch(l); });
 // ── declaración cinética ──
 const kin = $('#kinetic');
 kin.innerHTML = kin.innerHTML.replace(/(<em>[^<]*<\/em>|[^\s<]+)/g, (w) => `<span class="w">${w}</span>`);

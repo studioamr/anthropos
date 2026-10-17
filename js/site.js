@@ -26,7 +26,6 @@ const NAV = [
   ['index.html#membership', 'Membership', 'VII'],
   ['index.html#development', 'Development', 'VIII'],
   ['index.html#governments', 'Governments', 'IX'],
-  ['capital.html', 'Capital · The City Fund', '$'],
   ['news.html', 'Dispatches', 'X'],
   ['content.html', 'Ideas', 'XI'],
 ];

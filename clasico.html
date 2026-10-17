@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Anthropos Cities · The Superintelligence Republic</title>
+<meta name="description" content="Anthropos is a republic that begins online, gathers people around a shared way of life, and uses superintelligence to found a new city. Apply to join.">
+<meta property="og:title" content="Anthropos Cities">
+<meta property="og:description" content="The Superintelligence Republic. Apply to join.">
+<meta property="og:image" content="img/og.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/home.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body data-hdr="dark">
+
+<!-- I · HERO -->
+<section class="hero" id="home">
+  <div class="hero-media"><img src="img/hero.jpg" alt="Hills of dry tropical forest falling to a long Pacific beach at dawn"></div>
+  <canvas class="hero-haze" id="haze" aria-hidden="true"></canvas>
+  <div class="hero-in">
+    <h1 class="h-xl" id="hero-title">The Superintelligence<br class="hide-sm"> Republic.</h1>
+    <p class="hero-sub">Founding new cultural, economic, and civic institutions for a civilization that will no longer have to work to live.</p>
+    <div class="hero-ctas"><a class="btn light" href="join.html">Join <span data-name>Anthropos</span></a><a class="link-arrow" href="panama.html">Our first city in <span data-country>Panama</span> <span aria-hidden="true">→</span></a></div>
+  </div>
+  <a class="hero-scroll" href="#republic" aria-label="Scroll"><span></span></a>
+</section>
+
+<!-- II · LA REPÚBLICA -->
+<section class="sec flush" id="republic">
+  <div class="wrap split">
+    <div class="l rv">
+      <div class="eyebrow">Superintelligence Republic</div>
+      <canvas class="flag" id="flag" width="560" height="380" aria-label="The Anthropos flag waving"></canvas>
+    </div>
+    <div class="r rv">
+      <p class="lede">The internet gave our generation its own media.<br>Superintelligence will give it its own institutions.</p>
+      <p class="body mt-24">A republic that begins online, gathers people around a shared way of life, and uses superintelligence to coordinate the founding of a new city in the physical world.</p>
+      <ol class="pillars mt-40">
+        <li><span class="mono">01</span><div><b>Online first.</b> A citizenry before a territory: members, a charter, an app, and a treasury of intelligence.</div></li>
+        <li><span class="mono">02</span><div><b>One culture.</b> We gather by vocation and character: builders, artists, scholars, and athletes.</div></li>
+        <li><span class="mono">03</span><div><b>Then a city.</b> Shared demand, made legible by superintelligence, becomes land, financing, and stone.</div></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- III · DESPACHOS -->
+<section class="sec" id="news">
+  <div class="wrap">
+    <div class="row-head rv"><div class="eyebrow">Dispatches · From the founding office</div><a class="link-arrow" href="news.html">All dispatches</a></div>
+    <div class="news-grid" id="newsGrid"></div>
+  </div>
+</section>
+
+<!-- IV · LA CIUDAD -->
+<section class="sec" id="city">
+  <div class="wrap">
+    <div class="eyebrow rv">The first city campaign</div>
+    <div class="city-head rv">
+      <h2 class="h-xl">Building a<br>physical city.</h2>
+      <div class="credit"><span class="caption">Concept studies for <span data-name>Anthropos</span></span><div class="credit-mark"><b>LDO</b><span><span data-name>Anthropos</span> Design Office</span></div></div>
+    </div>
+    <div class="stat-row rv" id="live-city">
+      <div class="stat card"><div class="dash"></div><div class="num" id="statCommitted">—</div><div class="eyebrow">Committed to move</div><div class="caption" id="statCommittedNote">Loading live count…</div></div>
+      <div class="stat card"><div class="dash"></div><div class="num" id="statDemand">—</div><div class="eyebrow">Housing demand</div><div class="caption" id="statDemandNote">First goal $1.00B</div></div>
+    </div>
+  </div>
+  <div class="wrap-wide rv"><div class="city3d" id="city3d" data-mode="full">
+    <canvas id="cityCanvas" aria-label="An interactive point-cloud model of the city"></canvas>
+    <div class="c3-loading" id="c3load"><span class="mono">Drawing the city…</span></div>
+    <div class="c3-ui">
+      <div class="c3-label eyebrow">The city</div>
+      <div class="c3-views" role="tablist" aria-label="Views">
+        <button role="tab" aria-selected="true" data-view="all">City</button><button role="tab" data-view="center">Center</button><button role="tab" data-view="beach">Beach</button><button role="tab" data-view="hills">Hills</button><button role="tab" data-view="plan">Plan</button>
+      </div>
+      <div class="c3-tools"><button data-act="replay">Replay</button><button data-act="in" aria-label="Zoom in">+</button><button data-act="out" aria-label="Zoom out">−</button></div>
+    </div>
+    <div class="c3-hint mono">Drag to explore · Scroll or pinch to zoom</div>
+  </div></div>
+  <div class="wrap">
+    <div class="campaign card rv">
+      <div><div class="eyebrow">Campaign I · Commit to move</div><h3 class="h-md mt-16">Help bring a city into existence.</h3>
+        <div class="ctas mt-24"><a class="btn" href="city.html#commit">Commit to move</a><a class="btn ghost" href="neighborhood.html">Build your neighborhood</a><a class="btn ghost" href="concepts.html">Six city concepts</a></div></div>
+      <p class="body">Describe the city you would move to and commit to move. Our shared demand can unlock the location, the financing, and the partners to build it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- V · RESIDENCIAS -->
+<section class="sec" id="residences">
+  <div class="wrap split rv">
+    <div class="l"><div class="eyebrow"><span data-name>Anthropos</span> I · <span data-country>Panama</span></div><h2 class="h-lg mt-16">Luxury residences<br>and resorts.</h2></div>
+    <div class="r"><p class="lede">Stripped classicism for the tropics. Travertine, bronze, shade, and water, laid out with the discipline of the Italian Rationalists.</p>
+      <p class="body mt-24">Our first residential project, <span data-name>Anthropos</span> I, is planned for Panama's Pacific coast. <span data-name>Anthropos</span> designs homes, hotels, and clubs for its members, built to the standard of the world's finest hotels and made to outlast us.</p></div>
+  </div>
+  <div class="wrap mt-64">
+    <figure class="rv"><div class="img ratio-21 zoom"><img src="img/res-aerial.jpg" alt="Aerial concept of the resort: travertine colonnades, a long pool and a boardwalk to the beach" loading="lazy"></div></figure>
+    <div class="mosaic mt-16" id="resMosaic"></div>
+    <p class="caption">Concept studies for the <span data-name>Anthropos</span> resort and residences: main pool, sculpture court, grand salon, spa, residence courtyard, beach boardwalk, and arrival court.</p>
+  </div>
+</section>
+
+<!-- VI · FASE I -->
+<section class="sec" id="phase">
+  <div class="wrap split rv">
+    <div class="l"><div class="eyebrow">Phase I</div><h2 class="h-lg mt-16">Beginning on the<br><span data-coast>Azuero Coast</span>.</h2></div>
+    <div class="r"><p class="lede">A waterfront neighborhood of private residences, a resort, and rooms for art and music.</p>
+      <p class="body mt-24">We are studying sites on the Pacific shore of the Azuero Peninsula, five hours from Panama City and its international hub. Phase I is a neighborhood of homes and shared spaces for residents, fellows, and guests. The first residents will arrive in existing buildings near the site while the neighborhood takes shape around them.</p>
+      <a class="link-arrow mt-24" href="panama.html">Introducing <span data-name>Anthropos</span> <span data-country>Panama</span> →</a></div>
+  </div>
+  <div class="wrap mt-64 two-up rv">
+    <figure><div class="img ratio-4"><img src="img/site-1.jpg" alt="An undeveloped headland above a rocky cove" loading="lazy"></div></figure>
+    <figure><div class="img ratio-4"><img src="img/site-2.jpg" alt="Open hills above the sea with a lone tree" loading="lazy"></div></figure>
+  </div>
+  <div class="wrap"><p class="caption">Landscape studies for Phase I, Azuero Peninsula. Site selection is in progress; no land has been acquired yet.</p></div>
+</section>
+
+<!-- VII · GOBIERNO POR IA -->
+<section class="sec paper" id="nation">
+  <div class="wrap split rv">
+    <div class="l"><div class="eyebrow">An autonomous civic entity</div><h2 class="h-lg mt-16">Superintelligence for<br>collective action</h2></div>
+    <div class="r"><p class="body">We are building toward an autonomous republic that uses superintelligence to understand its members, coordinate shared goals, and improve with every campaign. It is bound by a written charter, overseen by human citizens who vote, and funded by a common budget of compute.</p></div>
+  </div>
+  <div class="wrap mt-40 rv"><div class="demo card" id="demo"></div></div>
+</section>
+
+<!-- VIII · VIDA -->
+<section class="sec" id="life">
+  <div class="wrap split rv">
+    <div class="l"><h2 class="h-lg">Life in <span data-name>Anthropos</span>.</h2><p class="lede mt-16">Turning superintelligence wealth into culture.</p></div>
+    <div class="r"><p class="body">A home for a new generation of founders, artists, musicians, scholars, and athletes. The people building the superintelligence economy want a culture worth belonging to. We are gathering them to turn new wealth into art, music, film, sport, nightlife, and the rooms where all of it happens.</p></div>
+  </div>
+  <div class="wrap mt-40"><div class="life-grid rv" id="lifeGrid"></div><p class="caption">Concept imagery for <span data-name>Anthropos</span>'s studios, rooms, and venues.</p></div>
+  <div class="wrap mt-64 rv"><div class="eyebrow">Built for</div><div class="for-strip" id="forStrip"></div></div>
+</section>
+
+<!-- IX · MEMBRESÍA -->
+<section class="sec" id="membership">
+  <div class="wrap member">
+    <div class="card-stage rv" id="cardStage">
+      <div class="steel" id="steel" tabindex="0" aria-label="The Anthropos steel membership card. Move to tilt.">
+        <div class="face front"><div class="brush"></div><div class="sheen"></div>
+          <div class="em">EMBLEM</div><div class="nm"><span data-name>Anthropos</span></div><div class="no mono">N° 0001 · Founding member</div></div>
+        <div class="face back"><div class="brush"></div><div class="sheen"></div>
+          <div class="charter">“We hold that a life is not measured by its output.”</div><div class="sig"><span></span><em>Member</em></div><div class="no mono">Steel · 304 · laser engraved</div></div>
+      </div>
+      <div class="card-cap"><div><div class="h-sm"><span data-name>Anthropos</span> Steel Card.</div><div class="caption">Included with Steel membership.</div></div>
+        <div class="card-acts"><button data-c="flip">Flip</button><button data-c="reset">Reset</button><button data-c="enlarge">Enlarge</button></div></div>
+    </div>
+    <div class="member-r rv">
+      <div class="eyebrow">Membership</div>
+      <p class="lede mt-16">The <span data-name>Anthropos</span> app connects our community online and around the world.</p>
+      <ul class="feats mt-40">
+        <li><b>Private messaging</b><span>End-to-end encrypted messages between members.</span></li>
+        <li><b>Introductions &amp; community</b><span>Superintelligence introduces members to each other and helps run community life.</span></li>
+        <li><b>Campaigns</b><span>Join collective-action campaigns and build alongside other citizens.</span></li>
+        <li><b>Events &amp; spaces</b><span>Meet members in cities around the world, from dinners to listening sessions.</span></li>
+      </ul>
+      <div class="tiers mt-40">
+        <div class="tier"><div class="eyebrow">Citizen</div><div class="h-md mt-8">Online</div><p class="caption">App, campaigns, dispatches, and votes on the charter.</p></div>
+        <div class="tier steel-t"><div class="eyebrow">Steel</div><div class="h-md mt-8">Founding</div><p class="caption">Everything in Citizen, plus the steel card, priority in Phase I, and access to our embassies.</p></div>
+      </div>
+      <a class="btn mt-40" href="join.html">Join <span data-name>Anthropos</span></a>
+    </div>
+  </div>
+  <div class="card-modal" id="cardModal" aria-hidden="true"><button class="x" aria-label="Close">✕</button><div class="slot"></div></div>
+</section>
+
+<!-- X · DESARROLLO -->
+<section class="sec" id="development">
+  <div class="wrap split rv">
+    <div class="l"><div class="eyebrow"><span data-name>Anthropos</span> Development</div><h2 class="h-lg mt-16">Real estate for the<br>superintelligence age.</h2>
+      <p class="lede mt-24">As superintelligence creates more wealth, the best places to live will stay scarce. We believe that will make exceptional land more valuable.</p>
+      <p class="body mt-16"><span data-name>Anthropos</span> plans to acquire land and develop homes, neighborhoods, and cities around a shared culture.</p></div>
+    <div class="r"><figure><div class="img ratio-4 zoom"><img src="img/dev-land.jpg" alt="Open green land under a big sky" loading="lazy"></div><figcaption class="caption">Landscape study.</figcaption></figure></div>
+  </div>
+</section>
+
+<!-- XI · GOBIERNOS -->
+<section class="sec" id="governments">
+  <div class="wrap split rv">
+    <div class="l"><div class="eyebrow">Government partnerships</div><h2 class="h-lg mt-16">Bring the superintelligence<br>economy to your country.</h2>
+      <p class="lede mt-24">Partner with <span data-name>Anthropos</span> to attract foreign direct investment, superintelligence companies, and the people shaping technology and culture.</p>
+      <p class="body mt-16">Our ambition is to turn the wealth created by superintelligence into new businesses, jobs, and places people want to live, under the laws of the host country.</p>
+      <a class="btn ghost mt-24" id="govMail" href="#">Contact the partnerships office</a></div>
+    <div class="r"><figure><div class="img ratio-4 zoom"><img src="img/gov-city.jpg" alt="Concept of a compact new city on a tropical bay" loading="lazy"></div><figcaption class="caption">Concept study.</figcaption></figure></div>
+  </div>
+</section>
+
+<!-- XII · IDEAS -->
+<section class="sec" id="ideas">
+  <div class="wrap">
+    <div class="row-head rv"><div class="eyebrow">Ideas</div><a class="link-arrow" href="content.html">All ideas</a></div>
+    <div class="ideas-grid rv" id="ideasGrid"></div>
+  </div>
+</section>
+
+<script type="module" src="js/site.js"></script>
+<script type="module" src="js/home.js"></script>
+</body>
+</html>

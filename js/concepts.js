@@ -30,7 +30,99 @@ const zonesFor = (c, beachX = 0) => ({
   hills: [-560, 0, 260, 560, 150, 720],
 });
 
+
+// ── ANTHROPOS: el programa del mapa de Praxis (bahía, centro denso, rotonda, eje, 4 bulevares,
+//    5 parques, playa en hileras, 4 aldeas en 4 colinas, puerta en el eje) con trazo y proporciones propios.
+const bay = (x) => -40 - 92 * (x / 560) ** 2 - 7 * Math.sin(x * 0.0105);
+const HUB = [0, 200], RING = 98;
+const PARKS = [
+  { name: 'Botanical garden', x: -132, z: 150, rx: 54, rz: 60, kind: 'botanic' },
+  { name: 'Great lawn', x: 140, z: 300, rx: 70, rz: 44, kind: 'lawn' },
+  { name: 'Seafront garden', x: 0, z: bay(0) + 86, rx: 50, rz: 40, kind: 'parterre' },
+  { name: 'West forest', x: -96, z: 530, rx: 48, rz: 70, kind: 'forest' },
+  { name: 'East reserve', x: 372, z: 600, rx: 56, rz: 72, kind: 'forest' },
+];
+const BLVD = [[HUB, [-350, bay(-350) + 70]], [HUB, [350, bay(350) + 70]], [HUB, [-300, 420]], [HUB, [300, 420]]];
+const VILLAGES = [[-185, 540], [185, 556], [-455, 640], [445, 668]];
+const terrain = (x, z) => {
+  const t = smooth(370, 460, z), g = (cx, cz, r, h) => h * Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / (r * r));
+  return t * (14 + g(-200, 560, 100, 62) + g(205, 580, 104, 56) + g(-450, 650, 92, 44) + g(440, 690, 100, 36)) + 0.6;
+};
+const segD = (x, z, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / (dx * dx + dz * dz))); return Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz); };
+const inPark = (x, z, m = 0) => PARKS.some((p) => (x - p.x) ** 2 / (p.rx + m) ** 2 + (z - p.z) ** 2 / (p.rz + m) ** 2 < 1);
+const reserved = (x, z, m = 0) => Math.abs(x) < 15 + m && z > bay(x) + 30 && z < 720 || D(x, z, ...HUB) < 30 + m || Math.abs(D(x, z, ...HUB) - RING) < 6 + m || inPark(x, z, m) || BLVD.some(([a, b]) => segD(x, z, a, b) < 8 + m);
+function odeon(ink, x, y, z) {
+  for (let i = 0; i < 3; i++) ink.cyl(x, y + i * 0.6, z, 16 - i * 0.9, 0.6, 64);
+  ink.cyl(x, y + 1.8, z, 10, 11, 48);
+  for (let i = 0; i < 24; i++) { const a = (i / 24) * Math.PI * 2; ink.cyl(x + Math.cos(a) * 13, y + 1.8, z + Math.sin(a) * 13, 0.42, 10.6, 8); }
+  ink.cyl(x, y + 12.4, z, 13.8, 0.8, 64); ink.cyl(x, y + 13.2, z, 10.6, 1.2, 64); ink.dome(x, y + 14.4, z, 10.4, 20);
+  ink.cyl(x, y + 24.6, z, 1.6, 2.4, 16);
+}
+function propylon(ink, x, y, z) {
+  ink.box(x, y, z, 46, 1.2, 22);
+  for (const zz of [-8, 8]) for (let i = 0; i < 6; i++) ink.cyl(x - 17.5 + i * 7, y + 1.2, z + zz, 0.7, 11, 10);
+  ink.box(x, y + 12.2, z, 44, 1.6, 20);
+  ink.line([[x - 22, y + 13.8, z - 10], [x, y + 18.5, z - 10], [x + 22, y + 13.8, z - 10]]); ink.line([[x - 22, y + 13.8, z + 10], [x, y + 18.5, z + 10], [x + 22, y + 13.8, z + 10]]); ink.line([[x, y + 18.5, z - 10], [x, y + 18.5, z + 10]]);
+}
+function parkDraw(ink, p) {
+  const out = []; for (let i = 0; i < 80; i++) { const t = (i / 80) * Math.PI * 2; out.push([p.x + p.rx * Math.cos(t), terrain(p.x + p.rx * Math.cos(t), p.z + p.rz * Math.sin(t)) + 0.3, p.z + p.rz * Math.sin(t)]); }
+  ink.line(out, true);
+  const nTrees = p.kind === 'forest' ? 70 : p.kind === 'lawn' ? 14 : 22;
+  for (let i = 0; i < nTrees; i++) { const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * (p.kind === 'lawn' ? 1 : 0.9), x = p.x + p.rx * r * Math.cos(a), z = p.z + p.rz * r * Math.sin(a);
+    if (p.kind === 'lawn' && r < 0.7) continue; ink.tree(x, terrain(x, z), z, 0.85 + rnd() * 0.5, rnd() < 0.3 ? 1 : 0); }
+  if (p.kind === 'botanic') { ink.dome(p.x, 0.6, p.z, 12, 14); for (let k = 0; k < 6; k++) { const a = k * Math.PI / 3; ink.line([[p.x + 13 * Math.cos(a), 0.4, p.z + 13 * Math.sin(a)], [p.x + p.rx * 0.95 * Math.cos(a), 0.4, p.z + p.rz * 0.95 * Math.sin(a)]], false, true); } }
+  if (p.kind === 'parterre') { for (const sx of [-1, 1]) for (const sz of [-1, 1]) { const cx = p.x + sx * 18, cz = p.z + sz * 14; ink.line([[cx - 12, 0.4, cz - 8], [cx + 12, 0.4, cz - 8], [cx + 12, 0.4, cz + 8], [cx - 12, 0.4, cz + 8]], true, true); } ink.cyl(p.x, 0.4, p.z, 3, 1, 20); }
+  if (p.kind === 'lawn') { ink.ring(p.x, 0.5, p.z, 26, true); ink.ring(p.x, 0.5, p.z, 6, false); }
+  if (p.kind === 'forest') { const pts = []; for (let i = 0; i <= 20; i++) { const t = i / 20, z = p.z - p.rz * 0.9 + t * p.rz * 1.8, x = p.x + Math.sin(t * 6) * p.rx * 0.35; pts.push([x, terrain(x, z) + 0.5, z]); } ink.line(pts, false, true); }
+}
+const ANTHROPOS = {
+  id: 'anthropos', name: 'Anthropos', kind: 'Bay city', tagline: 'A dense center around a rotunda, a beach of low houses, and four hill villages.',
+  desc: 'The full plan: a city on a bay. At the center, an odeon with a colonnade and a dome stands on a ring road, and from it run a main axis from the hills to the sea and four diagonal boulevards. Courtyard blocks of four to six floors fill the flat ground. Low houses run along the beach in rows. Four villages sit on four hills, joined by a monumental gateway on the axis. Five parks: a botanical garden, a great lawn, a seafront garden, a forest, and a reserve.',
+  pros: ['Three ways of living in one city: center, beach, and hills', 'Five large parks and an axis that orders everything'], cons: ['The most ambitious; it is built in three phases'],
+  build() {
+    reseed(97); const ink = new Ink();
+    landscape(ink, { coast: bay, height: terrain, avoid: (x, z) => z < 380 && Math.abs(x) < 520 || inPark(x, z, 6) || VILLAGES.some((v) => D(x, z, ...v) < 120), trees: 380 });
+    const it = [];
+    // vías: eje, anillo, bulevares
+    it.push({ d: 0, f: () => {
+      for (const o of [-13, 13]) { const p = []; for (let z = bay(o) + 40; z <= 720; z += 8) p.push([o, terrain(o, z) + 0.2, z]); ink.line(p); }
+      ink.ring(HUB[0], 0.25, HUB[1], RING - 5, false, 140); ink.ring(HUB[0], 0.25, HUB[1], RING + 5, false, 140); ink.ring(HUB[0], 0.25, HUB[1], 30, false, 80);
+      BLVD.forEach(([a, b]) => { const dx = b[0] - a[0], dz = b[1] - a[1], L = Math.hypot(dx, dz), nx = -dz / L, nz = dx / L; for (const o of [-7, 7]) { const p = []; for (let i = 0; i <= 20; i++) { const t = 0.2 + 0.8 * i / 20, x = a[0] + dx * t + nx * o, z = a[1] + dz * t + nz * o; p.push([x, terrain(x, z) + 0.2, z]); } ink.line(p); } });
+    } });
+    it.push({ d: 1, f: () => odeon(ink, HUB[0], 0.3, HUB[1]) });
+    // centro: manzanas de 24 m con casas en hilera alrededor de un patio
+    for (let gx = -19; gx <= 19; gx++) for (let gz = -7; gz <= 8; gz++) {
+      const x = gx * 24, z = HUB[1] + gz * 24; if (z < bay(x) + 150 || z > 380) continue;
+      const pts = [[0, -8.5, 0], [8.5, 0, Math.PI / 2], [0, 8.5, Math.PI], [-8.5, 0, -Math.PI / 2]];
+      if (pts.every(([dx, dz]) => reserved(x + dx, z + dz, 3))) continue;
+      const fl = 4 + ((rnd() * 3) | 0);
+      it.push({ d: D(x * 0.9, z, ...HUB), f: () => { for (const [dx, dz, r] of pts) { if (reserved(x + dx, z + dz, 3)) continue; ink.fbox(x + dx, 0.3, z + dz, 15, fl * 3.1, 5, r, 5); } } });
+    }
+    // playa: hileras de casas bajas siguiendo la bahía
+    for (let gx = -78; gx <= 78; gx++) for (let row = 0; row < 7; row++) {
+      const x = gx * 8.6 + (row % 2) * 4.3, z = bay(x) + 66 + row * 11; if (reserved(x, z, 4) || z > bay(x) + 150) continue;
+      const r = Math.atan((bay(x + 1) - bay(x - 1)) / 2), fl = rnd() > 0.8 ? 2 : 1;
+      it.push({ d: 520 + Math.abs(x) * 0.5 + row * 3, f: () => ink.fbox(x, 0.3, z, 5.4, fl * 3.2, 6.5, r) });
+    }
+    // colinas: cuatro aldeas, casas mirando a su centro y con cimiento
+    for (let gx = -52; gx <= 52; gx++) for (let row = 0; row < 18; row++) {
+      const x = gx * 12 + Math.sin(row * 0.6) * 2.5, z = 420 + row * 14 + Math.sin(gx * 0.4) * 2.5;
+      if (reserved(x, z, 5) || Math.abs(x) < 42) continue;
+      const v = VILLAGES.reduce((b, c) => (D(x, z, ...c) < D(x, z, ...b) ? c : b)); if (D(x, z, ...v) > 105) continue;
+      const rot = Math.atan2(v[0] - x, v[1] - z), y = terrain(x, z), fl = rnd() > 0.8 ? 2 : 1;
+      it.push({ d: 900 + D(x, z, ...v) + VILLAGES.indexOf(v) * 40, f: () => { const lo = Math.min(terrain(x - 4, z - 4), terrain(x + 4, z + 4)); ink.fbox(x, lo, z, 6, y - lo + 0.8, 7.5, rot); ink.fbox(x, y + 0.8, z, 5.2, fl * 3.1, 6.4, rot); } });
+    }
+    VILLAGES.forEach((v) => it.push({ d: 890, f: () => { const y = terrain(...v); ink.ring(v[0], y + 0.3, v[1], 14, false); ink.cyl(v[0], y, v[1], 4, 16, 12); ink.cone(v[0], y + 16, v[1], 5, 6, 12); } }));
+    it.push({ d: 880, f: () => propylon(ink, 0, terrain(0, 440), 440) });
+    PARKS.forEach((p) => it.push({ d: D(p.x, p.z, ...HUB) + 60, f: () => parkDraw(ink, p) }));
+    it.push({ d: 600, f: () => { const z0 = bay(0); ink.box(0, 0, z0 - 60, 10, 1.3, 120); ink.box(0, 0, z0 - 124, 40, 1.3, 10); } });
+    grow(ink, it);
+    return { ink, zones: { all: [-620, 0, -150, 620, 90, 760], center: [-230, 0, 60, 230, 30, 360], beach: [-460, 0, bay(0) - 60, 460, 15, bay(0) + 160], hills: [-560, 0, 400, 560, 100, 760] } };
+  },
+};
+
 export const CONCEPTS = [
+  ANTHROPOS,
   {
     id: 'liceo', name: 'The Lyceum', kind: 'Radial', tagline: 'Eight avenues and a colonnade at the center.',
     desc: 'A round plan in the tradition of ideal Renaissance cities. Eight avenues run out from a central court ringed by a colonnade, with an odeon under a low dome. Rings of courtyard houses step out toward the sea and the hills. An amphitheater faces the water and the academy sits on the hill.',

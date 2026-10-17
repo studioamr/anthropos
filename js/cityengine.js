@@ -24,6 +24,16 @@ export class Ink {
     if (outline) { const e = new THREE.EdgesGeometry(geo, edgeAngle).getAttribute('position'); for (let i = 0; i < e.count; i++) this.edges.push(e.getX(i), e.getY(i), e.getZ(i)); }
     if (g !== geo) g.dispose(); geo.dispose();
   }
+  // caja rápida (sin geometría de three): 5 caras sombreadas + 12 aristas. Para miles de casas.
+  fbox(x, y, z, w, h, d, ry = 0, div = 0) {
+    const c = Math.cos(ry), s = Math.sin(ry), W = w / 2, D = d / 2;
+    const P = (lx, ly, lz) => [x + lx * c + lz * s, y + ly, z - lx * s + lz * c];
+    const v = [P(-W, 0, -D), P(W, 0, -D), P(W, 0, D), P(-W, 0, D), P(-W, h, -D), P(W, h, -D), P(W, h, D), P(-W, h, D)];
+    const quad = (a, b, cc, dd, sh) => { for (const k of [a, b, cc, a, cc, dd]) { this.faces.push(...v[k]); this.colors.push(sh, sh, sh * 0.996); } };
+    quad(4, 5, 6, 7, 0.99); quad(0, 1, 5, 4, 0.935 - 0.02 * s); quad(1, 2, 6, 5, 0.955 + 0.02 * c); quad(2, 3, 7, 6, 0.945); quad(3, 0, 4, 7, 0.95);
+    for (const [a, b] of [[0, 1], [1, 2], [2, 3], [3, 0], [4, 5], [5, 6], [6, 7], [7, 4], [0, 4], [1, 5], [2, 6], [3, 7]]) this.edges.push(...v[a], ...v[b]);
+    for (let i = 1; i < div; i++) { const t = -W + (w * i) / div; const a = P(t, 0, -D), b = P(t, h, -D), e = P(t, 0, D), f2 = P(t, h, D); this.details.push(...a, ...b, ...e, ...f2); }
+  }
   box(x, y, z, w, h, d, ry = 0) { const g = new THREE.BoxGeometry(w, h, d); g.translate(0, h / 2, 0); this.solid(g, x, y, z, ry); }
   cyl(x, y, z, r, h, seg = 20) { const g = new THREE.CylinderGeometry(r, r, h, seg); g.translate(0, h / 2, 0); this.solid(g, x, y, z, 0, 40); }
   cone(x, y, z, r, h, seg = 8) { const g = new THREE.ConeGeometry(r, h, seg); g.translate(0, h / 2, 0); this.solid(g, x, y, z, 0, 40); }

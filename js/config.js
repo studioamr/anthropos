@@ -7,7 +7,7 @@ export const CONFIG = {
   coast: 'Azuero Coast',
   region: 'the Azuero Peninsula',
   firstEmbassy: 'Mexico City',
-  cityConcept: 'liceo',                 // concepto de ciudad (ver concepts.html): liceo · castrum · malecon · archipielago · acropolis · laguna
+  cityConcept: 'anthropos',                 // concepto de ciudad (ver concepts.html): anthropos · liceo · castrum · malecon · archipielago · acropolis · laguna
   goalCommitments: 1000,                // meta de la Campaña I
   goalDemandUSD: 1.0e9,                 // demanda de vivienda que destraba la Fase I
   avgHomeUSD: 1.0e6,                    // ticket promedio que usamos para traducir compromisos a demanda

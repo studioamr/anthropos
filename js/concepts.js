@@ -125,8 +125,89 @@ const ANTHROPOS = {
   },
 };
 
+// ── ANTHROPOS II · THE HARBOR: mismo lenguaje (casas pequeñas en manchas, tinta, rotonda), otra idea:
+//    la ciudad abraza un puerto redondo; un tridente de avenidas sube a un panteón en la colina.
+const COVE = 150, coastH = (x) => { const b = -40 - 70 * (x / 600) ** 2 - 6 * Math.sin(x * 0.012); return Math.abs(x) < COVE ? b + 175 * Math.sqrt(1 - (x / COVE) ** 2) : b; };
+const HC = [0, -40];                                   // centro del puerto (boca de la caleta)
+const PIAZZA = [0, coastH(0) + 40], TRIDENT = [[-310, 560], [0, 640], [310, 560]];
+const H_VILL = [[-330, 500], [330, 505], [-560, 610]];
+const terrainH = (x, z) => {
+  const t = smooth(330, 420, z), g = (cx, cz, r, h) => h * Math.exp(-((x - cx) ** 2 + (z - cz) ** 2) / (r * r));
+  return t * (12 + g(-330, 510, 110, 60) + g(330, 515, 110, 56) + g(0, 650, 120, 74) + g(-560, 620, 90, 40)) + 0.6;
+};
+const H_PARKS = [
+  { name: 'Crescent park west', x: -205, z: 300, rx: 62, rz: 40, kind: 'lawn' },
+  { name: 'Crescent park east', x: 205, z: 300, rx: 62, rz: 40, kind: 'lawn' },
+  { name: 'Island garden', x: 0, z: 48, rx: 34, rz: 34, kind: 'parterre' },
+  { name: 'Pine forest', x: 560, z: 610, rx: 70, rz: 80, kind: 'forest' },
+];
+const inHPark = (x, z, m = 0) => H_PARKS.some((p) => (x - p.x) ** 2 / (p.rx + m) ** 2 + (z - p.z) ** 2 / (p.rz + m) ** 2 < 1);
+const resH = (x, z, m = 0) => z < coastH(x) + 18 + m || inHPark(x, z, m) || TRIDENT.some((b) => segD(x, z, PIAZZA, b) < 8 + m) || D(x, z, ...PIAZZA) < 34 + m || Math.abs(D(x, z, ...HC) - (COVE + 32)) < 6 + m;
+function pantheon(ink, x, y, z) {
+  ink.box(x, y, z, 70, 2.4, 70); ink.cyl(x, y + 2.4, z + 6, 22, 20, 48); ink.cyl(x, y + 22.4, z + 6, 23.4, 1.6, 48); ink.dome(x, y + 24, z + 6, 22, 22);
+  ink.box(x, y + 2.4, z - 28, 40, 1.2, 20); for (const r of [0, 1]) for (let i = 0; i < 8; i++) ink.cyl(x - 17.5 + i * 5, y + 3.6, z - 34 + r * 9, 0.8, 15, 10);
+  ink.box(x, y + 18.6, z - 28, 40, 2, 20); ink.line([[x - 20, y + 20.6, z - 38], [x, y + 27, z - 38], [x + 20, y + 20.6, z - 38]]); ink.line([[x, y + 27, z - 38], [x, y + 27, z - 18]]);
+}
+const HARBOR = {
+  id: 'puerto', name: 'Anthropos II · The Harbor', kind: 'Harbor city', tagline: 'The city wraps around a round harbor; three avenues climb to a pantheon on the hill.',
+  desc: 'The same language as Anthropos (small houses forming dense masses, monuments in stone, homes covering the hills), but organized around the water. A round natural harbor sits at the center, ringed by a promenade. An island with the rotunda stands in the middle, joined by a causeway, and two breakwaters guard the mouth. Three avenues set out like a trident from the harbor plaza and climb to a pantheon with a portico on the central hill. Two beaches of low houses flank the harbor, and three hills of homes and an amphitheater sit behind. Parks include a green crescent, an island garden, and a pine forest.',
+  pros: ['Boats, the promenade, and the city share the same water', 'The strongest axis: from the island to the pantheon'], cons: ['Building a harbor means marine works and permits'],
+  build() {
+    reseed(131); const ink = new Ink();
+    landscape(ink, { coast: coastH, height: terrainH, avoid: (x, z) => z < 360 && Math.abs(x) < 470 || inHPark(x, z, 6) || H_VILL.some((v) => D(x, z, ...v) < 120) || D(x, z, 0, 640) < 70, trees: 1600, X: 760, Z1: 780, parallel: true });
+    const it = [];
+    it.push({ d: 0, f: () => {
+      for (const r of [COVE + 27, COVE + 37]) { let p = []; for (let i = 0; i <= 200; i++) { const t = (i / 200) * Math.PI * 2, x = HC[0] + r * Math.cos(t), z = HC[1] + r * Math.sin(t); if (z > coastH(x) + 4) p.push([x, 0.25, z]); else { if (p.length > 1) ink.line(p); p = []; } } if (p.length > 1) ink.line(p); }
+      ink.ring(...[PIAZZA[0], 0.25, PIAZZA[1]], 34, false, 80);
+      TRIDENT.forEach((b) => { const dx = b[0] - PIAZZA[0], dz = b[1] - PIAZZA[1], L = Math.hypot(dx, dz), nx = -dz / L, nz = dx / L; for (const o of [-7, 7]) { const p = []; for (let i = 0; i <= 24; i++) { const t = 0.12 + 0.88 * i / 24, x = PIAZZA[0] + dx * t + nx * o, z = PIAZZA[1] + dz * t + nz * o; p.push([x, terrainH(x, z) + 0.2, z]); } ink.line(p); } });
+      // isla, calzada y rompeolas
+      ink.cyl(0, 0, 48, 34, 1.2, 64); ink.box(70, 0, 48, 80, 1.2, 8);
+      ink.box(-118, 0, -66, 66, 1.6, 7, 0.55); ink.box(118, 0, -66, 66, 1.6, 7, -0.55);
+      for (let i = 0; i < 10; i++) ink.box(-120 + i * 26.6, 0, coastH(-120 + i * 26.6) - 6, 2, 1, 14);   // muelles para barcos
+    } });
+    it.push({ d: 1, f: () => odeon(ink, 0, 1.2, 48) });
+    it.push({ d: 2, f: () => { ink.box(PIAZZA[0], 0.3, PIAZZA[1], 6, 1.2, 6); ink.cyl(PIAZZA[0], 1.5, PIAZZA[1], 1.2, 22, 12); ink.cone(PIAZZA[0], 23.5, PIAZZA[1], 1.6, 4, 12); } });  // obelisco
+    const center = [], beach = [], hill = [];
+    for (let gx = -24; gx <= 24; gx++) for (let gz = -8; gz <= 16; gz++) {
+      const bx = gx * 19, bz = gz * 19; const r = D(bx, bz, ...HC); if (bz > 345 || r > 380 || bz < coastH(bx) + 26) continue;
+      for (let side = 0; side < 4; side++) for (let k = -2; k <= 2; k++) {
+        const a = side * Math.PI / 2, dx = k * 2.2, dz = 6.6, x = bx + dx * Math.cos(a) + dz * Math.sin(a), z = bz - dx * Math.sin(a) + dz * Math.cos(a);
+        if (resH(x, z, 2)) continue; center.push({ x, z, r: a, rank: (r - COVE) ** 2 * 0.9 + (bx * 0.35) ** 2, fl: 4 + ((rnd() * 3) | 0) });
+      }
+    }
+    for (let gx = -92; gx <= 92; gx++) for (let row = 0; row < 10; row++) {
+      const x = gx * 7.6; if (Math.abs(x) < COVE + 60) continue; const z = coastH(x) + 40 + row * 8.2; if (resH(x, z, 3.4)) continue;
+      beach.push({ x, z, r: Math.atan((coastH(x + 1) - coastH(x - 1)) / 2), w: 3.1 + rnd() * 0.8, fl: rnd() > 0.82 ? 2 : 1, rank: (Math.abs(x) - COVE) ** 2 + row * 40 });
+    }
+    for (let gx = -60; gx <= 60; gx++) for (let row = 0; row < 24; row++) {
+      const x = gx * 11 + Math.sin(row * 0.6) * 2, z = 400 + row * 12 + Math.sin(gx * 0.4) * 2; if (resH(x, z, 4) || D(x, z, 0, 640) < 75) continue;
+      const vi = H_VILL.reduce((bi, c, i) => (D(x, z, ...c) < D(x, z, ...H_VILL[bi]) ? i : bi), 0), v = H_VILL[vi];
+      hill.push({ x, z, r: Math.atan2(v[0] - x, v[1] - z), w: 3.6 + rnd() * 1.1, fl: rnd() > 0.8 ? 2 : 1, rank: D(x, z, ...v) ** 2 + (vi > 1 ? 30000 : 0) });
+    }
+    const pick = (arr, n) => arr.sort((p, q) => p.rank - q.rank).slice(0, n);
+    pick(center, 3000).forEach((p, i) => it.push({ d: 3 + i * 0.1, f: () => ink.fbox(p.x, 0.3, p.z, 2.2, p.fl * 1.32, 3, p.r) }));
+    pick(beach, 1150).forEach((p, i) => it.push({ d: 320 + i * 0.1, f: () => ink.fbox(p.x, 0.3, p.z, p.w * 1.15, p.fl * 1.7, 4.5, p.r) }));
+    pick(hill, 1250).forEach((p, i) => it.push({ d: 440 + i * 0.1, f: () => {
+      const hs = [-1, 1].flatMap((a) => [-1, 1].map((b) => terrainH(p.x + a * 2.6, p.z + b * 2.6))), y = Math.max(...hs) + 0.8, lo = Math.min(...hs);
+      ink.fbox(p.x, lo, p.z, p.w * 1.15, y - lo + 0.4, 4.6, p.r); ink.fbox(p.x, y, p.z, p.w * 1.15, p.fl * 1.7, 4.7, p.r);
+    } }));
+    it.push({ d: 435, f: () => pantheon(ink, 0, terrainH(0, 640), 640) });
+    it.push({ d: 600, f: () => { const ax = -470, az = 430, y = terrainH(ax, az); ink.box(ax, y, az - 6, 30, 6, 8); for (let k = 0; k < 13; k++) ink.arc(ax, y + 0.4 + k * 1.3, az, 18 + k * 3.2, Math.PI * 0.08, Math.PI * 0.92, false); } });
+    H_PARKS.forEach((p) => it.push({ d: D(p.x, p.z, ...HC) + 40, f: () => { if (p.kind === 'parterre') { for (let i = 0; i < 10; i++) { const a = rnd() * 6.28, r = 12 + rnd() * 18; ink.tree(p.x + r * Math.cos(a), 1.2, p.z + r * Math.sin(a), 0.8, 1); } } else parkDrawH(ink, p); } }));
+    grow(ink, it);
+    return { ink, zones: { all: [-620, 0, -110, 620, 80, 740], center: [-260, 0, -60, 260, 30, 330], beach: [-640, 0, -150, -150, 12, 120], hills: [-560, 0, 400, 560, 90, 740] } };
+  },
+};
+function parkDrawH(ink, p) {
+  const out = []; for (let i = 0; i < 80; i++) { const t = (i / 80) * Math.PI * 2, x = p.x + p.rx * Math.cos(t), z = p.z + p.rz * Math.sin(t); out.push([x, terrainH(x, z) + 0.3, z]); } ink.line(out, true);
+  const n = p.kind === 'forest' ? 80 : 16;
+  for (let i = 0; i < n; i++) { const a = rnd() * Math.PI * 2, r = Math.sqrt(rnd()) * 0.92, x = p.x + p.rx * r * Math.cos(a), z = p.z + p.rz * r * Math.sin(a); if (p.kind === 'lawn' && r < 0.6) continue; ink.tree(x, terrainH(x, z), z, 0.85 + rnd() * 0.5, p.kind === 'forest' ? 1 : (rnd() < 0.3 ? 1 : 0)); }
+  if (p.kind === 'lawn') ink.ring(p.x, 0.5, p.z, Math.min(p.rx, p.rz) * 0.5, true);
+}
+
 export const CONCEPTS = [
   ANTHROPOS,
+  HARBOR,
   {
     id: 'liceo', name: 'The Lyceum', kind: 'Radial', tagline: 'Eight avenues and a colonnade at the center.',
     desc: 'A round plan in the tradition of ideal Renaissance cities. Eight avenues run out from a central court ringed by a colonnade, with an odeon under a low dome. Rings of courtyard houses step out toward the sea and the hills. An amphitheater faces the water and the academy sits on the hill.',

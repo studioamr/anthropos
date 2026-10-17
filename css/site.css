@@ -130,3 +130,4 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
 @media (max-width:640px){.hdr{grid-template-columns:auto 1fr auto;gap:10px}.hdr .logo svg{height:19px}.hdr .acts .btn{padding:0 10px;font-size:9.5px;letter-spacing:.12em;height:32px}}
 @media (max-width:360px){.hdr .acts .btn span{display:none}}
 .mosaic>*,.life-grid>*,.gallery>*,.two-up>*,.news-grid>*,.ideas-grid>*,.split>*,.member>*,.duo>*,.emb-grid>*,.emb-photos>*,.stat-row>*,.campaign>*,.why>*,.spaces>*,.steps3>*{min-width:0}
+section[id]{scroll-margin-top:calc(var(--hdr) - 1px)}

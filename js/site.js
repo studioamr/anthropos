@@ -18,6 +18,7 @@ export const WORDMARK = (h = 26) => `<svg viewBox="0 0 208 40" height="${h}" fil
 const NAV = [
   ['index.html#republic', 'The Republic', 'I'],
   ['city.html', 'The City', 'II'],
+  ['concepts.html', 'City concepts', 'II·b'],
   ['panama.html', `${CONFIG.name} ${CONFIG.country}`, 'III'],
   ['embassy.html', 'Embassies', 'IV'],
   ['index.html#residences', 'Residences', 'V'],

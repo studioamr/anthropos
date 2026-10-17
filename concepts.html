@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>City concepts · Anthropos Cities</title>
+<meta name="description" content="Six concepts for the first Anthropos city. Explore each one in 3D and vote for the city you would move to.">
+<meta property="og:image" content="img/concepts/liceo.jpg">
+<link rel="icon" href="img/icon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Chivo+Mono:wght@300;400&family=EB+Garamond:ital,wght@0,400;0,500;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/home.css">
+<link rel="stylesheet" href="css/pages.css">
+<style>
+.cc-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+.cc{border:1px solid var(--line);background:#fff;text-align:left;padding:0;display:block;transition:border-color .2s}
+.cc:hover{border-color:var(--line-2)}
+.cc[aria-pressed="true"]{border-color:var(--ink);box-shadow:inset 0 0 0 1px var(--ink)}
+.cc .img{aspect-ratio:16/10;background:#fafaf8}
+.cc .tx{padding:14px 16px 16px}
+.cc .tx h3{font-family:var(--sans);text-transform:uppercase;letter-spacing:.16em;font-weight:400;font-size:14px;margin-top:6px}
+.cc .tx p{font-family:var(--serif);font-size:16px;color:var(--ink-2);margin-top:4px;line-height:1.35}
+.cc .n{font-family:var(--mono);font-size:11px;color:var(--muted);display:flex;justify-content:space-between}
+@media (max-width:900px){.cc-grid{grid-template-columns:1fr 1fr}}
+@media (max-width:560px){.cc-grid{grid-template-columns:1fr}}
+.cc-detail{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(24px,4vw,60px);margin-top:28px}
+.cc-detail ul{list-style:none;font-family:var(--sans);font-weight:300;font-size:14.5px;color:var(--ink-2)}
+.cc-detail li{padding:9px 0;border-top:1px solid var(--line)}
+.cc-detail li::before{content:attr(data-s);font-family:var(--mono);font-size:11px;color:var(--muted);display:inline-block;width:34px}
+.vote{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-top:22px}
+@media (max-width:860px){.cc-detail{grid-template-columns:1fr}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<section class="page-top">
+  <div class="wrap">
+    <div class="crumbs"><a href="index.html">Home</a><span>/</span><a href="city.html">The city</a><span>/</span><span>Concepts</span></div>
+    <h1 class="h-xl mt-16">Six cities.<br>Choose one.</h1>
+    <p class="lede mt-16" style="max-width:720px">Six ways to lay out the first city on the same stretch of Pacific coast. Explore each one in 3D, then vote for the one you would move to. Members decide.</p>
+  </div>
+</section>
+
+<div class="wrap-wide" style="margin-top:34px"><div class="city3d tall" id="city3d">
+  <canvas aria-label="Interactive drawing of the selected city concept. Drag to rotate, scroll or pinch to zoom."></canvas>
+  <div class="c3-loading"><span class="mono">Drawing the city…</span></div>
+  <div class="c3-ui">
+    <div class="c3-label eyebrow" id="ccLabel">The Lyceum</div>
+    <div class="c3-views" role="tablist" aria-label="Views"><button role="tab" aria-selected="true" data-view="all">City</button><button role="tab" data-view="center">Center</button><button role="tab" data-view="beach">Beach</button><button role="tab" data-view="hills">Hills</button><button role="tab" data-view="plan">Plan</button></div>
+    <div class="c3-tools"><button data-act="replay">Replay</button><button data-act="in" aria-label="Zoom in">+</button><button data-act="out" aria-label="Zoom out">−</button></div>
+  </div>
+  <div class="c3-hint mono">Drag to explore · Scroll or pinch to zoom</div>
+</div></div>
+
+<section class="sec flush" style="padding-top:34px">
+  <div class="wrap">
+    <div class="cc-detail" id="detail"></div>
+    <div class="cc-grid mt-64" id="grid"></div>
+    <p class="caption mt-16">Concept studies by the <span data-name>Anthropos</span> Design Office. Same site, same coast, six plans. Drawings are diagrams, not final designs.</p>
+  </div>
+</section>
+
+<script type="module" src="js/site.js"></script>
+<script type="module">
+import { CONCEPTS, byId } from './js/concepts.js';
+import { mountView } from './js/cityengine.js';
+import { submit, toast } from './js/forms.js';
+import { esc } from './js/site.js';
+const $ = (s) => document.querySelector(s);
+let cur = byId(new URLSearchParams(location.search).get('c') || 'liceo');
+const view = mountView($('#city3d'), () => cur.build());
+const voted = () => localStorage.getItem('anthropos-concept');
+function paint() {
+  $('#ccLabel').textContent = cur.name;
+  $('#detail').innerHTML = `<div><div class="eyebrow">${CONCEPTS.indexOf(cur) + 1} / ${CONCEPTS.length} · ${esc(cur.kind)}</div><h2 class="h-lg mt-16">${esc(cur.name)}</h2><p class="lede mt-16">${esc(cur.tagline)}</p></div>
+    <div><p class="body">${esc(cur.desc)}</p><ul class="mt-24">${cur.pros.map((p) => `<li data-s="+">${esc(p)}</li>`).join('')}${cur.cons.map((p) => `<li data-s="−">${esc(p)}</li>`).join('')}</ul>
+    <div class="vote"><button class="btn" id="vote">${voted() === cur.id ? 'Your vote' : 'Vote for this city'}</button><a class="btn ghost" href="city.html#commit">Commit to move</a></div></div>`;
+  $('#vote').onclick = async () => { localStorage.setItem('anthropos-concept', cur.id); await submit('concept-vote', { concept: cur.id, name: cur.name, at: new Date().toISOString() }, `City concept vote · ${cur.name}`); toast(`Vote recorded: ${cur.name}`); paint(); };
+  document.querySelectorAll('.cc').forEach((b) => b.setAttribute('aria-pressed', b.dataset.id === cur.id));
+  history.replaceState(null, '', `?c=${cur.id}`);
+}
+$('#grid').innerHTML = CONCEPTS.map((c, i) => `<button class="cc" data-id="${c.id}"><div class="img zoom"><img src="img/concepts/${c.id}.jpg" alt="${esc(c.name)} concept drawing" loading="lazy"></div><div class="tx"><div class="n"><span>${String(i + 1).padStart(2, '0')} · ${esc(c.kind)}</span>${voted() === c.id ? '<span>Your vote</span>' : ''}</div><h3>${esc(c.name)}</h3><p>${esc(c.tagline)}</p></div></button>`).join('');
+document.querySelectorAll('.cc').forEach((b) => (b.onclick = () => { cur = byId(b.dataset.id); view.load(() => cur.build()); paint(); scrollTo({ top: $('#city3d').getBoundingClientRect().top + scrollY - 90, behavior: 'smooth' }); }));
+paint();
+</script>
+</body>
+</html>

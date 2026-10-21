@@ -3,9 +3,9 @@ export const CONFIG = {
   name: 'Anthropos',
   brand: 'Anthropos Cities',            // marca completa (ANTHROPOS solo ya existe en IMPI clase 35)
   tagline: 'The Superintelligence Republic',
-  country: 'Panama',
-  coast: 'Azuero Coast',
-  region: 'the Azuero Peninsula',
+  country: 'the first city',
+  coast: 'Pacific coast',
+  region: 'a Pacific coast',
   firstEmbassy: 'Mexico City',
   cityConcept: 'metropolis',                 // concepto de ciudad (ver concepts.html): anthropos · puerto · liceo · castrum · malecon · archipielago · acropolis · laguna
   goalCommitments: 1000,                // meta de la Campaña I

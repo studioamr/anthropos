@@ -96,49 +96,51 @@ export const ESSAYS = [
 
 export const DISPATCHES = [
   {
-    slug: 'founding-list', kind: 'Announcement', date: 'October 16, 2026', year: 2026, cover: 'img/res-aerial.jpg',
-    title: 'Anthropos opens its founding list and launches Campaign I',
-    dek: 'The first campaign asks one question: would you move to a new city on Panama’s Pacific coast?',
+    slug: 'founding-investors', kind: 'Announcement', date: 'October 21, 2026', year: 2026, cover: 'img/res-aerial.jpg',
+    title: 'Anthropos begins conversations with founding investors',
+    dek: 'A one-billion-dollar plan for the first self-sustaining city, financed in four rounds.',
     body: p(
-      'Anthropos opened its founding list today and launched Campaign I, Commit to Move. The campaign asks prospective members to describe the city they would move to, the budget they would bring, and the people they would bring with them.',
-      'The first goal is 1,000 commitments. Together, these stated budgets form a single measure of housing demand, which Anthropos will use to negotiate for land, financing, and building partners. A commitment is a statement of intent. It is not a deposit, a purchase, or an investment.',
-      '<h2>What happens next</h2>',
-      'Once the first goal is met, members will shape a proposal for the Phase I neighborhood. That proposal will then be put to bid among developers and partners. Every step will be published in these dispatches.'
+      'Anthropos Cities has begun meeting a small group of founding investors, family offices and strategic partners for its first city: a self-sustaining coastal city designed for more than 100,000 people.',
+      'The plan is financed in four rounds that follow the risk down. The seed round pays for counsel, the master plan, site studies and an option on the land. Later rounds buy the land, build the infrastructure and the first neighborhood, and complete the city.',
+      'Investors receive the briefing on request: the master plan, the candidate sites, the financial model and the structure of the raise. Nothing on our website is an offer; any investment will be made through offering documents, to eligible investors, on a regulated platform.',
+      '<p><a class="lnk" href="index.html#invest">Request the briefing →</a></p>'
     ),
   },
   {
-    slug: 'why-panama', kind: 'Letter', date: 'October 16, 2026', year: 2026, cover: 'img/hero.jpg',
-    title: 'Why Panama: the case for the Azuero Coast',
-    dek: 'A dollar economy, two oceans, the hub of the Americas, and a coast that is still open.',
+    slug: 'choosing-the-site', kind: 'Letter', date: 'October 21, 2026', year: 2026, cover: 'img/hero.jpg',
+    title: 'How we will choose the first site',
+    dek: 'A coast, a river, a bay, the rule of law, and room to grow. No site has been chosen yet.',
     body: p(
-      'We looked for a place with open land on the water, a stable rule of law, easy access to the world, and room to build something of our own. Panama’s Pacific coast, on the Azuero Peninsula, came first on our list.',
-      '<h2>The reasons</h2>',
-      '<strong>The coast.</strong> Long beaches, dry tropical forest, and hills that run down to the sea, with a long dry season.',
-      '<strong>The connections.</strong> Panama City’s international airport is one of the best-connected hubs in the Americas, with direct flights across the hemisphere and to Europe.',
-      '<strong>The economy.</strong> The US dollar circulates as legal tender, and the country has long welcomed foreign residents and international firms.',
-      '<strong>The setting.</strong> Fishing towns, surf beaches, and colonial villages close by, with room for a new neighborhood to grow.',
-      'Site selection is in progress, and we have not acquired any land. We will report each step, including the sites we reject and the reasons why.'
+      'The master plan was drawn for a particular kind of place: a Pacific coastline with hills behind it, a river that reaches the sea and a sheltered bay. Several countries have places like that. We are studying them now.',
+      '<h2>What we look for</h2>',
+      '<strong>The land.</strong> Enough open coast for seven districts, a great park and the hills, without displacing anyone.',
+      '<strong>The resources.</strong> Sun for energy, sea for desalinated water, and land for autonomous farms: the three things a self-sustaining city has to make for itself.',
+      '<strong>The country.</strong> A stable democracy with strong institutions, a clear path to own and develop land, and a government that wants the investment.',
+      '<strong>The connections.</strong> An international airport within reach, and a capital city close enough to visit.',
+      'We will present the candidate sites to investors in the briefing, and announce the chosen one only when an option on the land is signed.'
     ),
   },
   {
-    slug: 'charter-published', kind: 'Charter', date: 'October 16, 2026', year: 2026, cover: 'img/essay-5.jpg',
-    title: 'Draft Charter, version one, published for comment',
-    dek: 'Seven articles, written to be argued with. No member is bound until the founding vote.',
+    slug: 'declaration', kind: 'Declaration', date: 'October 21, 2026', year: 2026, cover: 'img/essay-5.jpg',
+    title: 'The Declaration of Return, MMXXVI',
+    dek: 'Why we are building cities where no one has to work to live.',
     body: p(
-      'We have published the first draft of the Anthropos charter. It is short on purpose: seven articles covering purpose, membership, how the republic acts, human sovereignty over every binding decision, the common budget, host countries, and amendment.',
-      'Two provisions matter most to us. First, no automated system may ever adopt a law, a budget, or a contract, or amend the charter itself. Second, membership is open to any adult who accepts the charter, whatever their origin. We gather by vocation and character, never by ancestry.',
-      '<p><a class="link-arrow" href="article.html?a=charter">Read the draft charter →</a></p>'
+      'We have published the Declaration of Return: the founding statement of Anthropos. It says what we believe and what we commit to.',
+      '<blockquote>We hold that a life is not measured by its output.</blockquote>',
+      'It looks back to Rome for the rooms where free people became excellent together, the forum, the baths, the theater and the schools, and forward to cities that make their own energy, water and food, so that their citizens can live for something other than a wage.',
+      '<p><a class="lnk" href="index.html#declaration">Read the declaration →</a></p>'
     ),
   },
   {
-    slug: 'commitment-to-city', kind: 'Field notes', date: 'October 16, 2026', year: 2026, cover: 'img/site-1.jpg',
-    title: 'How a commitment becomes a city',
-    dek: 'From a form on a website to ground broken on a coast, in three steps.',
+    slug: 'self-sustaining', kind: 'Field notes', date: 'October 21, 2026', year: 2026, cover: 'img/era/energy.jpg',
+    title: 'What a self-sustaining city has to make',
+    dek: 'Energy, water, food and services: the four systems that let a city work so its people don’t have to.',
     body: p(
-      '<strong>01 · Gather.</strong> Members commit to move and tell us what they need: a home on the water or in the hills, a studio, a school, and room for friends. The goal is 1,000 commitments.',
-      '<strong>02 · Shape.</strong> Superintelligence turns those answers into a draft plan: how many homes, what kind, which shared spaces, and at what prices. Members amend it and vote.',
-      '<strong>03 · Put to bid.</strong> With a ratified plan and a demonstrated demand, we seek a site, financing, and a building partner, and publish the terms.',
-      'At no point does a commitment become a payment. When homes are ready to sell, they will be sold under the laws of the host country, with full disclosures, by licensed parties.'
+      '<strong>Energy.</strong> Solar fields and storage sized for the whole city, with the grid as a backup rather than a master.',
+      '<strong>Water.</strong> Desalination powered by that energy, with every drop reused for the parks and the farms.',
+      '<strong>Food.</strong> Autonomous farms and greenhouses on the edge of the city, supplying the markets and the kitchens.',
+      '<strong>Services.</strong> Intelligent systems that run maintenance, logistics, health scheduling and city administration, under the oversight of citizens.',
+      'Each of these systems is also a business: the city sells energy, water and data services to itself and to its neighbors, and that income belongs to the project company and its investors.'
     ),
   },
 ];

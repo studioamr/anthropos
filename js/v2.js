@@ -70,19 +70,10 @@ const kS = () => { const r = kin.getBoundingClientRect(), p = Math.min(1, Math.m
 addEventListener('scroll', kS, { passive: true }); kS();
 
 // ── noticias ──
-$('#newsGrid').innerHTML = DISPATCHES.slice(0, 4).map((d) => `<a class="nc" href="article.html?a=${d.slug}"><div class="src mono"><span>${esc(d.kind)}</span><span>${esc(d.date)}</span></div><h3>${esc(d.title)}</h3><figure><img src="${d.cover}" alt="" loading="lazy"></figure></a>`).join('');
+$('#newsGrid') && ($('#newsGrid').innerHTML = DISPATCHES.slice(0, 4).map((d) => `<a class="nc" href="article.html?a=${d.slug}"><div class="src mono"><span>${esc(d.kind)}</span><span>${esc(d.date)}</span></div><h3>${esc(d.title)}</h3><figure><img src="${d.cover}" alt="" loading="lazy"></figure></a>`).join(''));
 
-// ── la ciudad: contadores reales y mapa ──
-(async () => {
-  let s = { committed: 0, demandUSD: 0 };
-  try { const r = await fetch(CONFIG.statsUrl, { cache: 'no-store' }); if (r.ok) s = await r.json(); } catch {}
-  const usd = (n) => (n >= 1e9 ? `$${(n / 1e9).toFixed(2)}B` : `$${(n / 1e6).toFixed(1)}M`);
-  once($('.counters'), () => {
-    if (s.committed > 0) { countUp($('#cCommit'), s.committed, (v) => Math.round(v).toLocaleString('en-US')); $('#cCommitNote').textContent = `Goal ${CONFIG.goalCommitments.toLocaleString('en-US')}`; countUp($('#cDemand'), s.demandUSD, usd); }
-    else { $('#cCommit').textContent = 'Open'; $('#cCommitNote').textContent = `The founding list is open · goal ${CONFIG.goalCommitments.toLocaleString('en-US')}`; countUp($('#cDemand'), CONFIG.goalDemandUSD, usd); $('#cDemandNote').textContent = 'First goal · sum of stated budgets'; }
-    setTimeout(() => { $('#cBar1').style.width = Math.max(1, (s.committed / CONFIG.goalCommitments) * 100) + '%'; $('#cBar2').style.width = Math.max(1, ((s.demandUSD || 0) / CONFIG.goalDemandUSD) * 100) + '%'; }, 300);
-  }, '0px');
-})();
+// ── la ciudad: cifras del diseño ──
+$$('.counters b[data-c]').forEach((b) => once(b, () => countUp(b, +b.dataset.c, (v) => Math.round(v).toLocaleString('en-US') + (b.dataset.s || '')), '0px'));
 once($('#cityMap'), () => mountView($('#cityMap'), () => byId(CONFIG.cityConcept).build(), { noWheel: true }));
 
 // ── residencias: mosaico + tira arrastrable ──
@@ -94,9 +85,26 @@ strip.innerHTML = STRIP.map(([k, t]) => `<figure><img src="img/${k}.jpg" alt="${
 let sd = null; strip.addEventListener('pointerdown', (e) => { sd = [e.clientX, strip.scrollLeft]; strip.setPointerCapture(e.pointerId); });
 strip.addEventListener('pointermove', (e) => { if (sd) strip.scrollLeft = sd[1] - (e.clientX - sd[0]); }); strip.addEventListener('pointerup', () => (sd = null));
 
-// ── vida ──
-const LIFE = [['life-dinner', 'Dinners'], ['life-music', 'Music studios'], ['life-amphi', 'Concerts by the sea'], ['life-darkroom', 'Darkrooms'], ['life-dinner-2', 'Long tables'], ['life-gallery', 'Openings'], ['life-rooftop', 'Nightlife'], ['res-boardwalk', 'The beach']];
-$('#lifeGrid').innerHTML = LIFE.map(([k, t]) => `<figure><img src="img/${k}.jpg" alt="${t}, concept" loading="lazy"><figcaption class="mono">${t}</figcaption></figure>`).join('');
+// ── mosaicos que cambian solos (un humano en la tierra · la vida en Anthropos) ──
+function cycler(root, pool, n, { every = 1700, capEl = null } = {}) {
+  if (!root) return;
+  const tiles = Array.from({ length: n }, () => { const t = document.createElement('div'); t.className = 'tile'; t.innerHTML = '<img alt=""><img alt=""><span class="tc"></span>'; root.append(t); return { el: t, imgs: [...t.querySelectorAll('img')], cap: t.querySelector('.tc'), a: 0, k: -1 }; });
+  let next = 0; const shown = new Set();
+  const put = (t, k) => { const [src, cap] = pool[k]; const im = t.imgs[t.a ^ 1]; im.onload = () => { t.imgs[t.a].classList.remove('on'); im.classList.add('on'); t.a ^= 1; }; im.src = src; im.alt = cap; t.cap.textContent = cap; shown.delete(t.k); t.k = k; shown.add(k); if (capEl) capEl.textContent = cap; };
+  tiles.forEach((t) => { put(t, next); next = (next + 1) % pool.length; });
+  if (reduce) return;
+  let vis = false; new IntersectionObserver(([e]) => (vis = e.isIntersecting)).observe(root);
+  setInterval(() => { if (!vis || document.hidden) return; let k = next, g = 0; while (shown.has(k) && g++ < pool.length) k = (k + 1) % pool.length; next = (k + 1) % pool.length; put(tiles[(Math.random() * tiles.length) | 0], k); }, every);
+}
+const E = (k, c) => ['img/era/' + k + '.jpg', c], I = (k, c) => ['img/' + k + '.jpg', c];
+const ERA = [E('forum', 'Rome · the forum'), E('baths', 'Rome · the baths'), E('stadium', 'Greece · the stadium'), E('theater', 'Greece · the theater'), E('masons', '1200 · the cathedral'), E('workshop', '1500 · the workshop'),
+  E('mill', '1850 · the mill'), E('looms', '1880 · the looms'), E('assembly', '1920 · the line'), E('clock', '1950 · the clock'), E('cubicles', '1995 · the cubicle'), E('commute', '2010 · the commute'), E('screens', '2025 · the screens'),
+  E('harvest', 'Next · machines in the fields'), E('energy', 'Next · a city that powers itself'), E('piazza', 'Next · the piazza'), I('life-amphi', 'Next · the theater, again'), I('res-pool', 'Next · the baths, again'), I('essay-4', 'Next · the colonnade'), I('life-library', 'Next · the academy'), I('life-dinner', 'Next · the long table'), I('life-music', 'Next · the studio'), I('res-sculpture', 'Next · the sculpture court'), I('life-gallery', 'Next · the gallery')];
+cycler($('#eraGrid'), ERA, 8, { every: 1500, capEl: $('#eraCap') });
+const S = (k, c) => ['img/soc/' + k + '.jpg', c];
+const SOC = [S('dinner', 'Dinner'), S('rooftop', 'Rooftop'), S('pier', 'The pier'), S('dj', 'Courtyard set'), S('friends', 'Friends'), S('bust', 'After the opening'), S('gallery', 'Opening night'), S('sea', 'Morning swim'),
+  I('life-dinner-2', 'Long tables'), I('life-amphi', 'Concerts by the sea'), I('life-rooftop', 'Nightlife'), I('life-music', 'The studio'), I('life-darkroom', 'The darkroom'), I('res-boardwalk', 'The beach')];
+const lg = $('#lifeGrid'); lg.classList.add('era'); cycler(lg, SOC, 8, { every: 1900 });
 const FROM = ['Founders', 'Engineers', 'Researchers', 'Artists', 'Musicians', 'Architects', 'Writers', 'Athletes', 'Filmmakers', 'Designers'];
 $('#fromTrack').innerHTML = [...FROM, ...FROM].map((t) => `<span>${t}</span>`).join('');
 
@@ -133,3 +141,29 @@ addEventListener('keydown', (e) => e.key === 'Escape' && modal.classList.remove(
 // ── gobiernos e ideas ──
 $('#govMail').href = `mailto:${CONFIG.email}?subject=${encodeURIComponent('Government partnership · Anthropos Cities')}`;
 $('#ideasGrid').innerHTML = ESSAYS.filter((e) => e.home).map((e) => `<a class="idea" href="article.html?a=${e.slug}"><figure><img src="${e.cover}" alt="" loading="lazy"></figure><h3>${esc(e.title)}</h3><p>${esc(e.dek)}</p></a>`).join('');
+
+// ── la ronda ──
+const fmtM = (m) => (m >= 1000 ? `$${m / 1000}B` : `$${m}M`);
+const ROUNDS = [
+  { n: 'Seed', m: 10, now: true, when: 'Now · 2026–27', p: 'Counsel and structure, the master plan, site studies and an option on the land.' },
+  { n: 'Land', m: 90, when: '2027', p: 'Buys the land through a bank trust and secures the permits, once the site is chosen.' },
+  { n: 'Phase I', m: 300, when: '2028', p: 'Energy, water and roads, and the first neighborhood: residences, resort, club and studios.' },
+  { n: 'Phase II', m: 600, when: '2029–2032', p: 'The rest of the city, its civic buildings and its hills, with project debt and home sales.' },
+];
+$('#rounds').innerHTML = ROUNDS.map((x, i) => `<article class="round${x.now ? ' now' : ''}"><span class="st mono"><i></i>${x.now ? 'Raising first' : 'Round ' + (i + 1)}</span><div class="amt">${fmtM(x.m)}</div><h3>${x.n}</h3><span class="mono dim">${x.when}</span><p>${x.p}</p></article>`).join('');
+$('#totBar').innerHTML = ROUNDS.map((x) => `<i class="${x.now ? 'now' : ''}" style="flex-grow:${x.m}"></i>`).join('');
+$('#declMark') && ($('#declMark').innerHTML = EMBLEM);
+$$('.chapters4 h3, .howtok b, .why4 b').forEach((h) => { splitWords(h); watch(h); });
+
+// ── inversionistas ──
+import('./forms.js').then(({ submit, toast }) => {
+  $('#intForm').onsubmit = async (e) => {
+    e.preventDefault(); const f = Object.fromEntries(new FormData(e.target)); let err = '';
+    if (!f.name?.trim()) err = 'Please add your name.'; else if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email || '')) err = 'Please use a valid email.'; else if (!f.country?.trim()) err = 'Please add your country.'; else if (!f.status) err = 'Please choose an investor type.'; else if (!f.ok) err = 'Please confirm you understand this is not an offer.';
+    $('#intErr').textContent = err; if (err) return;
+    const how = await submit('investor-interest', { ...f, at: new Date().toISOString() }, `Investor briefing · ${f.round} · ${f.name}`);
+    e.target.classList.add('done');
+    e.target.innerHTML = `<p class="mono acc">Registered</p><h3 style="font-weight:300;font-size:clamp(34px,4vw,60px);letter-spacing:-.03em;margin-top:12px">Thank you, ${esc(f.name.split(' ')[0])}.</h3><p class="body" style="margin-top:14px;max-width:560px">${how === 'mail' ? 'Your email app opened with your request. Send it and the founding office will reply with the briefing.' : 'The founding office will send you the briefing.'} Documents are shared only where the law allows.</p>`;
+    toast('Request sent');
+  };
+});

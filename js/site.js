@@ -16,10 +16,10 @@ export const WORDMARK = (h = 26) => `<svg viewBox="0 0 208 40" height="${h}" fil
   <text x="50.5" y="35.5" font-family="Jost,Futura,Helvetica Neue,Arial,sans-serif" font-size="7.4" font-weight="400" letter-spacing="5.2">CITIES</text></svg>`;
 
 const NAV = [
-  ['index.html#republic', 'The Republic', 'I'],
+  ['index.html#after', 'After labor', 'I'],
+  ['index.html#invest', 'Investors', '$'],
   ['city.html', 'The City', 'II'],
   ['concepts.html', 'City concepts', 'II·b'],
-  ['panama.html', `${CONFIG.name} ${CONFIG.country}`, 'III'],
   ['embassy.html', 'Embassies', 'IV'],
   ['index.html#residences', 'Residences', 'V'],
   ['index.html#life', `Life in ${CONFIG.name}`, 'VI'],
@@ -54,7 +54,7 @@ function menu() {
       <div class="ctas"><a class="btn" href="join.html">Join ${CONFIG.name}</a><a class="btn ghost" href="city.html">Commit to move</a></div>
       <p class="caption mt-24">${CONFIG.name} is a founding-stage project. Nothing on this site is an offer of securities or of real estate for sale.</p>
     </div>
-    <div class="col art"><img src="img/res-aerial.jpg" alt="" loading="lazy"><div class="cap"><div class="eyebrow" style="color:rgba(255,255,255,.75)">${CONFIG.name} ${CONFIG.country} · Concept study</div><div class="h-md mt-8">Residences and resort<br>on the ${CONFIG.coast}.</div></div></div>`;
+    <div class="col art"><img src="img/res-aerial.jpg" alt="" loading="lazy"><div class="cap"><div class="eyebrow" style="color:rgba(255,255,255,.75)">${CONFIG.name} I · Concept study</div><div class="h-md mt-8">Residences and resort<br>for the first city.</div></div></div>`;
   document.body.append(m);
   const btn = $('#menuBtn');
   const set = (o) => { m.classList.toggle('open', o); btn.setAttribute('aria-expanded', o); document.documentElement.style.overflow = o ? 'hidden' : ''; if (o) $('#menuClose').focus(); };

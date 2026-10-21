@@ -35,7 +35,7 @@ export function toast(msg) {
 }
 
 export async function invite(url = new URL('city.html', location.href).href) {
-  const text = `I'm committing to move to a new city in ${CONFIG.country}. Come with me: ${CONFIG.name}, Campaign I.`;
+  const text = `I joined the founding list of the first self-sustaining city. Come with me: ${CONFIG.brand || CONFIG.name}.`;
   if (navigator.share) { try { await navigator.share({ title: CONFIG.name, text, url }); return; } catch {} }
   try { await navigator.clipboard.writeText(`${text} ${url}`); toast('Invitation link copied'); } catch { prompt('Copy this link', url); }
 }

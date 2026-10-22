@@ -60,7 +60,7 @@ const UP = { value: 0 }, CAPP = { value: 0 };
 const M = ink.marks, NM = M.length;
 function btFor(count, key) { const a = new Float32Array(count); let k = 0;
   for (let v = 0; v < count; v++) { while (k < NM - 1 && v >= (M[k][key] ?? 0)) k++; a[v] = M[k].d < 0 ? 0 : k / NM; } return a; }
-const GROW = `if(position.z>-80.&&abs(position.x-(-170.+70.*sin(position.z/160.)+30.*sin(position.z/61.)))<40.&&position.y<6.)transformed.y=-60.;if(distance(position.xz,vec2(120.,820.))<92.||(abs(position.x)<64.&&position.z>192.&&position.z<268.&&position.y>1.))transformed.y=-60.;float gk=clamp((uP*1.08-bt)*9.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
+const GROW = `if(position.z>-80.&&abs(position.x-(-170.+70.*sin(position.z/160.)+30.*sin(position.z/61.)))<40.&&position.y<6.)transformed.y=-60.;if(distance(position.xz,vec2(120.,820.))<92.||(abs(position.x)<97.&&position.z>150.&&position.z<315.&&position.y>1.))transformed.y=-60.;float gk=clamp((uP*1.08-bt)*9.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
 function grow(mat, key) {
   const prev = mat.onBeforeCompile; mat.customProgramCacheKey = () => 'grow' + key;
   mat.onBeforeCompile = (sh, r) => { sh.uniforms.uP = UP;
@@ -240,7 +240,7 @@ const BRIDGES = new THREE.Group(); S.add(BRIDGES); BRIDGES.visible = false;
   const T = [], N = MOBILE ? 7000 : 15000; let tries = 0;
   while (T.length < N && tries++ < N * 12) { const x = X0 + Math.random() * 2600, z = Z0 + Math.random() * 1600;
     const coast = bayP(x); if (z < coast + 58) continue; const gx = Math.floor((x - X0) / CS), gz = Math.floor((z - Z0) / CS); if (occ[gz * NX + gx]) continue;
-    if (RIV(x, z) < 22 || LAKE(x, z) < 1.15 || roadAt(x, z) || roadAt(x + 3, z) || roadAt(x - 3, z) || roadAt(x, z + 3) || roadAt(x, z - 3)) continue; if (Math.hypot(x - UNI[0], z - UNI[1]) < 95) continue;
+    if (RIV(x, z) < 22 || LAKE(x, z) < 1.15 || roadAt(x, z) || roadAt(x + 3, z) || roadAt(x - 3, z) || roadAt(x, z + 3) || roadAt(x, z - 3)) continue; if (Math.hypot(x - UNI[0], z - UNI[1]) < 95) continue; if (Math.abs(x) < 100 && z > 145 && z < 320) continue;
     const inCity = DISTRICTS.some((d, k) => Math.hypot(x - d[0], z - d[1]) < DRAD[k] * 1.1); if (!inCity && Math.random() < .6) continue;
     T.push([x, HW(x, z), z, .7 + Math.random() * .9]); }
   const leafM = new THREE.MeshStandardMaterial({ roughness: .85 }), trunkM = new THREE.MeshStandardMaterial({ color: 0x6b4f38, roughness: 1 });
@@ -536,64 +536,43 @@ pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 30
   U0.scale.y = .001; U0.visible = false;
   ANIM.push(() => { const k = Math.min(1, Math.max(0, (UP.value - .8) * 7)); U0.visible = k > 0; U0.scale.y = k <= 0 ? .001 : 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2); }); }
 
-// ── the Capitol: travertine podium, clear glass hall you can see into, assembly chamber, lattice dome, plinths ──
+// ── the Capitol: a white monument — platform, dome and bowl, twin towers, reflecting pool ──
 { const G0 = new THREE.Group(); G0.position.set(0, .3, 230); S.add(G0);
-  const trav = surf(0xd8ccb4, { roughness: .75, metalness: 0 }, 'pad'), stone = new THREE.MeshStandardMaterial({ color: 0xe8e1d3, roughness: .6 }), bronze = new THREE.MeshStandardMaterial({ color: 0x5a4632, roughness: .4, metalness: .8 });
-  const clear = new THREE.MeshStandardMaterial({ color: 0x4f6f86, roughness: .06, metalness: .7, envMapIntensity: 1.2, transparent: true, opacity: .58, depthWrite: false, side: THREE.DoubleSide });
-  const wood = new THREE.MeshStandardMaterial({ color: 0x5e3a22, roughness: .5 }), seat = new THREE.MeshStandardMaterial({ color: 0x1d3f73, roughness: .45 }), floorM = new THREE.MeshStandardMaterial({ color: 0xece6da, roughness: .4 });
-  // stepped podium
-  for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(150 - k * 7, 1.2, 96 - k * 7), trav); st.position.y = .6 + k * 1.2; G0.add(st); }
-  const base = 4.8;
-  // reflecting pools in front (sea side)
-  for (const sx of [-1, 1]) { const pool = new THREE.Mesh(new THREE.BoxGeometry(46, .3, 18), new THREE.MeshStandardMaterial({ color: 0x1f4a63, roughness: .03, metalness: .6 })); pool.position.set(sx * 32, base + .2, -36); G0.add(pool); }
-  // floor slabs (two levels) and interior columns
-  const f0 = new THREE.Mesh(new THREE.BoxGeometry(118, .6, 66), floorM); f0.position.y = base + .3; G0.add(f0);
-  const f1 = new THREE.Mesh(new THREE.RingGeometry(22, 1, 4, 1), floorM); f1.visible = false;
-  const mezz = new THREE.Mesh(new THREE.BoxGeometry(118, .8, 14), floorM); for (const sz of [-1, 1]) { const m = mezz.clone(); m.position.set(0, base + 8, sz * 26); G0.add(m); }
-  const cols = []; for (let i = 0; i < 12; i++) for (const sz of [-1, 1]) cols.push([-55 + i * 10, sz * 30]);
-  G0.add(inst(new THREE.CylinderGeometry(.55, .55, 15, 16), stone, cols, (d, [x, z]) => d.position.set(x, base + 7.8, z)));
-  // assembly chamber: tiered rings of seats around a central plinth
-  for (let r = 0; r < 6; r++) { const tier = new THREE.Mesh(new THREE.CylinderGeometry(9 + r * 2.4, 9 + r * 2.4, .7, 64, 1, false, .3, Math.PI * 2 - .6), wood); tier.position.y = base + .6 + r * .65; G0.add(tier);
-    const n = Math.round((9 + r * 2.4) * 2.6), sts = []; for (let i = 0; i < n; i++) { const a = .35 + i / n * (Math.PI * 2 - .7); sts.push([Math.cos(a) * (8.4 + r * 2.4), Math.sin(a) * (8.4 + r * 2.4), a]); }
-    G0.add(inst(new THREE.BoxGeometry(1.1, 1.1, 1), seat, sts, (d, [x, z, a]) => { d.position.set(x, base + 1.4 + r * .65, z); d.rotation.y = -a; })); }
-  const plinth = new THREE.Mesh(new THREE.CylinderGeometry(4.2, 4.6, 1.2, 40), stone); plinth.position.y = base + 1; G0.add(plinth);
-  const lect = new THREE.Mesh(new THREE.BoxGeometry(1.6, 1.4, .8), bronze); lect.position.set(0, base + 2.3, -1.6); G0.add(lect);
-  const halo = new THREE.Mesh(new THREE.TorusGeometry(10, .2, 8, 80), mat(0x5a4632, { metalness: .8, roughness: .4 })); halo.rotation.x = Math.PI / 2; halo.position.y = base + 13; G0.add(halo);
-  // indoor planters with trees
-  const pl = []; for (let i = 0; i < 8; i++) pl.push([-50 + i * 14.3, i % 2 ? 18 : -18]);
-  G0.add(inst(new THREE.BoxGeometry(4, 1, 4), stone, pl, (d, [x, z]) => d.position.set(x, base + 1, z)));
-  G0.add(inst(new THREE.IcosahedronGeometry(2.2, 1), mat(0x4f8a3e, { roughness: .8 }), pl, (d, [x, z]) => d.position.set(x, base + 5, z)));
-  // clear glass envelope with slim bronze mullions
-  const glassBox = new THREE.Mesh(new THREE.BoxGeometry(120, 15, 68), clear); glassBox.position.y = base + 7.8; G0.add(glassBox);
-  const mul = []; for (let i = 0; i <= 30; i++) mul.push([-60 + i * 4, -34], [-60 + i * 4, 34]); for (let i = 0; i <= 17; i++) mul.push([-60, -34 + i * 4], [60, -34 + i * 4]);
-  G0.add(inst(new THREE.BoxGeometry(.25, 15, .25), bronze, mul, (d, [x, z]) => d.position.set(x, base + 7.8, z)));
-  // monumental stone fins all around, warm light inside, LED ring and beacon spire
-  const fins = []; for (let i = 0; i <= 22; i++) fins.push([-63 + i * 6, -36.5, 0], [-63 + i * 6, 36.5, 0]); for (let i = 0; i <= 12; i++) fins.push([-63, -36 + i * 6, 1], [63, -36 + i * 6, 1]);
-  G0.add(inst(new THREE.BoxGeometry(1, 15.4, 3.2), stone, fins, (d, [x, z, r]) => { d.position.set(x, base + 7.8, z); d.rotation.y = r ? Math.PI / 2 : 0; }));
-  const warm = glow(0xffd9a0, 1.4); [[0, -26], [0, 26]].forEach(([x, z]) => { const l = new THREE.Mesh(new THREE.BoxGeometry(116, .3, .5), warm); l.position.set(x, base + 7.5, z + (z > 0 ? -7 : 7)); G0.add(l); });
-  const led = new THREE.Mesh(new THREE.TorusGeometry(28.6, .45, 8, 128), glow(0x8fe8ff, 2.6)); led.rotation.x = Math.PI / 2; led.position.y = base + 17.2; G0.add(led);
-  const spire = new THREE.Mesh(new THREE.CylinderGeometry(.25, .9, 30, 12), bronze); spire.position.y = base + 60; G0.add(spire);
-  const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 12), glow(0xffffff, 3)); beacon.position.y = base + 75.5; G0.add(beacon);
-  ANIM.push((t) => { beacon.scale.setScalar(1 + .35 * Math.max(0, Math.sin(t * 2.2))); led.material.color.setRGB(.56, .91, 1).multiplyScalar(1.8 + .8 * Math.sin(t * 1.3)); });
-  // floating roof canopy with deep overhang, slender perimeter columns, roof garden ring
-  [[0, -38, 136, 8], [0, 38, 136, 8], [-64, 0, 8, 68], [64, 0, 8, 68]].forEach(([x, z, w, dd]) => { const fr = new THREE.Mesh(new THREE.BoxGeometry(w, 1.6, dd), stone); fr.position.set(x, base + 16.1, z); G0.add(fr); });
-  const roofGlass = new THREE.Mesh(new THREE.BoxGeometry(120, .3, 68), clear); roofGlass.position.y = base + 16.4;
-  const beams = []; for (let i = -5; i <= 5; i++) beams.push(i * 11); G0.add(inst(new THREE.BoxGeometry(.5, 1, 68), bronze, beams, (d, x) => d.position.set(x, base + 16, 0)));
-  [[0, -42, 136.4, .6], [0, 42, 136.4, .6], [-68, 0, .6, 84.4], [68, 0, .6, 84.4]].forEach(([x, z, w, dd]) => { const f = new THREE.Mesh(new THREE.BoxGeometry(w, 1.2, dd), bronze); f.position.set(x, base + 15.4, z); G0.add(f); });
-  const pc = []; for (let i = 0; i < 14; i++) pc.push([-65 + i * 10, -40], [-65 + i * 10, 40]); G0.add(inst(new THREE.CylinderGeometry(.35, .35, 15, 10), stone, pc, (d, [x, z]) => d.position.set(x, base + 7.8, z)));
-  const garden = new THREE.Mesh(new THREE.RingGeometry(28.3, 31, 64), mat(0x5f8d3c, { roughness: .9 })); garden.rotation.x = -Math.PI / 2; garden.position.y = base + 16.7; G0.add(garden);
-  // lattice dome (diagrid) with a spiral ramp inside, no mirror
-  const domeGlass = new THREE.Mesh(new THREE.SphereGeometry(28, 48, 24, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xdff0f8, roughness: .45, metalness: 0, envMapIntensity: .1, transparent: true, opacity: .05, depthWrite: false, side: THREE.DoubleSide })); domeGlass.position.y = base + 16.9; G0.add(domeGlass);
-  const lat = new THREE.Mesh(new THREE.SphereGeometry(28.15, 24, 10, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0x3e3830, roughness: .4, metalness: .8, wireframe: true })); lat.position.y = base + 16.9; G0.add(lat);
-  const pts = []; for (let i = 0; i <= 220; i++) { const t = i / 220, a = t * Math.PI * 4.4, r = 24 - t * 13; pts.push(new THREE.Vector3(Math.cos(a) * r, base + 17.4 + t * 19, Math.sin(a) * r)); }
-  G0.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 400, .9, 8), stone));
-  const rail = pts.map((p) => p.clone().add(new THREE.Vector3(0, 1.1, 0))); G0.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(rail), 400, .12, 6), bronze));
-  const ocu = new THREE.Mesh(new THREE.TorusGeometry(5, .5, 8, 40), bronze); ocu.rotation.x = Math.PI / 2; ocu.position.y = base + 44.6; G0.add(ocu);
-  // forecourt plinths with abstract bronze sculptures
-  const pls = [[-48, -60], [-24, -66], [24, -66], [48, -60]];
-  pls.forEach(([x, z], i) => { const p = new THREE.Mesh(new THREE.BoxGeometry(5, 3.2, 5), trav); p.position.set(x, 1.9, z); G0.add(p);
-    const sc = new THREE.Mesh(i % 2 ? new THREE.TorusKnotGeometry(1.6, .45, 80, 10) : new THREE.ConeGeometry(1.4, 6, 4), bronze); sc.position.set(x, 6.2, z); G0.add(sc); });
-  G0.traverse((o) => { if (o.isMesh && !o.material.transparent && !o.material.wireframe) { o.castShadow = o.receiveShadow = true; } else if (o.isMesh) { o.castShadow = false; } });
+  const white = new THREE.MeshStandardMaterial({ color: 0xf6f4ef, roughness: .45 }), trav = surf(0xe2d8c4, { roughness: .7, metalness: 0 }, 'pad');
+  const gold = new THREE.MeshStandardMaterial({ color: 0xc9a24a, roughness: .3, metalness: 1 }), shade = new THREE.MeshStandardMaterial({ color: 0x23282e, roughness: .2, metalness: .6 });
+  const pool = new THREE.MeshStandardMaterial({ color: 0x173f57, roughness: .02, metalness: .7 });
+  // reflecting pool and plaza toward the sea
+  const plaza = new THREE.Mesh(new THREE.BoxGeometry(190, .8, 150), trav); plaza.position.y = .3; G0.add(plaza);
+  const pl = new THREE.Mesh(new THREE.BoxGeometry(150, .4, 36), pool); pl.position.set(0, .9, -48); G0.add(pl);
+  const jets = []; for (let i = 0; i < 15; i++) jets.push(-70 + i * 10); G0.add(inst(new THREE.CylinderGeometry(.25, .5, 3.5, 8), glow(0xdff6ff, 1.2), jets, (d, x) => d.position.set(x, 2.8, -48)));
+  // the long platform (the Congress) with ribbon of shade and a ceremonial ramp
+  const plat = new THREE.Mesh(new THREE.BoxGeometry(150, 12, 62), white); plat.position.set(0, 6.8, 22); G0.add(plat);
+  const rib = new THREE.Mesh(new THREE.BoxGeometry(146, 5, 62.4), shade); rib.position.set(0, 5.5, 22); G0.add(rib);
+  const cols = []; for (let i = 0; i < 25; i++) cols.push(-72 + i * 6); G0.add(inst(new THREE.BoxGeometry(.9, 5, .9), white, cols, (d, x) => d.position.set(x, 5.5, -9.6)));
+  const ramp = new THREE.Mesh(new THREE.BoxGeometry(12, 1, 54), white); ramp.position.set(0, 6.4, -24); ramp.rotation.x = -.23; G0.add(ramp);
+  const rampLine = new THREE.Mesh(new THREE.BoxGeometry(12.2, .2, 54), glow(0x9fe8ff, 1.2)); rampLine.position.set(0, 6.95, -24); rampLine.rotation.x = -.23; rampLine.scale.x = .05; G0.add(rampLine);
+  const deck = new THREE.Mesh(new THREE.BoxGeometry(150, .6, 62), trav); deck.position.set(0, 13.1, 22); G0.add(deck);
+  // the dome (Senate) and the bowl (Assembly)
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(20, 64, 24, 0, Math.PI * 2, 0, Math.PI / 2), white); dome.scale.y = .55; dome.position.set(-36, 13.4, 22); G0.add(dome);
+  const bowlP = []; for (let i = 0; i <= 24; i++) { const t = i / 24; bowlP.push(new THREE.Vector2(5 + 30 * Math.sin(t * Math.PI / 2) ** 1.4, t * 15)); }
+  const bowl = new THREE.Mesh(new THREE.LatheGeometry(bowlP, 96), white); bowl.material.side = THREE.DoubleSide; bowl.position.set(36, 13.4, 22); G0.add(bowl);
+  const bowlRim = new THREE.Mesh(new THREE.TorusGeometry(35, .6, 8, 96), gold); bowlRim.rotation.x = Math.PI / 2; bowlRim.position.set(36, 28.4, 22); G0.add(bowlRim);
+  const domeRing = new THREE.Mesh(new THREE.TorusGeometry(20, .5, 8, 96), gold); domeRing.rotation.x = Math.PI / 2; domeRing.position.set(-36, 13.6, 22); G0.add(domeRing);
+  const ocu = new THREE.Mesh(new THREE.CylinderGeometry(2.4, 2.4, .8, 24), glow(0xfff2d0, 1.6)); ocu.position.set(-36, 24.6, 22); G0.add(ocu);
+  // twin towers joined by a sky bridge, behind the platform
+  for (const sx of [-1, 1]) { const tw = new THREE.Mesh(new THREE.BoxGeometry(9, 110, 26), white); tw.position.set(sx * 6.2, 55.3, 72); G0.add(tw);
+    const fins = []; for (let k = 0; k < 36; k++) fins.push(3.5 + k * 3); G0.add(inst(new THREE.BoxGeometry(9.3, .5, 26.3), shade, fins, (d, y) => d.position.set(sx * 6.2, y, 72)));
+    const crown = new THREE.Mesh(new THREE.BoxGeometry(9.4, 1.2, 26.4), gold); crown.position.set(sx * 6.2, 110.9, 72); G0.add(crown); }
+  for (const y of [44, 46.5]) { const br = new THREE.Mesh(new THREE.BoxGeometry(4, 2.4, 26), white); br.position.set(0, y, 72); G0.add(br); }
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 12), glow(0xffffff, 2.6)); beacon.position.set(0, 114, 72); G0.add(beacon);
+  // flanking colonnades and the ceremonial axis to the park
+  for (const sx of [-1, 1]) { const cs = []; for (let i = 0; i < 14; i++) cs.push(-50 + i * 8); G0.add(inst(new THREE.CylinderGeometry(.7, .7, 14, 16), white, cs, (d, z) => d.position.set(sx * 88, 7.3, z)));
+    const beam = new THREE.Mesh(new THREE.BoxGeometry(3, 1.6, 112), white); beam.position.set(sx * 88, 15, 2); G0.add(beam); const ln = new THREE.Mesh(new THREE.BoxGeometry(3.1, .2, 112), glow(0xffd9a0, 1.4)); ln.position.set(sx * 88, 14.1, 2); G0.add(ln); }
+  // plinths with bronze sculptures along the pool
+  [[-60, -72], [-20, -72], [20, -72], [60, -72]].forEach(([x, z], i) => { const p = new THREE.Mesh(new THREE.BoxGeometry(5, 3.2, 5), trav); p.position.set(x, 2, z); G0.add(p);
+    const sc = new THREE.Mesh(i % 2 ? new THREE.TorusKnotGeometry(1.6, .45, 80, 10) : new THREE.ConeGeometry(1.4, 6, 4), gold); sc.position.set(x, 6.4, z); G0.add(sc); });
+  ANIM.push((t) => { beacon.scale.setScalar(1 + .35 * Math.max(0, Math.sin(t * 2.2))); });
+  G0.traverse((o) => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } });
   G0.scale.y = .001; G0.visible = false;
   ANIM.push(() => { const k = CAPP.value; G0.visible = k > 0; G0.scale.y = k <= 0 ? .001 : Math.max(.001, k < 1 ? k * k * (3 - 2 * k) : 1); }); }
 
@@ -616,7 +595,7 @@ pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 30
 // ── places you can tap ──
 const P = (x, z, y = 12) => [x, Math.max(terrainP(x, z), 0) + y, z];
 const ITEMS = {
-  capitol: { cat: 'Civic heart', name: 'The Capitol', pin: P(0, 230, 62), desc: 'The heart of Anthropos: a white podium crowned by a glass dome. A spiral ramp climbs inside it, so citizens literally walk above the assembly that serves them. Its forecourt opens to the sea and its mall runs to the great park.', stats: [['Dome', 'Glass, 52 m'], ['Ramp', 'Public, spiral'], ['Governance', 'Charter']] },
+  capitol: { cat: 'Civic heart', name: 'The Capitol', pin: P(0, 230, 62), desc: 'The heart of Anthropos: a white monument on a long platform. The dome holds the Senate, the open bowl holds the Assembly, and the twin towers house the offices that serve them. A ceremonial ramp rises from the reflecting pool, open to every citizen.', stats: [['Towers', '2 × 110 m'], ['Assembly', 'Open bowl'], ['Governance', 'Charter']] },
   downtown: { cat: 'District', name: 'Downtown', pin: P(-140, 300, 70), desc: 'The densest district: towers and perimeter blocks wrapped around quiet inner courtyards. Everything you need is a short walk from the Capitol.', stats: [['Height', 'Up to 30 floors'], ['Blocks', 'Courtyard type'], ['Walk to Capitol', '≤ 10 min']] },
   mall: { cat: 'Public space', name: 'The Mall', pin: P(40, 380, 10), desc: 'A long promenade with a mirror of water and rows of trees, from the steps of the Capitol to the edge of the great park.', stats: [['Length', '~200 m'], ['Water mirror', 'Yes']] },
   park: { cat: 'Nature', name: 'The Great Park', pin: P(40, 470, 16), desc: 'The lungs of the city: a lake with islands, winding paths and groves of trees, in the middle of the districts.', stats: [['Size', '420 × 210 m'], ['Lake', 'With islands']] },

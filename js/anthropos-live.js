@@ -700,11 +700,12 @@ composer.addPass(new OutputPass());
 const HOME = { p: new THREE.Vector3(1050, 820, -980), t: new THREE.Vector3(0, 0, 400) };
 cam.position.copy(HOME.p);
 const ctl = new OrbitControls(cam, canvas);
-ctl.target.copy(HOME.t); ctl.enableDamping = true; ctl.dampingFactor = .06; ctl.maxPolarAngle = Math.PI * .45; ctl.minDistance = 60; ctl.maxDistance = 2600;
+ctl.target.copy(HOME.t); ctl.enableDamping = true; ctl.dampingFactor = .06; ctl.maxPolarAngle = Math.PI * .45; ctl.minDistance = 60; ctl.maxDistance = 4200;
 ctl.enableZoom = false; ctl.mouseButtons = { LEFT: THREE.MOUSE.ROTATE, MIDDLE: null, RIGHT: THREE.MOUSE.PAN };
 ctl.autoRotate = true; ctl.autoRotateSpeed = .25;
 function dolly(f) { const v = cam.position.clone().sub(ctl.target); const l = THREE.MathUtils.clamp(v.length() * f, ctl.minDistance, ctl.maxDistance); cam.position.copy(ctl.target).add(v.setLength(l)); }
-canvas.addEventListener('wheel', (e) => { if (e.ctrlKey || e.metaKey) { e.preventDefault(); dolly(1 + e.deltaY * .01); } }, { passive: false });
+canvas.addEventListener('wheel', (e) => { if (!build.done) return; const d = cam.position.distanceTo(ctl.target);
+  if ((e.deltaY > 0 && d < ctl.maxDistance - 5) || (e.deltaY < 0 && d > ctl.minDistance + 5) || e.ctrlKey || e.metaKey) { e.preventDefault(); ctl.autoRotate = false; idleT = 0; dolly(1 + Math.max(-.25, Math.min(.25, e.deltaY * (e.ctrlKey ? .01 : .0015)))); } }, { passive: false });
 let pd = 0; canvas.addEventListener('touchmove', (e) => { if (e.touches.length === 2) { const d = Math.hypot(e.touches[0].clientX - e.touches[1].clientX, e.touches[0].clientY - e.touches[1].clientY); if (pd) dolly(pd / d); pd = d; } }, { passive: true });
 canvas.addEventListener('touchend', () => (pd = 0));
 let flight = null;
@@ -746,7 +747,7 @@ if ($('#tour')) $('#tour').onclick = () => (tour ? stopTour() : startTour());
 
 
 // ── arrival from space: the Earth turns, the camera dives to the coast ──
-const GL = { scene: new THREE.Scene(), cam: new THREE.PerspectiveCamera(40, 1, .1, 100), t: -1, done: false };
+const GL = { scene: new THREE.Scene(), cam: new THREE.PerspectiveCamera(40, 1, .1, 100), t: -1, done: true };
 { const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d'), img = x.createImageData(1024, 512);
   for (let j = 0; j < 512; j++) for (let i = 0; i < 1024; i++) { const u = i / 1024 * 8, v = j / 512 * 4, lat = Math.abs(j / 512 - .5) * 2;
     const n = vn(u, v) * .55 + vn(u * 2.3, v * 2.3) * .3 + vn(u * 5.1, v * 5.1) * .15; const k = (j * 1024 + i) * 4; let r, g, b;
@@ -811,7 +812,7 @@ const SYS0 = .62, SYSW = .034;
 const K = [[0, 0, 0, 400, 1800, 1200, -2.3], [.05, 0, 20, 230, 230, 110, -1.7], [.13, 0, 25, 270, 520, 260, -.3], [.24, 0, 0, 330, 1350, 950, 1.3],
   [.34, 60, 0, 480, 380, 170, 2.9], [.42, river(380), 0, 380, 260, 70, 4.2], [.5, 0, 0, -30, 650, 110, 5.3], [.58, 0, 40, 860, 620, 380, 6.5]];
 SYSORDER.forEach((id, i) => { const [x, y, z] = ITEMS[id].pin; const RR = { solar: 1500, wind: 1100, battery: 520, desal: 800, green: 900, fields: 1200, works: 950, digester: 600, ai: 520 }[id]; K.push([SYS0 + (i + .5) * SYSW, x, id === 'ai' ? 150 : y * .3, z, RR, RR * .55, 7.4 + i * .95]); });
-K.push([.95, 0, 0, 1000, 3100, 950, 17.28], [1, 0, 0, 800, 2500, 800, 17.7]);
+K.push([.95, 0, 0, 900, 2700, 1100, 16.9], [1, 0, 40, 520, 1750, 430, 17.28]);
 const CAPS = [[0, 'The land.'], [.04, 'First, the Capitol.'], [.11, 'Downtown rises.'], [.21, 'The districts.'], [.31, 'Park and river.'], [.46, 'The coast.'], [.55, 'The hills.']];
 const SYSCAP = ['The sun pays.', 'The wind, at night.', 'Power, stored.', 'Water from the sea.', 'Food, grown here.', 'Fields and orchards.', 'Machines do the work.', 'Nothing is wasted.', 'And a mind that runs it all.'];
 SYSORDER.forEach((id, i) => CAPS.push([SYS0 + i * SYSW, SYSCAP[i]])); CAPS.push([.94, 'Anthropos.']);
@@ -823,10 +824,10 @@ let build = { done: false, last: '', q: 0 };
 function setCap(t, q) { if (t === build.last) return; build.last = t; cap.classList.add('out'); setTimeout(() => { $('#bc').textContent = t; $('#bk').textContent = 'Anthropos · ' + String(Math.round(q * 100)).padStart(2, '0'); cap.classList.remove('out'); }, 260); }
 function readQ() { const tot = SC.offsetHeight - innerHeight; return clamp01((scrollY - SC.offsetTop) / tot); }
 function buildTick(dt) {
-  const q = readQ(); build.q += (q - build.q) * Math.min(1, dt * 4); const Q = build.q;
+  const q = build.complete ? 1 : readQ(); build.q += (q - build.q) * Math.min(1, dt * 4); const Q = build.q;
   const interactive = q > .985;
-  if (interactive && !build.done) { build.done = true; $('#stage').classList.remove('building'); ctl.enabled = true; ctl.autoRotate = true; }
-  if (!interactive && build.done) { build.done = false; $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false; stopTour(); if (sel) { sel = null; $('#stage').classList.remove('sel'); } flight = null; }
+  if (interactive && !build.done) { build.done = true; build.complete = true; ctl.autoRotateSpeed = .12; { const [hp, ht] = pose(1); HOME.p.copy(hp); HOME.t.copy(ht); } $('#stage').classList.remove('building'); ctl.enabled = true; ctl.autoRotate = true; }
+  if (!interactive && build.done && !build.complete) { build.done = false; $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false; stopTour(); if (sel) { sel = null; $('#stage').classList.remove('sel'); } flight = null; }
   CAPP.value = clamp01((Q - .012) / .075); UP.value = sm(clamp01((Q - .1) / .52));
   SYSORDER.forEach((id, i) => { const k = clamp01((Q - (SYS0 + i * SYSW)) / (SYSW * .6)); const g = SYSG[id]; g.visible = k > 0; g.scale.y = easeB(k); });
   if (!build.done) { const [cp, ct] = pose(Q); cam.position.lerp(cp, .09); ctl.target.lerp(ct, .09);

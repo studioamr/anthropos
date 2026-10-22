@@ -192,8 +192,6 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
   </div>
 
   <div class="story out" id="story"><span class="sk"><span id="stK">I</span>&nbsp;/ XII</span><h2 id="stT"></h2><p id="stS"></p><span class="hint">Scroll to build the city <i>↓</i></span></div>
-  <div class="segs" id="segs"></div>
-  <button class="skip" id="skip">Skip intro →</button>
   <div class="dock" id="dock">
     <button class="chip" id="tour"><i></i>▶ Tour the city</button>
     <span class="sep"></span>
@@ -273,7 +271,7 @@ const U={time:{value:0}};
 function facade(m){return m}
 R.shadowMap.enabled=!MOBILE;R.shadowMap.type=THREE.PCFSoftShadowMap;R.toneMapping=THREE.ACESFilmicToneMapping;R.toneMappingExposure=1.05;
 S.add(new THREE.HemisphereLight(0xdbe8ff,0x3a4a5a,1.4));
-const SUN=new THREE.DirectionalLight(0xfff1de,2.6);SUN.position.set(-260,380,220);SUN.castShadow=true;SUN.shadow.mapSize.set(4096,4096);
+const SUN=new THREE.DirectionalLight(0xffe6c4,3.1);SUN.position.set(-420,230,160);SUN.castShadow=true;SUN.shadow.mapSize.set(4096,4096);
 Object.assign(SUN.shadow.camera,{left:-340,right:340,top:340,bottom:-340,near:10,far:1500});SUN.shadow.bias=-.0005;SUN.shadow.normalBias=.5;S.add(SUN);
 const OCC=new THREE.MeshStandardMaterial({vertexColors:true,roughness:1,polygonOffset:true,polygonOffsetFactor:2,polygonOffsetUnits:2});
 
@@ -291,9 +289,9 @@ function cloud(P,C,Rn,mat){const g=new THREE.BufferGeometry();g.setAttribute('po
 // ---------- terrain: black occluder + topographic dust
 prog(10,'Scanning the land…');
 const TS=MOBILE?150:220,tGeo=new THREE.PlaneGeometry(4400,4400,TS,TS);tGeo.rotateX(-Math.PI/2);
-tGeo.computeVertexNormals&&0;{const tp=tGeo.attributes.position,cc=new Float32Array(tp.count*3),c=new THREE.Color(),sea=new THREE.Color(0x1f5a80),sand=new THREE.Color(0xe2d3ae),sage=new THREE.Color(0x9fb38e),hill=new THREE.Color(0xc4c7b0),city=new THREE.Color(0xcfcabe);
+tGeo.computeVertexNormals&&0;{const tp=tGeo.attributes.position,cc=new Float32Array(tp.count*3),c=new THREE.Color(),sea=new THREE.Color(0x123f63),sand=new THREE.Color(0xead9b0),sage=new THREE.Color(0x6f9457),hill=new THREE.Color(0xb9a77a),city=new THREE.Color(0x9fb487),gold=new THREE.Color(0xc9b46a),deep=new THREE.Color(0x3f6b3c);
   for(let i=0;i<tp.count;i++){const x=tp.getX(i),z=tp.getZ(i),h=H(x,z);tp.setY(i,Math.max(-4,h));
-    if(h<.2)c.copy(sea);else if(z>SHORE-30&&h<5)c.copy(sand);else{c.copy(sage).lerp(hill,Math.min(1,h/90));c.offsetHSL(0,0,(fbm(x*.02,z*.02)-.5)*.08);if(Math.hypot(x,z)<125)c.lerp(city,.5)}
+    if(h<.2)c.copy(sea);else if(z>SHORE-30&&h<5)c.copy(sand);else{const n=fbm(x*.012,z*.012),m=fbm(x*.05+7,z*.05);c.copy(sage).lerp(deep,THREE.MathUtils.smoothstep(n,.45,.7)).lerp(gold,THREE.MathUtils.smoothstep(m,.55,.75)*.6).lerp(hill,Math.min(1,h/110));c.offsetHSL(0,0,(m-.5)*.07);if(Math.hypot(x,z)<125)c.lerp(city,.35)}
     cc[i*3]=c.r;cc[i*3+1]=c.g;cc[i*3+2]=c.b}tGeo.setAttribute('color',new THREE.BufferAttribute(cc,3))}
 tGeo.computeVertexNormals();const ground=new THREE.Mesh(tGeo,OCC);ground.receiveShadow=true;ground.userData.skip=true;S.add(ground);
 const terrainMat=pmat(1.35);
@@ -742,11 +740,15 @@ const circ=(r,n=200)=>Array.from({length:n+1},(_,i)=>[Math.cos(i/n*Math.PI*2)*r,
 [30,38,84,118,150,300].forEach(r=>pl(circ(r)));pl([[-125,0],[125,0]]);pl([[0,-125],[0,125]]);
 for(let k=0;k<12;k++){const a=k/12*Math.PI*2;pl([[Math.cos(a)*38,Math.sin(a)*38],[Math.cos(a)*118,Math.sin(a)*118]])}
 let planK=0,planOn=0;
+const site=(()=>{const pts=[];for(let i=0;i<=240;i++){const a=i/240*Math.PI*2;let r=320+Math.sin(a*3)*28+Math.cos(a*5)*16;let x=Math.cos(a)*r,z=Math.sin(a)*r*.92;if(z>SHORE-8)z=SHORE-8;pts.push(new THREE.Vector3(x,H(x,z)+2.5,z))}
+  const g=new THREE.BufferGeometry().setFromPoints(pts);const l=new THREE.Line(g,new THREE.LineDashedMaterial({color:0xffffff,dashSize:12,gapSize:6,transparent:true,opacity:0,depthWrite:false}));
+  l.computeLineDistances();l.raycast=()=>{};S.add(l);return l})();
+const siteTag=document.createElement('div');siteTag.className='pin on';siteTag.style.pointerEvents='none';siteTag.innerHTML='<b>◎</b><span>The site · 2,000 ha · coast</span>';$('#pins').parentNode.appendChild(siteTag);siteTag.style.zIndex=15;siteTag.style.opacity=0;
 function reveal(id,delay=0){if(REV.has(id))return;REV.add(id);(ROOTS[id]||[]).forEach((o,i)=>anims.push({o,t:-delay-i*.04,dur:2.6}));
   if(id==='homes'&&PM.homes)anims.push({u:PM.homes.uniforms.uReveal,from:30,to:125,t:-delay,dur:4});
   if(id==='belt'&&PM.belt)anims.push({u:PM.belt.uniforms.uReveal,from:120,to:330,t:-delay,dur:4})}
 const STORY=[
- {t:'The land',s:'Two thousand hectares of untouched coast. Sea, wind and sun. Nothing else, yet.',show:[],cam:[[560,170,640],[0,0,40]]},
+ {t:'The land',s:'Two thousand hectares of untouched coast. Sea, wind and sun. Nothing else, yet.',show:[],cam:[[470,210,520],[-20,0,-20]]},
  {t:'The plan',s:'One forum. Two avenues. A ring. Four districts. Drawn before a single stone is laid.',plan:1,show:[],cam:[[30,560,60],[0,0,0]]},
  {t:'The forum',s:'The city begins at its heart: the square where citizens meet, debate and vote.',show:['forum','theater'],cam:[[80,55,90],[0,6,0]]},
  {t:'The districts',s:'Homes rise in rings around the forum. Stone, courtyards and green roofs.',show:['homes','misc','library','market','baths'],cam:[[210,140,220],[0,8,0]]},
@@ -759,7 +761,6 @@ const STORY=[
  {t:'Movement',s:'A tram ring, a harbor, and streets made for walking.',show:['tram','harbor'],cam:[[0,190,210],[0,0,20]]},
  {t:'Life',s:'Then the lights come on. Anthropos is alive.',life:1,show:[],cam:[[170,165,190],[0,8,0]]}];
 const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
-STORY.forEach((c,i)=>{const d=document.createElement('div');d.dataset.t=c.t;d.innerHTML='<i></i>';d.onclick=()=>scrollToCh(i+.05);$('#segs').appendChild(d)});
 const SC=$('#scrolly');const VHC=.85;function sizeScroll(){SC.style.height=(STORY.length*VHC+1.6)*innerHeight+'px'}sizeScroll();addEventListener('resize',sizeScroll);
 function scrollToCh(x){scrollTo({top:SC.offsetTop+x*VHC*innerHeight,behavior:'smooth'})}
 const LIFEI=STORY.findIndex(c=>c.life);
@@ -768,16 +769,14 @@ function goChapter(i){
   for(let k=0;k<i;k++)STORY[k].show.forEach(id=>reveal(id));if(i>=1)planOn=1;
   story.i=i;story.t=0;const c=STORY[i];const el=$('#story');el.classList.add('out');
   setTimeout(()=>{$('#stK').textContent=ROMAN[i];$('#stT').textContent=c.t;$('#stS').textContent=c.s;el.classList.remove('out')},600);
-  [...$('#segs').children].forEach((d,k)=>d.firstChild.style.transform=`scaleX(${k<i?1:0})`);
   c.show.forEach((id,k)=>reveal(id,.6+k*.35));if(c.plan)planOn=1;
   setTimeout(()=>{if(story.on)LIFE.forEach(o=>o.visible=story.i>=LIFEI)},900);
   flight={fromP:cam.position.clone(),fromT:ctl.target.clone(),toP:new THREE.Vector3(...c.cam[0]),toT:new THREE.Vector3(...c.cam[1]),t:0,dur:i?3.2:.01};
-  ctl.autoRotate=true;ctl.autoRotateSpeed=.5}
+  ctl.autoRotate=true;ctl.autoRotateSpeed=i===0?.25:.5}
 function endStory(){story.on=false;stage.classList.remove('intro');STORY.forEach(c=>c.show.forEach(id=>reveal(id)));planOn=1;LIFE.forEach(o=>o.visible=true);
   ctl.enabled=true;ctl.autoRotateSpeed=.35;$('#story').classList.add('out');
   flight={fromP:cam.position.clone(),fromT:ctl.target.clone(),toP:new THREE.Vector3(170,165,190),toT:new THREE.Vector3(0,8,0),t:0,dur:2.4}}
 function playStory(){stage.classList.add('intro');ctl.enabled=false;deselect&&sel&&deselect();story.on=true;goChapter(0)}
-$('#skip').onclick=()=>scrollTo({top:SC.offsetTop+SC.offsetHeight-innerHeight,behavior:'smooth'});
 function resumeStory(){story.on=true;stage.classList.add('intro');ctl.enabled=false;if(sel)deselect();stopTour()}
 function onScroll(){const total=SC.offsetHeight-innerHeight,y=scrollY-SC.offsetTop;const x=Math.max(0,y)/(VHC*innerHeight);const N=STORY.length;
   if(y>total-innerHeight*.35||x>=N+.4){if(story.on)endStory();return}
@@ -785,12 +784,13 @@ function onScroll(){const total=SC.offsetHeight-innerHeight,y=scrollY-SC.offsetT
 addEventListener('scroll',onScroll,{passive:true});
 {const b=document.createElement('button');b.className='chip';b.innerHTML='<i></i>↺ Watch the story';b.onclick=()=>scrollToCh(0);$('#dock').insertBefore(b,$('#dock').children[1])}
 function storyTick(dt){
+  {const on=story.on&&story.i<=1?1:0;site.material.opacity+=(on*.9-site.material.opacity)*.05;siteTag.style.opacity=site.material.opacity;tv.set(160,30,-250).project(cam);siteTag.style.transform=`translate(${(tv.x*.5+.5)*canvas.clientWidth-9}px,${(-tv.y*.5+.5)*canvas.clientHeight-9}px)`}
   anims.forEach(a=>{a.t+=dt;if(a.t<0)return;const k=Math.min(1,a.t/a.dur),e=1-Math.pow(1-k,3);
     if(a.o){a.o.visible=true;a.o.scale.y=Math.max(.001,e)}else a.u.value=a.from+(a.to-a.from)*e;a.done=k>=1});
   for(let i=anims.length-1;i>=0;i--)if(anims[i].done)anims.splice(i,1);
   if(planOn&&planK<1){planK=Math.min(1,planK+dt/3.2)}
   planLines.forEach((p,i)=>{const k=THREE.MathUtils.clamp(planK*1.6-i*.04,0,1);p.l.geometry.setDrawRange(0,Math.floor(p.n*k));p.l.material.opacity=REV.has('homes')?.08:.75});
-  if(!story.on||story.i<0)return;$('#segs').children[story.i].firstChild.style.transform=`scaleX(${story.frac})`}
+}
 cam.position.set(...STORY[0].cam[0]);ctl.target.set(...STORY[0].cam[1]);ctl.enabled=false;
 prog(100,'Ready');setTimeout(()=>{$('#load').classList.add('gone');goChapter(0)},400);
 frame();

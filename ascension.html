@@ -3,359 +3,440 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Anthropos — The Return</title>
-<meta name="description" content="Anthropos Cities: a new city where no one has to work to live.">
+<title>Anthropos — The City</title>
+<meta name="description" content="Anthropos Cities: how a self-sustaining city for 100,000 people works.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#000;--fg:#fff;--dim:rgba(255,255,255,.5);--line:rgba(255,255,255,.14);--g:clamp(16px,2vw,28px)}
+:root{--bg:#050505;--fg:#fff;--dim:rgba(255,255,255,.55);--line:rgba(255,255,255,.16);--acc:#ffd38a;--g:clamp(16px,2vw,28px)}
 *{box-sizing:border-box;margin:0;padding:0}
-html{background:var(--bg)}
-body{background:var(--bg);color:var(--fg);font:500 14px/1.25 "Inter Tight",Helvetica,Arial,sans-serif;letter-spacing:-.01em;overflow-x:hidden}
-body.locked{overflow:hidden}
+html,body{background:var(--bg);color:var(--fg)}
+body{font:500 14px/1.3 "Inter Tight",Helvetica,Arial,sans-serif;letter-spacing:-.01em;overflow-x:hidden}
 a{color:inherit;text-decoration:none}
 sup{font-size:.45em;vertical-align:top;position:relative;top:.2em;margin-left:.08em}
-img{display:block}
-#grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60;opacity:.08;mix-blend-mode:screen}
-#cur{position:fixed;left:0;top:0;width:10px;height:10px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:70;transform:translate(-50%,-50%);transition:width .35s,height .35s}
-#cur.big{width:84px;height:84px}
-#cur span{position:absolute;inset:0;display:grid;place-items:center;color:#000;font-size:10px;font-weight:700;opacity:0;transition:opacity .3s}
-#cur.big span{opacity:1}
-@media(hover:none){#cur{display:none}}
+#gl{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+#grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60;opacity:.07;mix-blend-mode:screen}
+.vig{position:fixed;inset:0;z-index:1;pointer-events:none;background:linear-gradient(90deg,rgba(5,5,5,.85) 0%,rgba(5,5,5,.35) 32%,transparent 55%),radial-gradient(ellipse at 60% 50%,transparent 50%,rgba(5,5,5,.7))}
 
-/* gate */
-#gate{position:fixed;inset:0;z-index:55;background:#000;display:grid;place-items:center}
-#gate button{all:unset;cursor:pointer;width:128px;aspect-ratio:1;background:#0d0d0d;border:1px solid var(--line);display:grid;place-items:center;position:relative;overflow:hidden}
-#gate .mini{font-weight:900;font-size:15px;letter-spacing:-.04em;background:linear-gradient(#fff,#8a8f9c 60%,#fff);-webkit-background-clip:text;color:transparent;position:absolute;top:26px}
-#gate .door{position:absolute;bottom:22px;width:16px;height:38px;background:#fff;box-shadow:0 0 18px 4px rgba(255,255,255,.6)}
-#gate p{position:absolute;bottom:var(--g);font-size:11px;color:var(--dim)}
-#gate .pct{position:absolute;top:var(--g);right:var(--g);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
-
-/* nav */
 nav{position:fixed;top:0;left:0;right:0;z-index:30;display:grid;grid-template-columns:1fr 1fr 1fr 1fr 2fr 1fr;gap:var(--g);padding:var(--g);font-size:12px;mix-blend-mode:difference}
-nav .meta{line-height:1.05;font-size:14px;font-weight:600;text-align:right}
+nav .meta{line-height:1.05;font-size:13px;font-weight:600;text-align:right}
 nav .brand{font-weight:900;letter-spacing:-.03em}
-nav a{transition:opacity .3s}nav a:hover{opacity:.5}
-nav .r{text-align:right}
+nav a:hover{opacity:.5}nav .r{text-align:right}
 
-/* hero: door opens into the city */
-.hero{height:100svh;position:relative;overflow:hidden}
-.hero svg.word{position:absolute;left:50%;top:18%;width:min(92vw,1300px);transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 0 30px rgba(190,200,255,.35));z-index:3}
-.hero svg.word text.f{opacity:0}
-.portal{position:absolute;inset:0;z-index:2;clip-path:inset(calc(100% - clamp(150px,30vh,300px)) calc(50% - clamp(55px,7vw,100px)) 0 calc(50% - clamp(55px,7vw,100px)));background:#fff}
-.portal img{width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.35)}
-.halo{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:clamp(110px,14vw,200px);height:clamp(150px,30vh,300px);box-shadow:0 0 80px 30px rgba(255,255,255,.55),0 0 260px 90px rgba(200,210,255,.18);z-index:1}
-.side{position:absolute;font-size:11px;top:62%;z-index:4;mix-blend-mode:difference}
-.side.l{left:var(--g)}.side.r{right:var(--g)}
-.corner{position:absolute;bottom:var(--g);font-size:11px;z-index:4}
-.corner.l{left:var(--g);mix-blend-mode:difference}
-.corner.r{right:var(--g);background:#111;padding:6px 10px;display:flex;gap:8px;align-items:center}
-.corner.r i{width:7px;height:7px;background:#fff;display:inline-block;animation:p 1.6s infinite}
+/* loader */
+#load{position:fixed;inset:0;z-index:55;background:#000;display:grid;place-items:center;transition:opacity 1.2s,visibility 0s 1.2s}
+#load.gone{opacity:0;visibility:hidden}
+#load .mini{font-weight:900;font-size:15px;letter-spacing:-.04em}
+#load .pct{position:absolute;right:var(--g);bottom:var(--g);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
+
+/* hero title */
+.hero{height:100vh;position:relative;z-index:2;pointer-events:none}
+.hero svg{position:absolute;left:50%;top:14%;width:min(92vw,1300px);transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 0 30px rgba(190,200,255,.35))}
+.hero .sub{position:absolute;left:var(--g);bottom:var(--g);font-size:clamp(24px,3.4vw,52px);font-weight:600;letter-spacing:-.045em;line-height:.95;max-width:15ch}
+.hero .hint{position:absolute;right:var(--g);bottom:var(--g);font-size:11px;display:flex;gap:8px;align-items:center;background:#111;padding:6px 10px}
+.hero .hint i{width:7px;height:7px;background:#fff;animation:p 1.6s infinite}
 @keyframes p{50%{opacity:.2}}
-.hero .over{position:absolute;left:var(--g);right:var(--g);bottom:16vh;z-index:4;font-size:clamp(28px,5vw,80px);font-weight:600;letter-spacing:-.045em;line-height:.95;max-width:14ch;opacity:0}
 
-/* words split */
-.w{display:inline-block;overflow:hidden;vertical-align:top}
-.w>span{display:inline-block;transform:translateY(105%)}
+/* steps: text on the side */
+.step{min-height:150vh;position:relative;z-index:2;padding:0 var(--g)}
+.card{position:sticky;top:0;height:100vh;display:flex;flex-direction:column;justify-content:center;width:min(440px,100%);padding-top:60px}
+.card .k{font-size:10px;letter-spacing:.06em;text-transform:uppercase;display:flex;gap:10px;align-items:center;color:var(--dim)}
+.card .k b{color:var(--fg);font-weight:600}
+.card h2{font-size:clamp(40px,5.4vw,88px);font-weight:600;letter-spacing:-.055em;line-height:.9;margin:.25em 0 .35em}
+.card p{font-size:15px;line-height:1.35;color:rgba(255,255,255,.82);text-indent:2.5em}
+.card ul{list-style:none;margin-top:1.6em;border-top:1px solid var(--line)}
+.card li{display:grid;grid-template-columns:22px 1fr auto;gap:8px;padding:10px 0;border-bottom:1px solid var(--line);font-size:13px;align-items:baseline}
+.card li span:first-child{font-size:10px;color:var(--dim)}
+.card li em{font-style:normal;font-weight:600;font-variant-numeric:tabular-nums}
+.card .fn{margin-top:1.4em;font-size:10px;color:var(--dim);line-height:1.35}
+.card>*{opacity:0;transform:translateY(30px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.step.on .card>*{opacity:1;transform:none}
+.step.on .card>*:nth-child(2){transition-delay:.06s}.step.on .card>*:nth-child(3){transition-delay:.12s}.step.on .card>*:nth-child(4){transition-delay:.18s}.step.on .card>*:nth-child(5){transition-delay:.24s}
 
-section{position:relative;padding:18vh var(--g)}
-.label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
-.label:before{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
-.big{font-size:clamp(22px,3.1vw,46px);line-height:1.02;letter-spacing:-.035em;font-weight:600}
+/* 3D labels */
+#labels{position:fixed;inset:0;z-index:3;pointer-events:none}
+.lb{position:absolute;left:0;top:0;font-size:10px;letter-spacing:.05em;text-transform:uppercase;white-space:nowrap;display:flex;align-items:center;gap:6px;opacity:0;transition:opacity .5s}
+.lb:before{content:"";width:7px;height:7px;border-radius:50%;background:var(--acc);box-shadow:0 0 0 4px rgba(255,211,138,.18)}
+.lb.on{opacity:1}
 
-/* manifest: four short lines */
-.manifest .lead{text-indent:31%;margin:1em 0 14vh}
-.lines{border-top:1px solid var(--line)}
-.lines .row{display:grid;grid-template-columns:60px 1fr auto;gap:var(--g);align-items:center;padding:3.2vh 0;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
-.lines .row .k{font-size:10px}
-.lines .row .t{font-size:clamp(32px,6.5vw,110px);font-weight:600;letter-spacing:-.055em;line-height:.9;position:relative;z-index:1;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
-.lines .row .d{font-size:12px;color:var(--dim);max-width:24ch;text-align:right;position:relative;z-index:1}
-.lines .row img{position:absolute;right:22%;top:50%;width:min(26vw,360px);aspect-ratio:4/3;object-fit:cover;transform:translateY(-50%) scale(.6) rotate(-4deg);opacity:0;transition:.6s cubic-bezier(.2,.7,.2,1);pointer-events:none;filter:grayscale(1) contrast(1.1)}
-.lines .row:hover img{opacity:1;transform:translateY(-50%) scale(1) rotate(0)}
-.lines .row:hover .t{transform:translateX(24px)}
+/* progress rail */
+#rail{position:fixed;right:var(--g);top:50%;transform:translateY(-50%);z-index:20;display:flex;flex-direction:column;gap:10px;font-size:10px}
+#rail a{display:flex;gap:8px;align-items:center;justify-content:flex-end;color:var(--dim);transition:color .3s}
+#rail a i{width:14px;height:1px;background:currentColor;transition:width .4s}
+#rail a.on{color:#fff}#rail a.on i{width:34px}
+#rail a span{opacity:0;transition:opacity .3s}#rail:hover a span,#rail a.on span{opacity:1}
 
-/* marquee */
-.marq{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:2vh 0;white-space:nowrap}
-.marq div{display:inline-flex;gap:4vw;font-size:clamp(40px,9vw,150px);font-weight:900;letter-spacing:-.06em;line-height:1;animation:mq 26s linear infinite}
-.marq div span:nth-child(even){-webkit-text-stroke:1px #fff;color:transparent}
-@keyframes mq{to{transform:translateX(-50%)}}
+/* loop diagram */
+.loop{position:relative;z-index:2;min-height:100vh;display:grid;place-items:center;padding:12vh var(--g);background:linear-gradient(transparent,#050505 30%)}
+.loop .in{width:min(1100px,100%)}
+.loop .label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--dim)}
+.loop h2{font-size:clamp(34px,5vw,80px);font-weight:600;letter-spacing:-.05em;line-height:.92;margin:.3em 0 1em;max-width:16ch}
+.chain{display:grid;grid-template-columns:repeat(6,1fr);border-top:1px solid var(--line)}
+.chain div{padding:18px 12px 30px 0;border-right:1px solid var(--line);position:relative}
+.chain div:last-child{border:0}
+.chain b{display:block;font-size:clamp(18px,1.8vw,26px);letter-spacing:-.03em;margin:.4em 0}
+.chain span{font-size:11px;color:var(--dim)}
+.chain small{font-size:10px}
 
-/* horizontal gallery */
-.hz{height:100vh;overflow:hidden;position:relative}
-.hz .track{display:flex;gap:3vw;height:100%;align-items:center;padding:0 var(--g);will-change:transform}
-.hz .intro{flex:0 0 min(38vw,520px)}
-.hz .intro .big{margin-top:1em}
-.hz figure{flex:0 0 auto;height:66vh;position:relative;overflow:hidden}
-.hz figure.wide{aspect-ratio:16/10}.hz figure.tall{aspect-ratio:3/4;height:72vh}
-.hz figure img{height:100%;width:120%;object-fit:cover;transform:translateX(-8%)}
-.hz figcaption{position:absolute;left:10px;bottom:10px;font-size:11px;mix-blend-mode:difference;display:flex;gap:8px}
-.hz .bar{position:absolute;left:var(--g);right:var(--g);bottom:var(--g);height:1px;background:var(--line)}
-.hz .bar i{display:block;height:100%;width:0;background:#fff}
-.hz .cnt{position:absolute;right:var(--g);top:calc(var(--g) + 80px);font-size:11px;font-variant-numeric:tabular-nums}
-
-/* plan */
-.plan{height:100vh;display:grid;place-items:center;overflow:hidden;position:relative}
-.plan img{width:min(110vw,1500px);filter:invert(1);mix-blend-mode:screen;clip-path:inset(0 100% 0 0)}
-.plan .tag{position:absolute;font-size:10px;text-transform:uppercase;letter-spacing:.06em;opacity:0;display:flex;align-items:center;gap:8px}
-.plan .tag:before{content:"";width:28px;height:1px;background:#fff}
-.plan .ttl{position:absolute;left:var(--g);top:16vh}
-.plan .ttl .big{margin-top:.6em}
-
-/* numbers */
-.nums{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
-.nums div{padding:4vh var(--g) 6vh 0;border-right:1px solid var(--line)}
-.nums div:last-child{border:0}
-.nums b{display:block;font-size:clamp(40px,7vw,120px);font-weight:600;letter-spacing:-.06em;line-height:1;font-variant-numeric:tabular-nums}
-.nums span{font-size:11px;color:var(--dim)}
-
-/* full bleed */
-.bleed{height:130vh;position:relative;overflow:hidden}
-.bleed img{position:absolute;inset:-15% 0;width:100%;height:130%;object-fit:cover}
-.bleed .mask{position:absolute;inset:0;background:#000;clip-path:inset(0 0 0 0)}
-.bleed .q{position:absolute;left:var(--g);right:var(--g);bottom:12vh;font-size:clamp(30px,6vw,100px);font-weight:600;letter-spacing:-.05em;line-height:.92;max-width:12ch;mix-blend-mode:difference}
-
-/* round */
-.round{border-top:1px solid var(--line)}
-.round .row{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--g);padding:22px 0;border-bottom:1px solid var(--line);align-items:baseline;position:relative}
-.round .row:before{content:"";position:absolute;inset:0;background:#fff;transform:scaleY(0);transform-origin:bottom;transition:transform .45s cubic-bezier(.2,.7,.2,1);z-index:0}
-.round .row:hover:before{transform:scaleY(1)}
-.round .row>*{position:relative;z-index:1;transition:color .3s}
-.round .row:hover>*{color:#000}
-.round .row .k{grid-column:1/2;font-size:10px}
-.round .row .t{grid-column:2/7;font-size:clamp(22px,3vw,44px);font-weight:600;letter-spacing:-.035em}
-.round .row .d{grid-column:7/11;font-size:13px;color:var(--dim)}
-.round .row .v{grid-column:11/13;text-align:right;font-size:clamp(18px,2vw,28px);font-weight:600;letter-spacing:-.03em}
+.round{position:relative;z-index:2;background:#050505;padding:16vh var(--g)}
+.round .row{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--g);padding:22px 0;border-bottom:1px solid var(--line);align-items:baseline}
+.round .row:first-of-type{border-top:1px solid var(--line)}
+.round .k{grid-column:1/2;font-size:10px}
+.round .t{grid-column:2/7;font-size:clamp(22px,3vw,44px);font-weight:600;letter-spacing:-.035em}
+.round .d{grid-column:7/11;font-size:13px;color:var(--dim)}
+.round .v{grid-column:11/13;text-align:right;font-size:clamp(18px,2vw,28px);font-weight:600}
 .legal{font-size:10px;color:var(--dim);margin-top:2em;max-width:60ch}
-
-.join{text-align:center;padding:26vh var(--g)}
-.join .big{max-width:16ch;margin:0 auto 1.2em}
+.join{position:relative;z-index:2;background:#050505;text-align:center;padding:20vh var(--g)}
+.join h2{font-size:clamp(28px,4vw,60px);font-weight:600;letter-spacing:-.045em;line-height:1;max-width:16ch;margin:0 auto .9em}
 .join form{display:flex;max-width:520px;margin:0 auto;border-bottom:1px solid #fff}
 .join input{flex:1;background:none;border:0;color:#fff;font:inherit;font-size:18px;padding:12px 0;outline:none}
 .join input::placeholder{color:var(--dim)}
 .join button{all:unset;cursor:pointer;font-size:18px;padding:12px 0 12px 16px}
 .join .ok{margin-top:16px;font-size:12px;color:var(--dim);min-height:1em}
-
-footer{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--g);padding:var(--g);font-size:11px;border-top:1px solid var(--line);overflow:hidden}
-footer .big-word{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.075em;line-height:.8;margin:6vh 0 2vh;background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent;white-space:nowrap}
-footer .big-word span{display:inline-block}
+footer{position:relative;z-index:2;background:#050505;display:grid;grid-template-columns:repeat(6,1fr);gap:var(--g);padding:var(--g);font-size:11px;border-top:1px solid var(--line);overflow:hidden}
+footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.075em;line-height:.8;margin:6vh 0 2vh;background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent;white-space:nowrap}
 
 @media(max-width:760px){
-  nav{grid-template-columns:1fr 1fr;font-size:11px}
-  nav .hide{display:none}
-  .hero svg.word{top:26%}
-  .manifest .lead{text-indent:18%}
-  .lines .row{grid-template-columns:30px 1fr}.lines .row .d{grid-column:2;text-align:left}
-  .lines .row img{display:none}
-  .hz .intro{flex-basis:80vw}
-  .hz figure,.hz figure.tall{height:52vh}
-  .nums{grid-template-columns:1fr 1fr}.nums div:nth-child(2){border-right:0}
-  .round .row .t{grid-column:2/-1}.round .row .d{grid-column:2/9}.round .row .v{grid-column:9/-1}
+  nav{grid-template-columns:1fr 1fr}nav .hide{display:none}
+  .hero svg{top:20%}
+  .vig{background:linear-gradient(0deg,rgba(5,5,5,.95) 0%,rgba(5,5,5,.5) 45%,transparent 70%)}
+  .card{justify-content:flex-end;padding-bottom:6vh}
+  .card h2{font-size:44px}.card p{font-size:14px}.card ul{display:none}
+  #rail{display:none}
+  .chain{grid-template-columns:1fr 1fr}.chain div:nth-child(2n){border-right:0}
+  .round .t{grid-column:2/-1}.round .d{grid-column:2/9}.round .v{grid-column:9/-1}
   footer{grid-template-columns:1fr 1fr}
 }
 </style>
 </head>
-<body class="locked">
+<body>
+<canvas id="gl"></canvas>
+<div class="vig"></div>
 <canvas id="grain"></canvas>
-<div id="cur"><span>VIEW</span></div>
-
-<div id="gate">
-  <span class="pct" id="pct">000</span>
-  <button id="enter" aria-label="Enter"><span class="mini">ANTHROPOS</span><span class="door"></span></button>
-  <p>Click to enter</p>
-</div>
+<div id="labels"></div>
+<div id="load"><span class="mini">ANTHROPOS</span><span class="pct" id="pct">000</span></div>
 
 <nav>
   <a class="brand" href="#top">ANTHROPOS<sup>®</sup></a>
-  <a class="hide" href="#manifest">Manifest</a>
-  <a class="hide" href="#city">The City</a>
+  <a class="hide" href="#s1">The City</a>
+  <a class="hide" href="#loop">The Loop</a>
   <a class="hide" href="#round">Sequence</a>
-  <div class="meta hide">“THE RETURN” Founding Round<br>aSide: Seed, Land<br>bSide: Phase I, Phase II<br>MMXXVI — Site under evaluation<br>©2026</div>
+  <div class="meta hide">“POLIS” First City — Concept<br>100,000 residents<br>Energy · Water · Food · Waste<br>MMXXVI — Site under evaluation</div>
   <a class="r" href="#join">Join</a>
 </nav>
 
+<nav id="rail"></nav>
+
 <header class="hero" id="top">
-  <div class="halo"></div>
-  <div class="portal"><img src="img/res-aerial.jpg" alt="Anthropos, concept render"></div>
-  <svg class="word" viewBox="0 0 1200 360" aria-label="Anthropos">
+  <svg viewBox="0 0 1200 360" aria-label="Anthropos">
     <defs>
-      <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#fff"/><stop offset=".38" stop-color="#c9ceda"/><stop offset=".52" stop-color="#5d6170"/><stop offset=".6" stop-color="#e9ecf4"/><stop offset="1" stop-color="#fff"/>
-      </linearGradient>
+      <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".38" stop-color="#c9ceda"/><stop offset=".52" stop-color="#5d6170"/><stop offset=".6" stop-color="#e9ecf4"/><stop offset="1" stop-color="#fff"/></linearGradient>
       <path id="arc" d="M40 330 Q600 40 1160 330"/>
     </defs>
-    <text class="f" font-family="Inter Tight" font-weight="900" font-size="196" letter-spacing="-10" text-anchor="middle" fill="#3a3d48" transform="translate(0,9)"><textPath href="#arc" startOffset="50%">ANTHROPOS</textPath></text>
-    <text class="f" font-family="Inter Tight" font-weight="900" font-size="196" letter-spacing="-10" text-anchor="middle" fill="url(#chrome)" stroke="#fff" stroke-width="1.2"><textPath href="#arc" startOffset="50%">ANTHROPOS</textPath></text>
+    <text font-family="Inter Tight" font-weight="900" font-size="196" letter-spacing="-10" text-anchor="middle" fill="#3a3d48" transform="translate(0,9)"><textPath href="#arc" startOffset="50%">ANTHROPOS</textPath></text>
+    <text font-family="Inter Tight" font-weight="900" font-size="196" letter-spacing="-10" text-anchor="middle" fill="url(#chrome)" stroke="#fff" stroke-width="1.2"><textPath href="#arc" startOffset="50%">ANTHROPOS</textPath></text>
   </svg>
-  <span class="side l">CITY</span><span class="side r">01</span>
-  <p class="over">A city where no one has to work to live.</p>
-  <span class="corner l">Scroll to enter ↓</span>
-  <span class="corner r"><i></i>The Return — Anthropos®</span>
+  <p class="sub">A city that powers, waters and feeds itself.</p>
+  <span class="hint"><i></i>Scroll to fly over the city</span>
 </header>
 
-<section id="manifest" class="manifest">
-  <span class="label">Manifest</span>
-  <p class="big lead split">Machines now do the work. Nobody built a place for what comes after. We are building it.</p>
-  <div class="lines">
-    <div class="row"><span class="k">A1</span><span class="t">Abundance</span><span class="d">Energy, homes and food built as infrastructure.</span><img src="img/res-pool.jpg" alt=""></div>
-    <div class="row"><span class="k">A2</span><span class="t">Citizenship</span><span class="d">Chosen, not inherited.</span><img src="img/life-dinner.jpg" alt=""></div>
-    <div class="row"><span class="k">B1</span><span class="t">The Forum</span><span class="d">Squares, baths and theaters instead of the commute.</span><img src="img/life-amphi.jpg" alt=""></div>
-    <div class="row"><span class="k">B2</span><span class="t">Stone</span><span class="d">Built to stand five hundred years.</span><img src="img/res-courtyard.jpg" alt=""></div>
+<section class="step" id="s1" data-cam="city"><div class="card">
+  <span class="k"><b>A1</b> The City</span>
+  <h2>Polis</h2>
+  <p>One hundred thousand people in four districts around a single forum. Everything you need daily is a fifteen-minute walk away. The city produces its own power, water and most of its food, and returns what it uses to the land.</p>
+  <ul><li><span>01</span>Residents (target)<em>100,000</em></li><li><span>02</span>Districts<em>4</em></li><li><span>03</span>Walk to the forum<em>≤ 15 min</em></li><li><span>04</span>Cars inside the ring<em>0</em></li></ul>
+</div></section>
+
+<section class="step" id="s2" data-cam="energy"><div class="card">
+  <span class="k"><b>A2</b> Energy</span>
+  <h2>The sun pays the floor.</h2>
+  <p>A solar field north of the city and wind turbines on the ridge feed a city microgrid. Batteries store the afternoon for the night. Every roof is a generator. Power is infrastructure, like streets: built once, shared by everyone.</p>
+  <ul><li><span>01</span>Solar field<em>320 MW</em></li><li><span>02</span>Wind on the ridge<em>60 MW</em></li><li><span>03</span>Battery storage<em>1.2 GWh</em></li><li><span>04</span>Yearly demand covered<em>110%</em></li></ul>
+  <p class="fn">Design targets, sized for ~6 MWh per resident per year in a tropical site.</p>
+</div></section>
+
+<section class="step" id="s3" data-cam="water"><div class="card">
+  <span class="k"><b>A3</b> Water</span>
+  <h2>From the sea, back to the soil.</h2>
+  <p>A solar-powered desalination plant on the shore fills the reservoir. Roofs and squares capture the rain. Every litre used in homes is treated and sent back through the canals to irrigate farms and gardens. Nothing is pumped from aquifers.</p>
+  <ul><li><span>01</span>Daily supply<em>15,000 m³</em></li><li><span>02</span>Per resident<em>150 L/day</em></li><li><span>03</span>Wastewater reused<em>100%</em></li><li><span>04</span>Rain captured<em>All roofs</em></li></ul>
+</div></section>
+
+<section class="step" id="s4" data-cam="food"><div class="card">
+  <span class="k"><b>A4</b> Food</span>
+  <h2>Grown within sight.</h2>
+  <p>Greenhouses and terraced fields on the east edge grow vegetables, fruit and grains with recycled water and the city's own compost. Fish farms work the bay. Fresh food travels a few kilometres, not a few thousand.</p>
+  <ul><li><span>01</span>Greenhouses<em>40 ha</em></li><li><span>02</span>Terraced fields<em>600 ha</em></li><li><span>03</span>Fresh produce grown locally<em>Most</em></li><li><span>04</span>Irrigation<em>Recycled</em></li></ul>
+</div></section>
+
+<section class="step" id="s5" data-cam="waste"><div class="card">
+  <span class="k"><b>B1</b> The Loop</span>
+  <h2>Nothing leaves.</h2>
+  <p>Waste is sorted where it is made. Food scraps and sewage sludge go to the biodigester, which makes gas for the kitchens and compost for the fields. Glass, metal and stone are reused in construction. The goal is a city without a landfill.</p>
+  <ul><li><span>01</span>Organic waste<em>→ Biogas + compost</em></li><li><span>02</span>Materials<em>→ Rebuilt</em></li><li><span>03</span>Landfill<em>0</em></li></ul>
+</div></section>
+
+<section class="step" id="s6" data-cam="move"><div class="card">
+  <span class="k"><b>B2</b> Movement</span>
+  <h2>A city you walk.</h2>
+  <p>Cars stop at the edge. Inside, an electric tram runs a ring around the districts every four minutes, and two straight avenues cross at the forum. Streets are for people, shade and trees.</p>
+  <ul><li><span>01</span>Tram frequency<em>4 min</em></li><li><span>02</span>Ring length<em>9 km</em></li><li><span>03</span>Parking<em>Edge only</em></li></ul>
+</div></section>
+
+<section class="step" id="s7" data-cam="homes"><div class="card">
+  <span class="k"><b>B3</b> Homes</span>
+  <h2>Stone, shade and courtyards.</h2>
+  <p>Low, dense buildings of local stone with green roofs and inner courtyards. Thick walls, deep shade and the sea breeze cool them before any machine does. Built to stand for centuries, not decades.</p>
+  <ul><li><span>01</span>Height<em>3–6 floors</em></li><li><span>02</span>Roofs<em>Green + solar</em></li><li><span>03</span>Design life<em>500 years</em></li></ul>
+</div></section>
+
+<section class="step" id="s8" data-cam="forum"><div class="card">
+  <span class="k"><b>B4</b> The Forum</span>
+  <h2>Where life after work happens.</h2>
+  <p>The center of the city: the assembly, the baths, the theater, the library and the market around one great square. The city is governed by a written charter, and its citizens vote on it here.</p>
+  <ul><li><span>01</span>Assembly · Baths · Theater<em>1 square</em></li><li><span>02</span>Governance<em>Charter</em></li><li><span>03</span>Citizenship<em>Chosen</em></li></ul>
+</div></section>
+
+<section class="loop" id="loop"><div class="in">
+  <span class="label">● The Loop</span>
+  <h2>One closed circle, from the sun back to the soil.</h2>
+  <div class="chain">
+    <div><small>01</small><b>Sun</b><span>Solar + wind</span></div>
+    <div><small>02</small><b>Power</b><span>Microgrid + storage</span></div>
+    <div><small>03</small><b>Water</b><span>Desalination + rain</span></div>
+    <div><small>04</small><b>Food</b><span>Greenhouses + fields</span></div>
+    <div><small>05</small><b>Waste</b><span>Biodigester</span></div>
+    <div><small>06</small><b>Soil</b><span>Compost → fields</span></div>
   </div>
-</section>
+</div></section>
 
-<div class="marq" aria-hidden="true"><div><span>THE RETURN</span><span>ANTHROPOS</span><span>MMXXVI</span><span>THE RETURN</span><span>ANTHROPOS</span><span>MMXXVI</span></div></div>
-
-<div class="hz" id="city">
-  <span class="cnt"><span id="hzn">01</span> / 06</span>
-  <div class="track">
-    <div class="intro"><span class="label">The City</span><p class="big split">Polis. The first Anthropos city, by the sea.</p></div>
-    <figure class="wide" data-c><img src="img/res-aerial-2.jpg" alt=""><figcaption><span>01</span>Arrival</figcaption></figure>
-    <figure class="tall" data-c><img src="img/res-canal.jpg" alt=""><figcaption><span>02</span>Canals</figcaption></figure>
-    <figure class="wide" data-c><img src="img/gov-city.jpg" alt=""><figcaption><span>03</span>Civic center</figcaption></figure>
-    <figure class="tall" data-c><img src="img/res-boardwalk.jpg" alt=""><figcaption><span>04</span>Boardwalk</figcaption></figure>
-    <figure class="wide" data-c><img src="img/res-courtyard.jpg" alt=""><figcaption><span>05</span>Courtyards</figcaption></figure>
-    <figure class="tall" data-c><img src="img/life-rooftop.jpg" alt=""><figcaption><span>06</span>Evenings</figcaption></figure>
-  </div>
-  <div class="bar"><i id="hzbar"></i></div>
-</div>
-
-<div class="plan" id="plan">
-  <div class="ttl"><span class="label">Master plan</span><p class="big">Four districts.<br>One forum.</p></div>
-  <img src="img/concepts/anthropos.jpg" alt="Anthropos master plan, concept">
-  <span class="tag" style="left:44%;top:56%">The Forum</span>
-  <span class="tag" style="left:30%;top:30%">Hill district</span>
-  <span class="tag" style="left:64%;top:40%">Terraces</span>
-  <span class="tag" style="left:22%;top:72%">The Shore</span>
-</div>
-
-<section style="padding-top:6vh">
-  <div class="nums">
-    <div><b data-n="100000">0</b><span>Residents (target)</span></div>
-    <div><b data-n="4">0</b><span>Districts</span></div>
-    <div><b data-n="1">0</b><span>Forum at the center</span></div>
-    <div><b data-n="500">0</b><span>Years it should stand</span></div>
-  </div>
-</section>
-
-<div class="bleed">
-  <img src="img/life-amphi.jpg" alt="" data-par>
-  <div class="mask"></div>
-  <p class="q split">After labor, the forum returns.</p>
-</div>
-
-<section id="round">
-  <span class="label">Sequence</span>
-  <p class="big split" style="margin:1em 0 8vh;text-indent:31%">Four phases. One billion dollars. One city.</p>
-  <div class="round">
-    <div class="row"><span class="k">A1</span><span class="t">Seed</span><span class="d">Team, citizens, master plan.</span><span class="v" data-m="10">$0M</span></div>
-    <div class="row"><span class="k">A2</span><span class="t">Land</span><span class="d">Host government and site.</span><span class="v" data-m="90">$0M</span></div>
-    <div class="row"><span class="k">B1</span><span class="t">Phase I</span><span class="d">First district and the forum.</span><span class="v" data-m="300">$0M</span></div>
-    <div class="row"><span class="k">B2</span><span class="t">Phase II</span><span class="d">The city opens.</span><span class="v" data-m="600">$0M</span></div>
-  </div>
-  <p class="legal">Target figures, not an offer. This page does not offer securities, tokens or returns.</p>
+<section class="round" id="round">
+  <span class="label" style="font-size:10px;color:var(--dim)">● SEQUENCE</span>
+  <p style="font-size:clamp(22px,3vw,44px);font-weight:600;letter-spacing:-.035em;margin:.6em 0 6vh">Four phases. One billion dollars. One city.</p>
+  <div class="row"><span class="k">A1</span><span class="t">Seed</span><span class="d">Team, citizens, master plan.</span><span class="v">$10M</span></div>
+  <div class="row"><span class="k">A2</span><span class="t">Land</span><span class="d">Host government and site.</span><span class="v">$90M</span></div>
+  <div class="row"><span class="k">B1</span><span class="t">Phase I</span><span class="d">Energy, water and the first district.</span><span class="v">$300M</span></div>
+  <div class="row"><span class="k">B2</span><span class="t">Phase II</span><span class="d">The city opens.</span><span class="v">$600M</span></div>
+  <p class="legal">Concept render and design targets, not a built project. Target figures, not an offer. This page does not offer securities, tokens or returns.</p>
 </section>
 
 <section class="join" id="join">
-  <p class="label" style="justify-content:center;margin-bottom:2em">Founding citizens</p>
-  <p class="big split">Be first to know where the city will be.</p>
+  <h2>Be first to know where the city will be.</h2>
   <form id="f"><input type="email" required placeholder="Your email" aria-label="Email"><button>Join →</button></form>
   <p class="ok" id="ok"></p>
 </section>
 
 <footer>
-  <span>©2026 Anthropos Cities</span>
-  <a href="privacy.html">Privacy Policy</a>
-  <a href="index.html">Main site</a>
-  <a href="news.html">Dispatches</a>
-  <a href="#top">Back to top ↑</a>
-  <span style="text-align:right">The Return — MMXXVI</span>
-  <div class="big-word" id="bw">ANTHROPOS</div>
+  <span>©2026 Anthropos Cities</span><a href="privacy.html">Privacy Policy</a><a href="index.html">Main site</a><a href="news.html">Dispatches</a><a href="#top">Back to top ↑</a><span style="text-align:right">Polis — MMXXVI</span>
+  <div class="bw">ANTHROPOS</div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
-gsap.registerPlugin(ScrollTrigger);
 const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
-
 // grain
-const c=$('#grain'),x=c.getContext('2d');let id;
-function rs(){c.width=innerWidth/2;c.height=innerHeight/2;id=x.createImageData(c.width,c.height)}rs();addEventListener('resize',rs);
-(function g(){const d=id.data;for(let i=0;i<d.length;i+=4){d[i]=d[i+1]=d[i+2]=Math.random()*255;d[i+3]=255}x.putImageData(id,0,0);setTimeout(()=>requestAnimationFrame(g),60)})();
+(()=>{const c=$('#grain'),x=c.getContext('2d');let id;function rs(){c.width=innerWidth/2;c.height=innerHeight/2;id=x.createImageData(c.width,c.height)}rs();addEventListener('resize',rs);
+(function g(){const d=id.data;for(let i=0;i<d.length;i+=4){d[i]=d[i+1]=d[i+2]=Math.random()*255;d[i+3]=255}x.putImageData(id,0,0);setTimeout(()=>requestAnimationFrame(g),70)})()})();
 
-// cursor
-const cur=$('#cur');let mx=innerWidth/2,my=innerHeight/2;
-addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
-gsap.ticker.add(()=>{gsap.set(cur,{x:gsap.utils.interpolate(gsap.getProperty(cur,'x'),mx,.18),y:gsap.utils.interpolate(gsap.getProperty(cur,'y'),my,.18)})});
-$$('[data-c],.lines .row').forEach(el=>{el.onmouseenter=()=>cur.classList.add('big');el.onmouseleave=()=>cur.classList.remove('big')});
+// ---------- scene ----------
+let seed=7;const rnd=()=>(seed=(seed*16807)%2147483647)/2147483647;
+const R=new THREE.WebGLRenderer({canvas:$('#gl'),antialias:true});
+R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;R.shadowMap.type=THREE.PCFSoftShadowMap;
+R.outputEncoding=THREE.sRGBEncoding;
+const S=new THREE.Scene();S.background=new THREE.Color(0x050505);S.fog=new THREE.Fog(0x050505,260,720);
+const cam=new THREE.PerspectiveCamera(38,1,1,3000);
+S.add(new THREE.HemisphereLight(0xdfe6ff,0x1a1712,.55));
+const sun=new THREE.DirectionalLight(0xfff1dc,1.25);sun.position.set(-160,220,120);sun.castShadow=true;
+sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-280,right:280,top:280,bottom:-280,near:10,far:700});S.add(sun);
 
-// split words
-$$('.split').forEach(el=>{el.innerHTML=el.textContent.trim().split(/\s+/).map(w=>`<span class="w"><span>${w}</span></span>`).join(' ')});
+const ACC=new THREE.Color(0xffd38a);
+const M=(c,o={})=>new THREE.MeshStandardMaterial(Object.assign({color:c,roughness:.85,metalness:0},o));
+const sys={};function group(n){const g=new THREE.Group();g.userData.mats=[];sys[n]=g;S.add(g);return g}
+function reg(g,m){g.userData.mats.push(m);return m}
+function inst(geo,mat,n,fn,g){const im=new THREE.InstancedMesh(geo,mat,n);const d=new THREE.Object3D();for(let i=0;i<n;i++){fn(d,i);d.updateMatrix();im.setMatrixAt(i,d.matrix)}im.castShadow=im.receiveShadow=true;g.add(im);return im}
+const H=(x,z)=>{const d=Math.hypot(x+190,z+40);return Math.max(0,22-d*.12)*(1+.2*Math.sin(x*.05))}; // ridge west
 
-// loader counter
-const pct=$('#pct');gsap.to({v:0},{v:100,duration:1.4,ease:'power2.out',onUpdate(){pct.textContent=String(Math.round(this.targets()[0].v)).padStart(3,'0')}});
+// ground
+const gGeo=new THREE.PlaneGeometry(900,900,120,120);gGeo.rotateX(-Math.PI/2);
+const p=gGeo.attributes.position;for(let i=0;i<p.count;i++){const x=p.getX(i),z=p.getZ(i);p.setY(i,z>150?-2-(z-150)*.05:H(x,z))}gGeo.computeVertexNormals();
+const ground=new THREE.Mesh(gGeo,M(0x16171a));ground.receiveShadow=true;S.add(ground);
+// sea
+const seaGeo=new THREE.PlaneGeometry(1400,600,80,40);seaGeo.rotateX(-Math.PI/2);
+const sea=new THREE.Mesh(seaGeo,M(0x0b1218,{roughness:.25,metalness:.6,transparent:true,opacity:.95}));sea.position.set(0,-.6,460);S.add(sea);
+const seaBase=Float32Array.from(seaGeo.attributes.position.array);
+// shoreline
+const shore=new THREE.Mesh(new THREE.PlaneGeometry(900,10),M(0x2a2824));shore.rotation.x=-Math.PI/2;shore.position.set(0,.05,155);S.add(shore);
 
-// intro
-function intro(){
-  const tl=gsap.timeline();
-  tl.to('#gate button',{scale:14,opacity:0,duration:1,ease:'power3.in'})
-    .to('#gate',{autoAlpha:0,duration:.5},'-=.2')
-    .add(()=>document.body.classList.remove('locked'))
-    .fromTo('.halo',{scaleY:0,transformOrigin:'bottom'},{scaleY:1,duration:1.1,ease:'expo.out'},'-=.2')
-    .fromTo('.portal',{opacity:0},{opacity:1,duration:.6},'<')
-    .fromTo('svg.word text.f',{opacity:0,y:80},{opacity:1,y:0,duration:1.4,stagger:.08,ease:'expo.out'},'-=.7')
-    .from('nav>*,.side,.corner',{opacity:0,y:-10,stagger:.05,duration:.6},'-=1');
+// ---- forum
+const forum=group('forum');
+const stone=reg(forum,M(0xe8e4dc));
+const sq=new THREE.Mesh(new THREE.CylinderGeometry(22,22,.6,64),reg(forum,M(0xcfc9be)));sq.position.y=.3;sq.receiveShadow=true;forum.add(sq);
+const dome=new THREE.Mesh(new THREE.SphereGeometry(7,32,16,0,Math.PI*2,0,Math.PI/2),stone);dome.position.y=6;dome.castShadow=true;forum.add(dome);
+const drum=new THREE.Mesh(new THREE.CylinderGeometry(7.2,7.2,6,32),stone);drum.position.y=3;drum.castShadow=true;forum.add(drum);
+inst(new THREE.CylinderGeometry(.45,.45,5,8),stone,48,(d,i)=>{const a=i/48*Math.PI*2;d.position.set(Math.cos(a)*19,2.8,Math.sin(a)*19)},forum);
+const ringRoof=new THREE.Mesh(new THREE.TorusGeometry(19,.9,6,96),stone);ringRoof.rotation.x=Math.PI/2;ringRoof.position.y=5.6;forum.add(ringRoof);
+// theater (half bowl)
+const th=new THREE.Mesh(new THREE.CylinderGeometry(9,5,3,32,1,true,0,Math.PI),reg(forum,M(0xd6d0c5,{side:THREE.DoubleSide})));th.position.set(32,1.5,-6);forum.add(th);
+
+// ---- homes (4 districts, skipping the two avenues)
+const homes=group('homes');
+const wall=reg(homes,M(0xd9d4ca)),roof=reg(homes,M(0x4f5e45));
+const B=[];for(let i=0;i<1500&&B.length<620;i++){const a=rnd()*Math.PI*2,r=30+Math.sqrt(rnd())*58,x=Math.cos(a)*r,z=Math.sin(a)*r;
+  if(Math.abs(x)<5||Math.abs(z)<5)continue;if(Math.abs(x-32)<12&&Math.abs(z+6)<10)continue;
+  const w=3+rnd()*5,dpt=3+rnd()*5,h=3+rnd()*rnd()*12+(r<50?4:0);if(B.some(b=>Math.abs(b.x-x)<(b.w+w)/2+1.2&&Math.abs(b.z-z)<(b.d+dpt)/2+1.2))continue;B.push({x,z,w,d:dpt,h})}
+inst(new THREE.BoxGeometry(1,1,1),wall,B.length,(d,i)=>{const b=B[i];d.position.set(b.x,b.h/2,b.z);d.scale.set(b.w,b.h,b.d);d.rotation.set(0,0,0)},homes);
+inst(new THREE.BoxGeometry(1,1,1),roof,B.length,(d,i)=>{const b=B[i];d.position.set(b.x,b.h+.2,b.z);d.scale.set(b.w*.8,.4,b.d*.8)},homes);
+// avenues
+const ave=reg(homes,M(0x9d978c));[0,1].forEach(k=>{const m=new THREE.Mesh(new THREE.BoxGeometry(k?8:200,.3,k?200:8),ave);m.position.y=.15;m.receiveShadow=true;homes.add(m)});
+
+// ---- green belt
+const belt=group('belt');const leaf=reg(belt,M(0x2f3a2a));
+inst(new THREE.ConeGeometry(1.6,5,6),leaf,1400,(d,i)=>{let x,z;do{const a=rnd()*Math.PI*2,r=96+rnd()*40;x=Math.cos(a)*r;z=Math.sin(a)*r}while(z>140);const s=.7+rnd()*.9;d.position.set(x,H(x,z)+2.5*s,z);d.scale.set(s,s,s)},belt);
+
+// ---- movement: tram ring
+const move=group('move');
+const rail=new THREE.Mesh(new THREE.TorusGeometry(90,.5,6,200),reg(move,M(0x8c8c8c)));rail.rotation.x=Math.PI/2;rail.position.y=.4;move.add(rail);
+const trams=[];for(let i=0;i<4;i++){const t=new THREE.Mesh(new THREE.BoxGeometry(14,2.4,2.6),reg(move,M(0xf2f2f2)));t.castShadow=true;move.add(t);trams.push(t)}
+// parking at edge
+const pk=reg(move,M(0x3a3a3a));[[-140,90],[140,95]].forEach(([x,z])=>{const m=new THREE.Mesh(new THREE.BoxGeometry(30,.4,18),pk);m.position.set(x,H(x,z)+.2,z);move.add(m)});
+
+// ---- energy: solar field north, wind on ridge, batteries
+const energy=group('energy');
+const pv=reg(energy,M(0x1d2a44,{metalness:.55,roughness:.3}));
+const PV=[];for(let r=0;r<22;r++)for(let c=0;c<26;c++)PV.push([-120+c*9.5,-165-r*6]);
+inst(new THREE.BoxGeometry(8.4,.25,3.6),pv,PV.length,(d,i)=>{d.position.set(PV[i][0],1.6,PV[i][1]);d.rotation.set(-.42,0,0)},energy);
+const bat=reg(energy,M(0xcfcfcf));inst(new THREE.BoxGeometry(6,3,2.4),bat,24,(d,i)=>{d.position.set(-150+(i%6)*7.5,1.5,-140-Math.floor(i/6)*4)},energy);
+const tw=reg(energy,M(0xf0f0f0));const blades=[];
+for(let i=0;i<7;i++){const x=-215+i*14,z=-70+Math.sin(i)*30+i*12,y=H(x,z);
+  const tower=new THREE.Mesh(new THREE.CylinderGeometry(.5,1,34,8),tw);tower.position.set(x,y+17,z);tower.castShadow=true;energy.add(tower);
+  const hub=new THREE.Group();hub.position.set(x,y+34,z+1);hub.rotation.y=-.6;
+  for(let k=0;k<3;k++){const b=new THREE.Mesh(new THREE.BoxGeometry(.6,15,.25),tw);b.position.y=7.5;const pv=new THREE.Group();pv.rotation.z=k*Math.PI*2/3;pv.add(b);hub.add(pv)}
+  energy.add(hub);blades.push(hub)}
+// rooftop panels shown with energy
+inst(new THREE.BoxGeometry(1,1,1),reg(energy,M(0x1d2a44,{metalness:.5,roughness:.3})),Math.min(B.length,300),(d,i)=>{const b=B[i*2%B.length];d.position.set(b.x+b.w*.15,b.h+.5,b.z);d.scale.set(b.w*.35,.15,b.d*.6)},energy);
+
+// ---- water: desal plant + reservoir + canals
+const water=group('water');
+const plant=reg(water,M(0xe6e6e6));
+inst(new THREE.CylinderGeometry(3,3,6,24),plant,8,(d,i)=>{d.position.set(-40+(i%4)*8,3,140+Math.floor(i/4)*8)},water);
+const hall=new THREE.Mesh(new THREE.BoxGeometry(26,7,12),plant);hall.position.set(-70,3.5,144);hall.castShadow=true;water.add(hall);
+const wmat=reg(water,M(0x2a4a63,{roughness:.15,metalness:.4}));
+const res=new THREE.Mesh(new THREE.CylinderGeometry(16,16,.6,48),wmat);res.position.set(-115,.6,40);water.add(res);
+[[[-115,40],[-60,20],[-8,8]],[[-60,140],[-90,90],[-115,40]],[[8,8],[90,10],[160,0]]].forEach(pts=>{
+  const cv=new THREE.CatmullRomCurve3(pts.map(([x,z])=>new THREE.Vector3(x,.5,z)));
+  const m=new THREE.Mesh(new THREE.TubeGeometry(cv,60,1.1,6),wmat);water.add(m)});
+
+// ---- food: greenhouses + fields east
+const food=group('food');
+const glass=reg(food,M(0xcfe2e0,{roughness:.1,metalness:.2,transparent:true,opacity:.75}));
+const ghG=new THREE.CylinderGeometry(3,3,26,16,1,false,0,Math.PI);ghG.rotateZ(Math.PI/2);ghG.rotateX(Math.PI/2);ghG.rotateY(Math.PI/2);
+inst(ghG,glass,24,(d,i)=>{d.position.set(150+(i%6)*7.2,0,-40+Math.floor(i/6)*30);d.rotation.set(0,Math.PI/2,0)},food);
+const fieldCols=[0x3d4a2b,0x5a5a33,0x34432a,0x4d5530];
+for(let i=0;i<18;i++){const m=new THREE.Mesh(new THREE.BoxGeometry(22,.3,9),reg(food,M(fieldCols[i%4])));m.position.set(150+(i%3)*24,.2,60+Math.floor(i/3)*11);m.receiveShadow=true;food.add(m)}
+// fish pens in the bay
+inst(new THREE.TorusGeometry(4,.3,6,24),reg(food,M(0xdddddd)),6,(d,i)=>{d.position.set(110+i*12,.2,200+(i%2)*10);d.rotation.set(Math.PI/2,0,0)},food);
+
+// ---- waste: biodigester domes
+const waste=group('waste');
+const dg=reg(waste,M(0xdedad2));
+inst(new THREE.SphereGeometry(5,24,12,0,Math.PI*2,0,Math.PI/2),dg,4,(d,i)=>{d.position.set(110+(i%2)*13,0,115+Math.floor(i/2)*13)},waste);
+const sort=new THREE.Mesh(new THREE.BoxGeometry(18,6,10),dg);sort.position.set(85,3,120);sort.castShadow=true;waste.add(sort);
+const stack=new THREE.Mesh(new THREE.CylinderGeometry(.8,.8,14,8),dg);stack.position.set(96,7,112);waste.add(stack);
+
+// ---- energy flow particles
+const flows=[];
+function flow(pts,n,g){const cv=new THREE.CatmullRomCurve3(pts.map(([x,y,z])=>new THREE.Vector3(x,y,z)));
+  const geo=new THREE.BufferGeometry();geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(n*3),3));
+  const mat=new THREE.PointsMaterial({color:ACC,size:2.2,transparent:true,opacity:0,depthWrite:false,blending:THREE.AdditiveBlending});
+  const pts3=new THREE.Points(geo,mat);S.add(pts3);flows.push({cv,n,geo,mat,g,off:rnd()})}
+flow([[-10,6,-160],[-8,12,-90],[0,9,-25]],60,'energy');
+flow([[-185,30,-50],[-120,18,-20],[-25,9,-5]],50,'energy');
+flow([[-55,6,140],[-90,10,90],[-115,4,40],[-50,6,15],[-8,5,6]],70,'water');
+flow([[160,5,0],[90,8,-4],[25,6,0]],45,'food');
+flow([[60,5,40],[85,6,90],[110,6,118]],40,'waste');
+flow([[110,6,118],[140,8,90],[165,4,70]],40,'waste');
+
+// ---- 3D labels
+const LB=[
+ ['city','The Forum',0,10,0],['city','North district',-60,10,-55],['city','South district',55,8,60],['city','Green belt',-110,6,90],
+ ['energy','Solar field · 320 MW',0,4,-190],['energy','Wind ridge · 60 MW',-190,50,-30],['energy','Batteries · 1.2 GWh',-135,6,-148],
+ ['water','Desalination',-55,10,148],['water','Reservoir',-115,4,40],['water','Canals',60,4,10],
+ ['food','Greenhouses',168,6,-25],['food','Terraced fields',175,3,80],['food','Fish farms',140,3,205],
+ ['waste','Biodigester',116,8,120],['waste','Sorting',85,8,120],
+ ['move','Tram ring · 9 km',0,4,-90],['move','Edge parking',-140,4,90],
+ ['homes','Courtyard blocks',40,16,-40],['homes','Green roofs',-45,14,40],
+ ['forum','Assembly',0,15,0],['forum','Theater',32,6,-6],['forum','Colonnade',-19,8,0]
+].map(([s,t,x,y,z])=>{const e=document.createElement('div');e.className='lb';e.textContent=t;$('#labels').appendChild(e);return{s,e,v:new THREE.Vector3(x,y,z)}});
+
+// ---- camera shots
+const V=(x,y,z)=>new THREE.Vector3(x,y,z);
+const SHOTS={
+ top:   {p:V(230,330,430),t:V(0,0,-10),hi:[]},
+ city:  {p:V(150,150,210),t:V(-10,0,0),hi:['homes','forum','belt']},
+ energy:{p:V(90,95,-40),t:V(-95,0,-150),hi:['energy']},
+ water: {p:V(40,70,250),t:V(-70,0,90),hi:['water']},
+ food:  {p:V(280,80,110),t:V(165,0,40),hi:['food']},
+ waste: {p:V(30,55,190),t:V(105,0,115),hi:['waste']},
+ move:  {p:V(0,210,170),t:V(0,0,0),hi:['move']},
+ homes: {p:V(70,38,70),t:V(10,4,0),hi:['homes']},
+ forum: {p:V(38,26,44),t:V(0,3,0),hi:['forum']},
+ end:   {p:V(-260,280,380),t:V(0,0,-20),hi:['energy','water','food','waste','move','homes','forum','belt']}
+};
+const order=['top',...$$('.step').map(s=>s.dataset.cam),'end'];
+const cp=SHOTS.top.p.clone(),ct=SHOTS.top.t.clone();let active='top';
+const hiLevel={};Object.keys(sys).forEach(k=>hiLevel[k]=0);
+
+// rail
+const names={city:'City',energy:'Energy',water:'Water',food:'Food',waste:'Loop',move:'Movement',homes:'Homes',forum:'Forum'};
+$$('.step').forEach(s=>{const a=document.createElement('a');a.href='#'+s.id;a.dataset.cam=s.dataset.cam;a.innerHTML=`<span>${names[s.dataset.cam]}</span><i></i>`;$('#rail').appendChild(a)});
+
+function scrollState(){
+  const vh=innerHeight;let tgtP,tgtT;const steps=$$('.step');
+  // continuous blend between shots based on scroll
+  const pts=[{y:0,k:'top'}];steps.forEach(s=>pts.push({y:s.offsetTop,k:s.dataset.cam}));pts.push({y:$('#loop').offsetTop,k:'end'});
+  const y=scrollY+vh*.35;let i=0;while(i<pts.length-1&&y>pts[i+1].y)i++;
+  const a=pts[i],b=pts[Math.min(i+1,pts.length-1)];
+  // hold on shot for most of the step, move in the last part
+  let f=b===a?0:(y-a.y)/(b.y-a.y);f=Math.min(1,Math.max(0,(f-.55)/.45));f=f*f*(3-2*f);
+  tgtP=SHOTS[a.k].p.clone().lerp(SHOTS[b.k].p,f);tgtT=SHOTS[a.k].t.clone().lerp(SHOTS[b.k].t,f);
+  active=f<.5?a.k:b.k;
+  steps.forEach(s=>s.classList.toggle('on',s.dataset.cam===active));
+  $$('#rail a').forEach(r=>r.classList.toggle('on',r.dataset.cam===active));
+  $('.hero').style.opacity=Math.max(0,1-scrollY/(vh*.6));
+  return{tgtP,tgtT}
 }
-$('#enter').onclick=intro;
 
-// hero: door opens into the city render
-gsap.timeline({scrollTrigger:{trigger:'.hero',start:'top top',end:'+=170%',scrub:1,pin:true}})
-  .to('svg.word',{yPercent:-60,scale:1.25,opacity:0,ease:'none'},0)
-  .to('.portal',{clipPath:'inset(0% 0% 0% 0%)',ease:'power2.inOut'},0)
-  .to('.portal img',{opacity:1,scale:1,ease:'power2.out'},.1)
-  .to('.halo',{opacity:0},0)
-  .to('.over',{opacity:1,y:-20},.65);
+function resize(){R.setSize(innerWidth,innerHeight,false);cam.aspect=innerWidth/innerHeight;
+  cam.fov=innerWidth<760?55:38;cam.updateProjectionMatrix()}
+addEventListener('resize',resize);resize();
 
-// word reveals
-$$('.split').forEach(el=>gsap.to(el.querySelectorAll('.w>span'),{y:0,duration:1,stagger:.04,ease:'expo.out',scrollTrigger:{trigger:el,start:'top 85%'}}));
+let mx=0,my=0;addEventListener('mousemove',e=>{mx=e.clientX/innerWidth-.5;my=e.clientY/innerHeight-.5});
+const clock=new THREE.Clock();const tmp=new THREE.Vector3();
+function loop(){
+  const t=clock.getElapsedTime(),{tgtP,tgtT}=scrollState();
+  // slow drone drift
+  tgtP.x+=Math.sin(t*.12)*8+mx*14;tgtP.y+=Math.sin(t*.17)*3-my*8;
+  cp.lerp(tgtP,.045);ct.lerp(tgtT,.05);cam.position.copy(cp);cam.lookAt(ct);
+  // highlight systems
+  const hi=SHOTS[active].hi;
+  Object.entries(sys).forEach(([k,g])=>{const on=hi.includes(k)?1:0;hiLevel[k]+=(on-hiLevel[k])*.06;
+    g.userData.mats.forEach(m=>{m.emissive=m.emissive||new THREE.Color();m.emissive.copy(ACC).multiplyScalar(hiLevel[k]*.22)})});
+  // anim
+  blades.forEach((b,i)=>b.rotation.z=t*(1.4+i*.07));
+  trams.forEach((tr,i)=>{const a=t*.08+i*Math.PI/2;tr.position.set(Math.cos(a)*90,1.6,Math.sin(a)*90);tr.rotation.y=-a});
+  const sp=seaGeo.attributes.position;for(let i=0;i<sp.count;i++){const x=seaBase[i*3],z=seaBase[i*3+2];sp.setY(i,Math.sin(x*.03+t*.8)*.6+Math.cos(z*.05+t*.6)*.5)}sp.needsUpdate=true;
+  flows.forEach(fl=>{const on=active==='end'||SHOTS[active].hi.includes(fl.g)?1:0;fl.mat.opacity+=(on*.95-fl.mat.opacity)*.06;
+    const a=fl.geo.attributes.position.array;for(let i=0;i<fl.n;i++){const u=(i/fl.n+t*.06+fl.off)%1;fl.cv.getPointAt(u,tmp);a[i*3]=tmp.x;a[i*3+1]=tmp.y+Math.sin(u*40+t)*.3;a[i*3+2]=tmp.z}fl.geo.attributes.position.needsUpdate=true});
+  // labels
+  LB.forEach(l=>{const on=l.s===active||(active==='city'&&l.s==='city');tmp.copy(l.v).project(cam);
+    const vis=on&&tmp.z<1&&Math.abs(tmp.x)<1.05&&Math.abs(tmp.y)<1.05;l.e.classList.toggle('on',vis);
+    l.e.style.transform=`translate(${(tmp.x*.5+.5)*innerWidth}px,${(-tmp.y*.5+.5)*innerHeight}px)`});
+  R.render(S,cam);requestAnimationFrame(loop)}
 
-// manifest rows
-gsap.from('.lines .row',{yPercent:60,opacity:0,stagger:.12,duration:1.1,ease:'expo.out',scrollTrigger:{trigger:'.lines',start:'top 80%'}});
-gsap.from('.lines .row .t',{letterSpacing:'0.08em',stagger:.12,duration:1.6,ease:'expo.out',scrollTrigger:{trigger:'.lines',start:'top 80%'}});
+// loader
+let n=0;const pi=setInterval(()=>{n=Math.min(100,n+7);$('#pct').textContent=String(n).padStart(3,'0');if(n>=100){clearInterval(pi);$('#load').classList.add('gone')}},40);
+loop();
 
-// marquee speeds with scroll
-const mq=$('.marq div');ScrollTrigger.create({onUpdate:s=>{gsap.to(mq,{skewX:gsap.utils.clamp(-12,12,s.getVelocity()/-150),duration:.4})}});
-
-// horizontal gallery
-const track=$('.hz .track'),figs=$$('.hz figure');
-const hz=gsap.to(track,{x:()=>-(track.scrollWidth-innerWidth),ease:'none',
-  scrollTrigger:{trigger:'.hz',start:'top top',end:()=>'+='+(track.scrollWidth-innerWidth),scrub:1,pin:true,invalidateOnRefresh:true,
-  onUpdate:s=>{$('#hzbar').style.width=s.progress*100+'%';$('#hzn').textContent=String(Math.min(6,1+Math.floor(s.progress*6))).padStart(2,'0')}}});
-figs.forEach(f=>{
-  gsap.to(f.querySelector('img'),{xPercent:8,ease:'none',scrollTrigger:{trigger:f,containerAnimation:hz,start:'left right',end:'right left',scrub:true}});
-  gsap.from(f,{clipPath:'inset(100% 0 0 0)',duration:1.2,ease:'expo.out',scrollTrigger:{trigger:f,containerAnimation:hz,start:'left 90%'}});
-});
-
-// master plan draws itself
-gsap.timeline({scrollTrigger:{trigger:'#plan',start:'top top',end:'+=150%',scrub:1,pin:true}})
-  .fromTo('#plan img',{scale:1.4,rotate:-6},{scale:1,rotate:0,ease:'none'},0)
-  .to('#plan img',{clipPath:'inset(0 0% 0 0)',ease:'none'},0)
-  .to('#plan .tag',{opacity:1,stagger:.15},.5);
-
-// counters
-$$('[data-n]').forEach(b=>{const n=+b.dataset.n;ScrollTrigger.create({trigger:b,start:'top 85%',once:true,onEnter:()=>gsap.to({v:0},{v:n,duration:2,ease:'power3.out',onUpdate(){b.textContent=Math.round(this.targets()[0].v).toLocaleString('en-US')}})})});
-$$('[data-m]').forEach(b=>{const n=+b.dataset.m;ScrollTrigger.create({trigger:b,start:'top 90%',once:true,onEnter:()=>gsap.to({v:0},{v:n,duration:1.6,ease:'power3.out',onUpdate(){b.textContent='$'+Math.round(this.targets()[0].v)+'M'}})})});
-gsap.from('.round .row',{opacity:0,x:-40,stagger:.1,duration:.9,ease:'expo.out',scrollTrigger:{trigger:'.round',start:'top 80%'}});
-
-// full bleed reveal + parallax
-gsap.to('.bleed .mask',{clipPath:'inset(0 0 100% 0)',ease:'none',scrollTrigger:{trigger:'.bleed',start:'top 80%',end:'top 10%',scrub:1}});
-gsap.to('.bleed img',{yPercent:12,ease:'none',scrollTrigger:{trigger:'.bleed',start:'top bottom',end:'bottom top',scrub:true}});
-
-// footer letters
-const bw=$('#bw');bw.innerHTML=[...bw.textContent].map(l=>`<span>${l}</span>`).join('');
-gsap.from('#bw span',{yPercent:110,stagger:.05,duration:1.2,ease:'expo.out',scrollTrigger:{trigger:'footer',start:'top 85%'}});
-
-// form
 $('#f').onsubmit=e=>{e.preventDefault();location.href='mailto:hello@anthroposcities.com?subject=Founding%20citizen&body='+encodeURIComponent(e.target[0].value);$('#ok').textContent='Thank you. Your mail app will open to confirm.'};
 </script>
 </body>

@@ -127,58 +127,130 @@ const water = new Water(new THREE.PlaneGeometry(12000, 12000), { textureWidth: M
   sunDirection: SUN.position.clone().normalize(), sunColor: 0xfff0d8, waterColor: 0x0f3f5c, distortionScale: 3, fog: true });
 water.rotation.x = -Math.PI / 2; water.position.y = -.3; S.add(water);
 
-// ── what makes it self-sustaining: on the outskirts ──
-prog(85, 'Wiring the sun, water and food…');
+// ── what makes it self-sustaining: on the outskirts, detailed and alive ──
+prog(85);
 const SYS = new THREE.Group(); S.add(SYS);
 const mat = (c, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: .6 }, o));
+const glow = (c, k = 2.6) => new THREE.MeshBasicMaterial({ color: new THREE.Color(c).multiplyScalar(k), toneMapped: false });
 const ty = (x, z) => Math.max(terrainP(x, z), .6);
 const SYSG = {}; const sg = (id) => { const g = new THREE.Group(); g.userData.id = id; SYS.add(g); SYSG[id] = g; g.visible = false; return g; };
 const inst = (geo, m, list, fn) => { const im = new THREE.InstancedMesh(geo, m, list.length), d = new THREE.Object3D(); list.forEach((v, i) => { d.position.set(0, 0, 0); d.rotation.set(0, 0, 0); d.scale.set(1, 1, 1); fn(d, v, i); d.updateMatrix(); im.setMatrixAt(i, d.matrix); }); im.castShadow = im.receiveShadow = true; return im; };
+const ANIM = []; const UT = { value: 0 };
+const ELEC = { solar: 0x2f7bff, wind: 0x00f0ff, battery: 0xff2bd6, desal: 0x00d9ff, green: 0x7dff2e, fields: 0xc8ff3a, works: 0x9b5cff, digester: 0xff8a1f };
+const _o = new THREE.Object3D();
+// moving robots: a few small glowing machines per system
+function rovers(g, n, col, path) { const im = new THREE.InstancedMesh(new THREE.BoxGeometry(5, 2.4, 3.4), mat(0xf2f2f2, { emissive: new THREE.Color(col), emissiveIntensity: .8 }), n); im.castShadow = true; g.add(im);
+  const lamp = new THREE.InstancedMesh(new THREE.SphereGeometry(.9, 8, 6), glow(col, 4), n); g.add(lamp);
+  ANIM.push((t) => { for (let i = 0; i < n; i++) { const [x, y, z, ry] = path(i, t); _o.position.set(x, y + 1.2, z); _o.rotation.set(0, ry, 0); _o.updateMatrix(); im.setMatrixAt(i, _o.matrix); _o.position.y += 1.8; _o.updateMatrix(); lamp.setMatrixAt(i, _o.matrix); } im.instanceMatrix.needsUpdate = lamp.instanceMatrix.needsUpdate = true; }); }
+
+// SOLAR: cells, frames, a light sheen sweeping the field, inverters, cleaning robots
 { const g = sg('solar'), pts = []; for (let r = 0; r < 18; r++) for (let c = 0; c < 46; c++) pts.push([-420 + c * 18, 1130 + r * 13]);
-  g.add(inst(new THREE.BoxGeometry(16, .4, 7), mat(0x1f3358, { roughness: .2, metalness: .7 }), pts, (d, [x, z]) => { d.position.set(x, ty(x, z) + 3, z); d.rotation.x = -.5; }));
-  g.add(inst(new THREE.CylinderGeometry(.25, .25, 3, 5), mat(0x999999), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 1.5, z))); }
-{ const g = sg('battery'), pts = []; for (let i = 0; i < 24; i++) pts.push([470 + (i % 6) * 18, 1150 + Math.floor(i / 6) * 9]);
-  g.add(inst(new THREE.BoxGeometry(15, 5, 5), mat(0xf1f1ef, { roughness: .4 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 2.5, z))); }
+  const pm = mat(0x16295a, { roughness: .15, metalness: .8, emissive: new THREE.Color(ELEC.solar), emissiveIntensity: .25 });
+  pm.onBeforeCompile = (sh) => { sh.uniforms.uT = UT;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vU;varying vec3 vW;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvU=uv;vW=(modelMatrix*instanceMatrix*vec4(position,1.)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec2 vU;varying vec3 vW;uniform float uT;')
+      .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
+        vec2 cl=abs(fract(vU*vec2(12.,5.))-.5);float grid=1.-smoothstep(.42,.48,max(cl.x,cl.y));
+        diffuseColor.rgb=mix(vec3(.75,.8,.9),diffuseColor.rgb,grid);
+        float sweep=smoothstep(60.,0.,abs(mod(vW.x+vW.z*.4-uT*160.,1400.)-700.));
+        totalEmissiveRadiance+=vec3(.25,.55,1.)*sweep*1.6*grid;`); };
+  pm.customProgramCacheKey = () => 'solarcells';
+  g.add(inst(new THREE.BoxGeometry(16, .4, 7), pm, pts, (d, [x, z]) => { d.position.set(x, ty(x, z) + 3, z); d.rotation.x = -.5; }));
+  g.add(inst(new THREE.BoxGeometry(16.6, .3, .4), mat(0xd8dde5, { metalness: .6, roughness: .3 }), pts, (d, [x, z]) => { d.position.set(x, ty(x, z) + 1.4, z + 3.2); }));
+  g.add(inst(new THREE.CylinderGeometry(.25, .25, 3, 5), mat(0x999999), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 1.5, z)));
+  const inv = []; for (let i = 0; i < 6; i++) inv.push([-380 + i * 150, 1120]);
+  g.add(inst(new THREE.BoxGeometry(8, 5, 5), mat(0xeef2f8), inv, (d, [x, z]) => d.position.set(x, ty(x, z) + 2.5, z)));
+  g.add(inst(new THREE.BoxGeometry(8.2, .6, 5.2), glow(ELEC.solar, 3), inv, (d, [x, z]) => d.position.set(x, ty(x, z) + 5.2, z)));
+  rovers(g, 10, ELEC.solar, (i, t) => { const row = 1136 + (i * 2) * 13 + 6, x = -420 + ((t * 30 + i * 140) % 830); return [x, ty(x, row) + .5, row, 0]; }); }
+
+// WIND: tapered blades, nacelles, blinking aviation lights, glowing hubs
 const blades = [];
-{ const g = sg('wind'), m = mat(0xf7f7f7, { roughness: .35 });
+{ const g = sg('wind'), m = mat(0xf8f8f8, { roughness: .3 }), bladeG = new THREE.CylinderGeometry(.5, 2.4, 54, 8); bladeG.scale(1, 1, .28); bladeG.translate(0, 27, 0);
   for (let i = 0; i < 9; i++) { const x = -880 + i * 210, z = 1040 + Math.sin(i * 1.7) * 40, y = ty(x, z);
-    const tw = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 3, 110, 16), m); tw.position.set(x, y + 55, z); tw.castShadow = true; g.add(tw);
-    const hub = new THREE.Group(); hub.position.set(x, y + 110, z - 3); const sp = new THREE.Group(); hub.add(sp);
-    for (let k = 0; k < 3; k++) { const p = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(2.2, 52, .6), m); b.position.y = 26; b.castShadow = true; p.add(b); p.rotation.z = k * Math.PI * 2 / 3; sp.add(p); }
+    const tw = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 3.2, 110, 20), m); tw.position.set(x, y + 55, z); g.add(tw);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(6, 7, 2, 24), mat(0xcfd3d8)); base.position.set(x, y + 1, z); g.add(base);
+    const nac = new THREE.Mesh(new THREE.CapsuleGeometry(3, 10, 6, 12), m); nac.rotation.x = Math.PI / 2; nac.position.set(x, y + 111, z + 2); g.add(nac);
+    const hub = new THREE.Group(); hub.position.set(x, y + 111, z - 5); const sp = new THREE.Group(); hub.add(sp);
+    const cone = new THREE.Mesh(new THREE.SphereGeometry(2.6, 16, 12), m); cone.scale.z = 1.6; sp.add(cone);
+    for (let k = 0; k < 3; k++) { const p = new THREE.Group(), b = new THREE.Mesh(bladeG, m); b.rotation.y = .25; p.add(b); const tip = new THREE.Mesh(new THREE.BoxGeometry(1.2, 4, .5), glow(ELEC.wind, 3)); tip.position.y = 52; p.add(tip); p.rotation.z = k * Math.PI * 2 / 3; sp.add(p); }
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(4.2, .6, 8, 40), glow(ELEC.wind, 3)); hub.add(ring);
+    const red = new THREE.Mesh(new THREE.SphereGeometry(1.1, 8, 6), glow(0xff2a2a, 4)); red.position.set(x, y + 117, z + 4); g.add(red);
+    ANIM.push((t) => (red.visible = (t + i * .17) % 1.6 < .25));
     g.add(hub); blades.push(sp); } }
-{ const g = sg('desal'), x0 = 1180, z0 = bayP(1180) + 40, m = mat(0xeeeeee, { roughness: .45 });
-  g.add(inst(new THREE.CylinderGeometry(9, 9, 16, 32), m, [0, 1, 2, 3, 4, 5], (d, i) => d.position.set(x0 + (i % 3) * 22, ty(x0, z0) + 8, z0 + Math.floor(i / 3) * 22)));
-  const h = new THREE.Mesh(new THREE.BoxGeometry(70, 18, 34), mat(0xe2e0da)); h.position.set(x0 - 60, ty(x0, z0) + 9, z0 + 10); h.castShadow = true; g.add(h);
-  const pipe = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 220, 8), mat(0x777777, { metalness: .6 })); pipe.rotation.x = Math.PI / 2; pipe.position.set(x0 + 20, 0, z0 - 110); g.add(pipe); }
-{ const g = sg('green'), glass = new THREE.MeshPhysicalMaterial({ color: 0xe3f2ee, roughness: .05, transmission: .5, transparent: true, opacity: .6 });
-  const gg = new THREE.CylinderGeometry(8, 8, 90, 24, 1, false, 0, Math.PI); gg.rotateZ(Math.PI / 2); gg.rotateY(Math.PI / 2);
+
+// BATTERY: containers with fan grilles and breathing magenta light strips
+{ const g = sg('battery'), pts = []; for (let i = 0; i < 24; i++) pts.push([470 + (i % 6) * 18, 1150 + Math.floor(i / 6) * 9]);
+  g.add(inst(new THREE.BoxGeometry(15, 5, 5), mat(0xf3f3f5, { roughness: .35 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 2.5, z)));
+  g.add(inst(new THREE.CylinderGeometry(1.1, 1.1, .3, 16), mat(0x2b2d33), pts.flatMap(([x, z]) => [[x - 4, z], [x, z], [x + 4, z]]), (d, [x, z]) => d.position.set(x, ty(x, z) + 5.15, z)));
+  const strip = glow(ELEC.battery, 3); g.add(inst(new THREE.BoxGeometry(15.2, .5, .3), strip, pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 3.8, z - 2.6)));
+  const base = strip.color.clone(); ANIM.push((t) => strip.color.copy(base).multiplyScalar(.5 + .5 * (Math.sin(t * 2.2) * .5 + .5))); }
+
+// DESALINATION: ribbed tanks, an intake pier into the sea, glowing aqua headers
+{ const g = sg('desal'), x0 = 1180, z0 = bayP(1180) + 40, m = mat(0xf0f2f3, { roughness: .4 }), y0 = ty(x0, z0);
+  const tanks = [0, 1, 2, 3, 4, 5].map((i) => [x0 + (i % 3) * 22, z0 + Math.floor(i / 3) * 22]);
+  g.add(inst(new THREE.CylinderGeometry(9, 9, 16, 40), m, tanks, (d, [x, z]) => d.position.set(x, y0 + 8, z)));
+  for (const k of [4, 9, 14]) g.add(inst(new THREE.TorusGeometry(9.1, .35, 6, 40), glow(ELEC.desal, 2.6), tanks, (d, [x, z]) => { d.position.set(x, y0 + k, z); d.rotation.x = Math.PI / 2; }));
+  const h = new THREE.Mesh(new THREE.BoxGeometry(70, 18, 34), mat(0xe6e4de)); h.position.set(x0 - 60, y0 + 9, z0 + 10); g.add(h);
+  const win = new THREE.Mesh(new THREE.BoxGeometry(70.4, 2, 34.4), glow(ELEC.desal, 2)); win.position.set(x0 - 60, y0 + 12, z0 + 10); g.add(win);
+  const pier = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 200), mat(0xbfc4c8)); pier.position.set(x0 + 20, 1, z0 - 110); g.add(pier);
+  const pipe = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 200, 10), glow(ELEC.desal, 2.4)); pipe.rotation.x = Math.PI / 2; pipe.position.set(x0 + 20, 2.6, z0 - 110); g.add(pipe);
+  const head = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 4, 24), m); head.position.set(x0 + 20, 2, z0 - 212); g.add(head); }
+
+// GREENHOUSES: ribbed glass, rows of plants, pulsing grow lights inside
+{ const g = sg('green'), glass = new THREE.MeshPhysicalMaterial({ color: 0xeaf6f2, roughness: .04, transmission: .55, transparent: true, opacity: .45 });
+  const gg = new THREE.CylinderGeometry(8, 8, 90, 28, 1, true, 0, Math.PI); gg.rotateZ(Math.PI / 2); gg.rotateY(Math.PI / 2);
   const pts = []; for (let i = 0; i < 24; i++) pts.push([1150 + (i % 8) * 19, 260 + Math.floor(i / 8) * 105]);
   g.add(inst(gg, glass, pts, (d, [x, z]) => d.position.set(x, ty(x, z), z)));
-  g.add(inst(new THREE.BoxGeometry(15, .6, 88), mat(0x4f7d35, { roughness: 1 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + .4, z))); }
+  const ribs = []; pts.forEach(([x, z]) => { for (let k = -4; k <= 4; k++) ribs.push([x, z + k * 10.5]); });
+  g.add(inst(new THREE.TorusGeometry(8, .25, 4, 24, Math.PI), mat(0xffffff, { metalness: .5, roughness: .3 }), ribs, (d, [x, z]) => { d.position.set(x, ty(x, z), z); }));
+  g.add(inst(new THREE.BoxGeometry(15, .6, 88), mat(0x3e6d2a, { roughness: 1 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + .4, z)));
+  const plants = []; pts.forEach(([x, z]) => { for (let r = -2; r <= 2; r++) for (let k = 0; k < 14; k++) plants.push([x + r * 2.8, z - 40 + k * 6.2]); });
+  g.add(inst(new THREE.IcosahedronGeometry(1.3, 1), mat(0x5fae3a, { roughness: .8 }), plants, (d, [x, z]) => { d.position.set(x, ty(x, z) + 1.6, z); d.scale.y = 1.4; }));
+  const lamp = glow(0xff4fd8, 2.6); g.add(inst(new THREE.BoxGeometry(12, .4, 86), lamp, pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 6.5, z)));
+  const lb = lamp.color.clone(); ANIM.push((t) => lamp.color.copy(lb).multiplyScalar(.6 + .4 * Math.sin(t * 1.3))); }
+
+// FIELDS: crop rows and harvest robots crossing them
 { const g = sg('fields'), cols = [0x8fae4a, 0xb3a659, 0x6f9440, 0xc7b867, 0x7ea046];
-  for (let i = 0; i < 20; i++) { const x = 1160 + (i % 4) * 46, z = 620 + Math.floor(i / 4) * 40; const f = new THREE.Mesh(new THREE.BoxGeometry(42, .6, 36), mat(cols[i % 5], { roughness: 1 })); f.position.set(x, ty(x, z) + .3, z); f.receiveShadow = true; g.add(f); } }
-{ const g = sg('works'), m = mat(0xdfe4ec, { roughness: .45 }), x0 = -1290, z0 = 420, y = ty(x0, z0);
-  for (let i = 0; i < 3; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(120, 22, 34), m); b.position.set(x0, y + 11, z0 - 45 + i * 45); b.castShadow = b.receiveShadow = true; g.add(b);
-    const r = new THREE.Mesh(new THREE.CylinderGeometry(17, 17, 120, 32, 1, false, 0, Math.PI), m); r.rotation.z = Math.PI / 2; r.rotation.y = Math.PI / 2; r.position.set(x0, y + 22, z0 - 45 + i * 45); g.add(r); }
+  for (let i = 0; i < 20; i++) { const x = 1160 + (i % 4) * 46, z = 620 + Math.floor(i / 4) * 40; const f = new THREE.Mesh(new THREE.BoxGeometry(42, .6, 36), mat(cols[i % 5], { roughness: 1 })); f.position.set(x, ty(x, z) + .3, z); f.receiveShadow = true; g.add(f);
+    const rows = []; for (let r = 0; r < 8; r++) rows.push(z - 15 + r * 4.3); g.add(inst(new THREE.BoxGeometry(40, .9, 1.2), mat(new THREE.Color(cols[i % 5]).multiplyScalar(.7)), rows, (d, rz) => d.position.set(x, ty(x, rz) + .8, rz))); }
+  rovers(g, 8, ELEC.fields, (i, t) => { const col = i % 4, x0 = 1160 + col * 46, z = 620 + Math.floor(i / 4) * 80 + ((t * 8 + i * 13) % 34) - 17; const x = x0 - 18 + ((t * 14 + i * 7) % 36); return [x, ty(x, z) + .5, z, Math.PI / 2]; }); }
+
+// WORKS: sawtooth roofs, violet window bands, robot arms at work, a moving crane
+{ const g = sg('works'), m = mat(0xe4e8ef, { roughness: .45 }), x0 = -1290, z0 = 420, y = ty(x0, z0);
+  for (let i = 0; i < 3; i++) { const zz = z0 - 45 + i * 45; const b = new THREE.Mesh(new THREE.BoxGeometry(120, 18, 36), m); b.position.set(x0, y + 9, zz); g.add(b);
+    const band = new THREE.Mesh(new THREE.BoxGeometry(120.4, 2.4, 36.4), glow(ELEC.works, 2.4)); band.position.set(x0, y + 12, zz); g.add(band);
+    const teeth = []; for (let k = 0; k < 8; k++) teeth.push(x0 - 52 + k * 15); const tg = new THREE.CylinderGeometry(0, 9, 9, 3); tg.rotateZ(Math.PI / 2); tg.scale(1, 1, 4);
+    g.add(inst(tg, m, teeth, (d, x) => { d.position.set(x, y + 22.5, zz); })); }
+  const arms = []; for (let i = 0; i < 6; i++) { const a = new THREE.Group(); a.position.set(x0 - 50 + i * 20, y, z0 + 75); const base = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, 2, 16), mat(0x2d2f36)); a.add(base);
+    const s1 = new THREE.Group(); s1.position.y = 2; const l1 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 12, 1.6), mat(0xffb020)); l1.position.y = 6; s1.add(l1);
+    const s2 = new THREE.Group(); s2.position.y = 12; const l2 = new THREE.Mesh(new THREE.BoxGeometry(1.3, 9, 1.3), mat(0xffb020)); l2.position.y = 4.5; s2.add(l2); const tip = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), glow(ELEC.works, 4)); tip.position.y = 9; s2.add(tip);
+    s1.add(s2); a.add(s1); g.add(a); arms.push([a, s1, s2, i]); }
+  ANIM.push((t) => arms.forEach(([a, s1, s2, i]) => { a.rotation.y = Math.sin(t * .9 + i) * 1.2; s1.rotation.z = -.5 + Math.sin(t * 1.4 + i) * .4; s2.rotation.z = -1 + Math.sin(t * 1.9 + i * 2) * .6; }));
   const mast = new THREE.Mesh(new THREE.BoxGeometry(3, 80, 3), mat(0xffc21a)); mast.position.set(x0 + 80, y + 40, z0); g.add(mast);
-  const jib = new THREE.Mesh(new THREE.BoxGeometry(70, 2.5, 2.5), mat(0xffc21a)); jib.position.set(x0 + 60, y + 80, z0); g.add(jib); }
-{ const g = sg('digester'), m = mat(0xe6e0d4, { roughness: .5 }), x0 = -1260, z0 = 120, y = ty(x0, z0);
-  g.add(inst(new THREE.SphereGeometry(15, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), m, [0, 1, 2, 3], (d, i) => d.position.set(x0 + (i % 2) * 38, y, z0 + Math.floor(i / 2) * 38))); }
-SYS.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
-// electric identity: every system glows in its own colour, and live cables tie it to the city
-const ELEC = { solar: 0x2f7bff, wind: 0x00f0ff, battery: 0xff2bd6, desal: 0x00d9ff, green: 0x7dff2e, fields: 0xc8ff3a, works: 0x9b5cff, digester: 0xff8a1f };
+  const jib = new THREE.Group(); jib.position.set(x0 + 80, y + 80, z0); const jb = new THREE.Mesh(new THREE.BoxGeometry(70, 2.5, 2.5), mat(0xffc21a)); jb.position.x = -25; jib.add(jb); g.add(jib);
+  ANIM.push((t) => (jib.rotation.y = Math.sin(t * .25) * 1.4));
+  rovers(g, 8, ELEC.works, (i, t) => { const a = t * .3 + i * .785; return [x0 + Math.cos(a) * 85, y + .3, z0 + Math.sin(a) * 85, -a]; }); }
+
+// DIGESTER: ribbed domes, pipes and a flickering gas flare
+{ const g = sg('digester'), m = mat(0xece5d8, { roughness: .5 }), x0 = -1260, z0 = 120, y = ty(x0, z0);
+  const ds = [0, 1, 2, 3].map((i) => [x0 + (i % 2) * 38, z0 + Math.floor(i / 2) * 38]);
+  g.add(inst(new THREE.SphereGeometry(15, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), m, ds, (d, [x, z]) => d.position.set(x, y, z)));
+  g.add(inst(new THREE.TorusGeometry(15.05, .4, 6, 48), glow(ELEC.digester, 2.4), ds, (d, [x, z]) => { d.position.set(x, y + 1, z); d.rotation.x = Math.PI / 2; }));
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.6, 34, 12), mat(0x9a9a9a, { metalness: .6 })); st.position.set(x0 + 70, y + 17, z0 + 19); g.add(st);
+  const flame = new THREE.Mesh(new THREE.ConeGeometry(2.6, 9, 12), glow(0xff7a1a, 4)); flame.position.set(x0 + 70, y + 38, z0 + 19); g.add(flame);
+  ANIM.push((t) => { const k = 1 + .25 * Math.sin(t * 17) + .15 * Math.sin(t * 29); flame.scale.set(k, 1.2 * k, k); }); }
+SYS.traverse((o) => { if (o.isMesh && !o.isInstancedMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
+// live cables: light pulses travel from each system into the city
 const CABLES = [];
-for (const [id, c] of Object.entries(ELEC)) { const col = new THREE.Color(c);
-  SYSG[id].traverse((o) => { if (!o.isMesh) return; o.material = o.material.clone(); o.material.emissive = col.clone(); o.material.emissiveIntensity = id === 'solar' ? 1.6 : .9; }); }
+const cableMat = (c) => new THREE.ShaderMaterial({ uniforms: { uT: UT, uC: { value: new THREE.Color(c) } }, transparent: true, depthWrite: false, toneMapped: false,
+  vertexShader: 'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+  fragmentShader: 'uniform float uT;uniform vec3 uC;varying vec2 vU;void main(){float p=smoothstep(.08,0.,abs(fract(vU.x*5.-uT*.7)-.5)-.38);gl_FragColor=vec4(uC*(1.1+p*4.),.55+p*.45);}' });
 const cable = (id, a, b, h) => { const A = new THREE.Vector3(a[0], ty(a[0], a[1]) + 6, a[1]), B = new THREE.Vector3(b[0], ty(b[0], b[1]) + 6, b[1]);
-  const M = A.clone().lerp(B, .5); M.y += h; const cv = new THREE.QuadraticBezierCurve3(A, M, B);
-  const m = new THREE.MeshBasicMaterial({ color: new THREE.Color(ELEC[id]).multiplyScalar(3.2), toneMapped: false, transparent: true, opacity: .9 });
-  const t = new THREE.Mesh(new THREE.TubeGeometry(cv, 80, 2.2, 8), m); SYSG[id].add(t); CABLES.push({ m, base: m.color.clone(), ph: Math.random() * 6 }); };
+  const M = A.clone().lerp(B, .5); M.y += h; const t = new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(A, M, B), 120, 2.2, 8), cableMat(ELEC[id])); SYSG[id].add(t); CABLES.push(t); };
 cable('solar', [0, 1130], [0, 640], 90); cable('solar', [-300, 1130], [-260, 560], 70); cable('wind', [-450, 1040], [-430, 420], 120);
 cable('battery', [515, 1150], [300, 560], 80); cable('desal', [1120, bayP(1180) + 50], [620, 90], 40); cable('green', [1150, 365], [700, 260], 50);
 cable('fields', [1160, 700], [760, 520], 50); cable('works', [-1230, 420], [-760, 300], 60); cable('digester', [-1200, 140], [-760, 110], 40);
-// glowing rings on turbine hubs and battery light strips
-blades.forEach((b) => { const r = new THREE.Mesh(new THREE.TorusGeometry(5, .9, 8, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(0x00f0ff).multiplyScalar(2.5), toneMapped: false })); b.parent.add(r); });
 
 // ── places you can tap ──
 const P = (x, z, y = 12) => [x, Math.max(terrainP(x, z), 0) + y, z];
@@ -272,7 +344,7 @@ new IntersectionObserver((e) => (visible = e[0].isIntersecting)).observe($('#sta
 function frame() {
   requestAnimationFrame(frame); if (!visible) return;
   const dt = Math.min(clock.getDelta(), .05);
-  water.material.uniforms.time.value += dt * .4; buildTick(dt); blades.forEach((b, i) => (b.rotation.z += dt * (1 + i * .05)));
+  water.material.uniforms.time.value += dt * .4; buildTick(dt); blades.forEach((b, i) => (b.rotation.z += dt * (1 + i * .05))); UT.value += dt; ANIM.forEach((f) => f(UT.value));
   const w = canvas.clientWidth, h = canvas.clientHeight;
   ORDER.forEach((id) => { const e = pinEls[id]; tv.set(...ITEMS[id].pin).project(cam); const vis = tv.z < 1 && Math.abs(tv.x) < 1.02 && Math.abs(tv.y) < 1.02;
     e.classList.toggle('hide', !vis); e.classList.toggle('dimmed', !!filter && !filter.includes(id)); e.style.transform = `translate(${(tv.x * .5 + .5) * w - 9}px,${(-tv.y * .5 + .5) * h - 9}px)`; });
@@ -320,12 +392,11 @@ function buildTick(dt) {
   if (!interactive && build.done) { build.done = false; $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false; stopTour(); if (sel) { sel = null; $('#stage').classList.remove('sel'); } flight = null; }
   UP.value = sm(clamp01(Q / .6));
   SYSORDER.forEach((id, i) => { const k = clamp01((Q - (SYS0 + i * SYSW)) / (SYSW * .6)); const g = SYSG[id]; g.visible = k > 0; g.scale.y = easeB(k); });
-  CABLES.forEach((c, i) => c.m.color.copy(c.base).multiplyScalar(.75 + .35 * Math.sin(U_T * 3 + c.ph)));
   if (!build.done) { const [cp, ct] = pose(Q); cam.position.lerp(cp, .09); ctl.target.lerp(ct, .09);
     let cur = CAPS[0][1]; for (const [at, t] of CAPS) if (Q >= at) cur = t; setCap(cur, Q); $('#pi').style.height = Q * 100 + '%'; $('#bh').style.opacity = Q < .02 ? .8 : 0; }
 }
 let U_T = 0; setInterval(() => (U_T += .05), 50);
-prog(100); setTimeout(() => $('#load').classList.add('gone'), 3600);
+prog(100); setTimeout(() => $('#load').classList.add('gone'), 4400);
 frame();
 
 $('#f').onsubmit = (e) => { e.preventDefault(); location.href = 'mailto:hello@anthroposcities.com?subject=Founding%20citizen&body=' + encodeURIComponent(e.target[0].value); $('#ok').textContent = 'Thank you. Your mail app will open to confirm.'; };

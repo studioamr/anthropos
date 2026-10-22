@@ -205,7 +205,7 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 .ix-sec .ixi{display:block;aspect-ratio:16/10;overflow:hidden;background:#dfe6ee}
 .ix-sec .ixi img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) invert(1) contrast(.75) brightness(1.18) sepia(.3) hue-rotate(178deg) saturate(1.9);transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
 .ix-sec figure:hover .ixi img{transform:scale(1.05)}
-.ix-gate{min-height:160vh;background:linear-gradient(180deg,#f3f1ec 0%,#05080d 22%,#05080d 72%,#0b2440 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4vh;padding:20vh var(--g);text-align:center}
+.ix-gate{min-height:110vh;background:linear-gradient(180deg,#f3f1ec 0%,#05080d 22%,#05080d 72%,#0b2440 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4vh;padding:20vh var(--g);text-align:center}
 .ix-gate .g1{font-size:clamp(18px,1.6vw,24px);color:rgba(255,255,255,.6);font-family:Georgia,serif;font-style:italic}
 .ix-gate .g2{font-size:clamp(40px,6vw,104px);font-weight:600;letter-spacing:-.055em;line-height:1}
 .ix-gate .g3{width:min(1300px,94vw);height:auto;margin-top:6vh;filter:drop-shadow(0 0 40px rgba(180,200,255,.18))}
@@ -351,8 +351,6 @@ html{scroll-snap-type:y proximity}
   </section>
   <section class="ix-born" id="born"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.10s">WE</i></span><span class="w"><i style="--d:0.36s">WERE</i></span></span><span class="ln"><span class="w"><i style="--d:0.62s">NOT</i></span><span class="w"><i style="--d:0.88s">BORN</i></span></span><span class="ln"><span class="w"><i style="--d:1.14s">TO</i></span><span class="w"><i style="--d:1.40s">WORK.</i></span></span></div></section>
   <section class="ix-gate">
-    <p class="g1">Nobody built a place for what comes after.</p>
-    <p class="g2">So we are building one.</p>
     <svg class="g3" viewBox="0 0 1000 150" aria-label="Anthropos"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" fill="url(#gg)">ANTHROPOS</text></svg>
     <span class="g4">Scroll to build the city ↓</span>
   </section>
@@ -427,6 +425,6 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=30"></script>
+<script type="module" src="js/anthropos-live.js?v=31"></script>
 </body>
 </html>

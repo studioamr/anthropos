@@ -744,6 +744,33 @@ function nextTour() { tour.i = (tour.i + 1) % ORDER.length; tour.t = 0; select(O
 function stopTour() { if (!tour) return; tour = null; $('#tour').classList.remove('on'); $('#tour').innerHTML = '<i></i>▶ Tour the city'; $('#tourbar').style.width = 0; }
 if ($('#tour')) $('#tour').onclick = () => (tour ? stopTour() : startTour());
 
+
+// ── arrival from space: the Earth turns, the camera dives to the coast ──
+const GL = { scene: new THREE.Scene(), cam: new THREE.PerspectiveCamera(40, 1, .1, 100), t: -1, done: false };
+{ const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d'), img = x.createImageData(1024, 512);
+  for (let j = 0; j < 512; j++) for (let i = 0; i < 1024; i++) { const u = i / 1024 * 8, v = j / 512 * 4, lat = Math.abs(j / 512 - .5) * 2;
+    const n = vn(u, v) * .55 + vn(u * 2.3, v * 2.3) * .3 + vn(u * 5.1, v * 5.1) * .15; const k = (j * 1024 + i) * 4; let r, g, b;
+    if (lat > .86) { r = g = b = 236; } else if (n > .53) { const m = vn(u * 3, v * 3); r = 70 + m * 80; g = 98 + m * 50; b = 48 + m * 20; if (lat > .7) { r += 60; g += 60; b += 60; } }
+    else { const d = Math.min(1, (.53 - n) * 5); r = 18 + (1 - d) * 40; g = 62 + (1 - d) * 70; b = 120 + (1 - d) * 60; }
+    img.data[k] = r; img.data[k + 1] = g; img.data[k + 2] = b; img.data[k + 3] = 255; }
+  x.putImageData(img, 0, 0); const tex = new THREE.CanvasTexture(c); tex.colorSpace = THREE.SRGBColorSpace;
+  GL.earth = new THREE.Mesh(new THREE.SphereGeometry(1, 96, 64), new THREE.MeshStandardMaterial({ map: tex, roughness: .85 })); GL.scene.add(GL.earth);
+  const cc = document.createElement('canvas'); cc.width = 1024; cc.height = 512; const cx = cc.getContext('2d'), ci = cx.createImageData(1024, 512);
+  for (let j = 0; j < 512; j++) for (let i = 0; i < 1024; i++) { const n = vn(i / 1024 * 14 + 40, j / 512 * 7) * .6 + vn(i / 1024 * 30, j / 512 * 15) * .4; const k = (j * 1024 + i) * 4; ci.data[k] = ci.data[k + 1] = ci.data[k + 2] = 255; ci.data[k + 3] = Math.max(0, (n - .52) * 900); }
+  cx.putImageData(ci, 0, 0); GL.clouds = new THREE.Mesh(new THREE.SphereGeometry(1.012, 96, 64), new THREE.MeshStandardMaterial({ map: new THREE.CanvasTexture(cc), transparent: true, depthWrite: false })); GL.scene.add(GL.clouds);
+  GL.scene.add(new THREE.Mesh(new THREE.SphereGeometry(1.08, 64, 48), new THREE.ShaderMaterial({ side: THREE.BackSide, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    vertexShader: 'varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
+    fragmentShader: 'varying vec3 vN;void main(){float f=pow(.72-dot(vN,vec3(0,0,1.)),3.);gl_FragColor=vec4(.35,.6,1.,1.)*f*1.6;}' })));
+  const sp = new Float32Array(3000 * 3); for (let i = 0; i < 3000; i++) { const v = new THREE.Vector3().randomDirection().multiplyScalar(40); sp.set([v.x, v.y, v.z], i * 3); }
+  const sg = new THREE.BufferGeometry(); sg.setAttribute('position', new THREE.BufferAttribute(sp, 3)); GL.scene.add(new THREE.Points(sg, new THREE.PointsMaterial({ color: 0xffffff, size: .06 })));
+  const L = new THREE.DirectionalLight(0xffffff, 3); L.position.set(-3, 1.5, 4); GL.scene.add(L, new THREE.AmbientLight(0x334466, .6)); GL.scene.background = new THREE.Color(0x02040a);
+  GL.earth.rotation.x = GL.clouds.rotation.x = .35; }
+const warp = document.createElement('div'); warp.style.cssText = 'position:absolute;inset:0;z-index:5;pointer-events:none;background:radial-gradient(circle,#fff 0%,#cfe3ff 40%,#8fb4e0 100%);opacity:0;transition:opacity .45s'; $('#stage').appendChild(warp);
+function globeTick(dt) { GL.t += dt; const t = GL.t, T = 3.1;
+  GL.earth.rotation.y += dt * (t < 1.2 ? .5 : .5 + (t - 1.2) * .6); GL.clouds.rotation.y = GL.earth.rotation.y * 1.06;
+  const k = Math.max(0, Math.min(1, (t - 1.1) / 1.6)), e = k * k * k; GL.cam.position.set(0, 0, 3.4 - e * 2.35); GL.cam.fov = 40 - e * 18; GL.cam.aspect = canvas.clientWidth / canvas.clientHeight; GL.cam.updateProjectionMatrix(); GL.cam.lookAt(0, 0, 0);
+  warp.style.opacity = t > 2.45 ? 1 : 0;
+  if (t > T) { GL.done = true; warp.style.opacity = 0; cam.position.set(400, 2600, -1200); ctl.target.set(0, 0, 420); } }
 // ── loop ──
 function resize() { const w = canvas.clientWidth, h = canvas.clientHeight; R.setSize(w, h, false); composer.setSize(w, h); cam.aspect = w / h; cam.fov = w < 760 ? 50 : 36; cam.updateProjectionMatrix(); }
 addEventListener('resize', resize); resize();
@@ -759,6 +786,8 @@ function frame() {
   if (flight) { flight.t += dt / flight.dur; const k = flight.t >= 1 ? 1 : 1 - Math.pow(1 - flight.t, 3); cam.position.lerpVectors(flight.fromP, flight.toP, k); ctl.target.lerpVectors(flight.fromT, flight.toT, k); if (flight.t >= 1) flight = null; }
   if (build.done && !ctl.autoRotate && !sel && !tour) { idleT += dt; if (idleT > 8) ctl.autoRotate = true; }
   if (tour && !flight) { tour.t += dt; $('#tourbar').style.width = (tour.t / 7 * 100) + '%'; if (tour.t > 7) nextTour(); }
+  if (!GL.done && readQ() > .05) GL.done = true;
+  if (!GL.done && visible && build.q < .03 && readQ() < .03) { if (GL.t < 0) GL.t = 0; globeTick(dt); if (!GL.done) { R.render(GL.scene, GL.cam); return; } }
   ctl.update(); composer.render();
 }
 // ── SCROLL: empty land → the whole city, with the camera spinning, diving and pulling out ──

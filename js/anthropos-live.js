@@ -33,17 +33,19 @@ Ink.prototype.mark = function (d) { _mark.call(this, d); this.marks[this.marks.l
 const canvas = $('#gl');
 const R = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
 R.setPixelRatio(Math.min(devicePixelRatio, MOBILE ? 1.5 : 2));
-R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = .92;
+R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.0;
 R.shadowMap.enabled = !MOBILE; R.shadowMap.type = THREE.PCFSoftShadowMap;
 const S = new THREE.Scene();
-{ const c = document.createElement('canvas'); c.width = 4; c.height = 512; const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 512);
-  g.addColorStop(0, '#2a5d93'); g.addColorStop(.5, '#86afd3'); g.addColorStop(.8, '#e3ecf2'); g.addColorStop(1, '#c9d9e4'); x.fillStyle = g; x.fillRect(0, 0, 4, 512);
-  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; S.background = t; }
-S.fog = new THREE.Fog(0xcfdde8, 3800, 11500);
-{ const pm = new THREE.PMREMGenerator(R); S.environment = pm.fromScene(new RoomEnvironment(), .04).texture; }
+{ const c = document.createElement('canvas'); c.width = 1024; c.height = 512; const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 512);
+  g.addColorStop(0, '#1b2f6b'); g.addColorStop(.25, '#4d5fa8'); g.addColorStop(.4, '#c77ba8'); g.addColorStop(.47, '#ff9a6a'); g.addColorStop(.5, '#ffd08a'); g.addColorStop(.53, '#d98a6e'); g.addColorStop(1, '#3a3346');
+  x.fillStyle = g; x.fillRect(0, 0, 1024, 512);
+  const sg2 = x.createRadialGradient(150, 250, 0, 150, 250, 120); sg2.addColorStop(0, 'rgba(255,240,200,1)'); sg2.addColorStop(.2, 'rgba(255,200,130,.8)'); sg2.addColorStop(1, 'rgba(255,150,100,0)'); x.fillStyle = sg2; x.fillRect(0, 0, 1024, 512);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.mapping = THREE.EquirectangularReflectionMapping; S.background = t;
+  const pm = new THREE.PMREMGenerator(R); S.environment = pm.fromEquirectangular(t).texture; }
+S.fog = new THREE.Fog(0xf0b39a, 3200, 12000);
 const cam = new THREE.PerspectiveCamera(36, 1, 2, 16000);
-S.add(new THREE.HemisphereLight(0xdfeaff, 0x55604a, .35));
-const SUN = new THREE.DirectionalLight(0xffe4c0, 3.4); SUN.position.set(-1800, 1640, -240); SUN.castShadow = true;
+S.add(new THREE.HemisphereLight(0xffe0c4, 0x6a5848, .5));
+const SUN = new THREE.DirectionalLight(0xffb27a, 4.2); SUN.position.set(-2600, 1050, -900); SUN.castShadow = true;
 SUN.shadow.mapSize.set(4096, 4096); Object.assign(SUN.shadow.camera, { left: -2600, right: 2600, top: 1800, bottom: -1800, near: 50, far: 7000 });
 SUN.shadow.bias = -.0004; SUN.shadow.normalBias = 1.2; SUN.target.position.set(0, 0, 800); S.add(SUN, SUN.target);
 
@@ -57,7 +59,7 @@ const UP = { value: 0 };
 const M = ink.marks, NM = M.length;
 function btFor(count, key) { const a = new Float32Array(count); let k = 0;
   for (let v = 0; v < count; v++) { while (k < NM - 1 && v >= (M[k][key] ?? 0)) k++; a[v] = M[k].d < 0 ? 0 : k / NM; } return a; }
-const GROW = `float gk=clamp((uP*1.12-bt)*16.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
+const GROW = `if(distance(position.xz,vec2(120.,820.))<92.)transformed.y=-60.;float gk=clamp((uP*1.12-bt)*16.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
 function grow(mat, key) {
   const prev = mat.onBeforeCompile; mat.customProgramCacheKey = () => 'grow' + key;
   mat.onBeforeCompile = (sh, r) => { sh.uniforms.uP = UP;
@@ -78,26 +80,39 @@ function windows(mat) {
         vec2 q=vec2(abs(vWN.x)>abs(vWN.z)?vWP.z:vWP.x,vWP.y);
         vec2 f=fract(q/vec2(2.6,3.1));
         float win=smoothstep(.18,.22,f.x)*smoothstep(.82,.78,f.x)*smoothstep(.3,.34,f.y)*smoothstep(.86,.82,f.y)*side*step(2.4,vWP.y);
-        diffuseColor.rgb*=mix(.8,1.,smoothstep(0.,9.,vWP.y));
-        diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.34,.44,.52),win*.85);`)
-      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.08,win);');
+        float tower=smoothstep(26.,40.,vWP.y);
+        win=max(win,side*tower*smoothstep(.05,.12,f.y)*smoothstep(.98,.9,f.y));
+        diffuseColor.rgb*=mix(.82,1.,smoothstep(0.,9.,vWP.y));
+        float band=side*(1.-step(3.2,vWP.y));diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*.62,band);
+        diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.10,.17,.24),win*.92);`)
+      .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.04,win);')
+      .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor=mix(metalnessFactor,.92,win);');
   };
   return mat;
 }
 const geo = (arr) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3)); return g; };
 const city = new THREE.Group(); S.add(city);
 const depthGrow = () => grow(new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking }), 'd');
+const UNI = [120, 820];
 { const g = geo(ink.faces); g.computeVertexNormals(); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.faces.length / 3, 'f'), 1));
-  const m = new THREE.Mesh(g, grow(windows(new THREE.MeshStandardMaterial({ color: 0xf3f0ea, roughness: .55, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })), 'f'));
+  const PAL = [0xf6d5c4, 0xffb4a2, 0xa8e6cf, 0xf7f3ea, 0xbfe3f2, 0xd9c8f0, 0xfff1c9, 0xf2a7b9, 0x9fd8d0, 0xffffff, 0xf3e1cf].map((c) => new THREE.Color(c));
+  const P = ink.faces, col = new Float32Array(P.length), c = new THREE.Color(), roof = new THREE.Color(0xd9cfc2);
+  for (let i = 0; i < P.length; i += 9) { const cx = (P[i] + P[i + 3] + P[i + 6]) / 3, cz = (P[i + 2] + P[i + 5] + P[i + 8]) / 3;
+    const k = Math.floor(cx / 7.5) * 7919 + Math.floor(cz / 7.5) * 104729; const h = Math.abs(Math.sin(k) * 43758.5453) % 1;
+    c.copy(PAL[Math.floor(h * PAL.length)]);
+    const ny = Math.abs((P[i + 4] - P[i + 1]) * 0); if (P[i + 1] === P[i + 4] && P[i + 4] === P[i + 7] && P[i + 1] > 3) c.lerp(roof, .6);
+    for (let v = 0; v < 9; v += 3) { col[i + v] = c.r; col[i + v + 1] = c.g; col[i + v + 2] = c.b; } }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3));
+  const m = new THREE.Mesh(g, grow(windows(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .5, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })), 'f'));
   m.customDepthMaterial = depthGrow(); m.castShadow = m.receiveShadow = true; city.add(m); }
 if (ink._tf) { const g = geo(ink._tf); g.computeVertexNormals(); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink._tf.length / 3, 't'), 1));
   const cols = new Float32Array(ink._tf.length), c = new THREE.Color();
-  for (let i = 0; i < ink._tf.length; i += 9) { c.setHSL(.24 + Math.random() * .07, .32 + Math.random() * .12, .26 + Math.random() * .1); for (let k = 0; k < 9; k += 3) { cols[i + k] = c.r; cols[i + k + 1] = c.g; cols[i + k + 2] = c.b; } }
+  for (let i = 0; i < ink._tf.length; i += 9) { c.setHSL(.26 + Math.random() * .08, .5 + Math.random() * .2, .24 + Math.random() * .1); for (let k = 0; k < 9; k += 3) { cols[i + k] = c.r; cols[i + k + 1] = c.g; cols[i + k + 2] = c.b; } }
   g.setAttribute('color', new THREE.BufferAttribute(cols, 3));
   const m = new THREE.Mesh(g, grow(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .9, flatShading: true, side: THREE.DoubleSide }), 't'));
   m.customDepthMaterial = depthGrow(); m.castShadow = m.receiveShadow = true; city.add(m); }
-{ const g = geo(ink.edges); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.edges.length / 3, 'e'), 1)); city.add(new THREE.LineSegments(g, grow(new THREE.LineBasicMaterial({ color: 0x2c3038, transparent: true, opacity: .28 }), 'e'))); }
-{ const g = geo(ink.details); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.details.length / 3, 'l'), 1)); city.add(new THREE.LineSegments(g, grow(new THREE.LineBasicMaterial({ color: 0x51585f, transparent: true, opacity: .16 }), 'l'))); }
+{ const g = geo(ink.edges); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.edges.length / 3, 'e'), 1)); city.add(new THREE.LineSegments(g, grow(new THREE.LineBasicMaterial({ color: 0x5a4a52, transparent: true, opacity: .06 }), 'e'))); }
+{ const g = geo(ink.details); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.details.length / 3, 'l'), 1)); city.add(new THREE.LineSegments(g, grow(new THREE.LineBasicMaterial({ color: 0x7a6a62, transparent: true, opacity: .1 }), 'l'))); }
 
 // ── terrain surface under the drawing ──
 prog(75, 'Shaping the bay…');
@@ -143,7 +158,7 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
   const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 })); m.receiveShadow = true; S.add(m); }
 const wn = new THREE.TextureLoader().load('img/tex/waternormals.jpg', (t) => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
 const water = new Water(new THREE.PlaneGeometry(12000, 12000), { textureWidth: MOBILE ? 256 : 1024, textureHeight: MOBILE ? 256 : 1024, waterNormals: wn,
-  sunDirection: SUN.position.clone().normalize(), sunColor: 0xfff0d8, waterColor: 0x0f3f5c, distortionScale: 3, fog: true });
+  sunDirection: SUN.position.clone().normalize(), sunColor: 0xfff0d8, waterColor: 0x0c6a78, distortionScale: 3, fog: true });
 water.rotation.x = -Math.PI / 2; water.position.y = -.3; S.add(water);
 
 // ── what makes it self-sustaining: real scale, detailed and alive ──
@@ -285,7 +300,7 @@ link(SYSG.wind, ELEC.wind, at(-1500, 1880), at(-430, 420), 260); link(SYSG.batte
 link(SYSG.desal, ELEC.desal, at(1530, bayP(1650) + 120), at(620, 90), 60); link(SYSG.green, ELEC.green, at(1400, 400), at(700, 260), 80);
 link(SYSG.fields, ELEC.fields, at(1420, 1100), at(760, 520), 90); link(SYSG.works, ELEC.works, at(-1570, 420), at(-760, 300), 90); link(SYSG.digester, ELEC.digester, at(-1500, -20), at(-760, 110), 60);
 // the mind talks to everything
-[...Object.values(C).filter((p) => p !== C.ai), ...DISTRICTS].forEach(([x, z]) => link(SYSG.ai, new THREE.Color(ELEC.ai).multiplyScalar(.32), [0, 230, 230], at(x, z, 30), 160, .9, 1.4));
+[...Object.values(C).filter((p) => p !== C.ai), ...DISTRICTS].forEach(([x, z]) => link(SYSG.ai, new THREE.Color(ELEC.ai).multiplyScalar(.16), [0, 230, 230], at(x, z, 30), 160, .45, 1.4));
 // light pools: the city areas each system powers glow in its colour
 const poolTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
 const pool = (id, x, z, r) => { const m = new THREE.MeshBasicMaterial({ map: poolTex, color: new THREE.Color(ELEC[id]).multiplyScalar(1.3), transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
@@ -300,6 +315,28 @@ pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 30
     for (let i = 0; i < 14; i++) { const u = ((t * .01 + i / 14) % 1) * 2 - 1, x = u * 1500, z = bayP(x) - 140 - (i % 3) * 90; _o.position.set(x, .8 + Math.sin(t * 1.5 + i) * .3, z); _o.rotation.set(0, Math.PI / 2, 0); _o.updateMatrix(); boats.setMatrixAt(i, _o.matrix); }
     trams.instanceMatrix.needsUpdate = boats.instanceMatrix.needsUpdate = true; }); }
 
+// ── the new University: a glass library rotunda inside a ring of curved white colleges ──
+{ const U0 = new THREE.Group(), y = ty(...UNI); U0.position.set(UNI[0], y, UNI[1]); S.add(U0);
+  const white = mat(0xfbf8f2, { roughness: .35 }), glassM = new THREE.MeshStandardMaterial({ color: 0x1d3a52, roughness: .03, metalness: .95 });
+  const lawn = new THREE.Mesh(new THREE.CylinderGeometry(86, 88, 1.2, 96), mat(0x5fae4a, { roughness: .9 })); lawn.position.y = .6; U0.add(lawn);
+  const path = new THREE.Mesh(new THREE.RingGeometry(40, 46, 96), mat(0xf1e6d2)); path.rotation.x = -Math.PI / 2; path.position.y = 1.3; U0.add(path);
+  for (let k = 0; k < 4; k++) { const a0 = k * Math.PI / 2 + .22, len = Math.PI / 2 - .44;
+    for (let f = 0; f < 4; f++) { const ring = new THREE.Mesh(new THREE.CylinderGeometry(70, 70, 4.2, 64, 1, true, a0, len), f % 2 ? glassM : white); ring.position.y = 1.2 + f * 4.2 + 2.1; U0.add(ring);
+      const inner = new THREE.Mesh(new THREE.CylinderGeometry(58, 58, 4.2, 64, 1, true, a0, len), f % 2 ? glassM : white); inner.position.y = ring.position.y; U0.add(inner); }
+    const roof = new THREE.Mesh(new THREE.RingGeometry(58, 70, 48, 1, a0, len), white); roof.rotation.x = -Math.PI / 2; roof.position.y = 18; U0.add(roof);
+    const garden = new THREE.Mesh(new THREE.RingGeometry(60, 68, 48, 1, a0 + .05, len - .1), mat(0x6fb455)); garden.rotation.x = -Math.PI / 2; garden.position.y = 18.2; U0.add(garden); }
+  const rot = new THREE.Mesh(new THREE.CylinderGeometry(22, 22, 20, 64), glassM); rot.position.y = 11; U0.add(rot);
+  for (let f = 0; f < 4; f++) { const sl = new THREE.Mesh(new THREE.CylinderGeometry(23, 23, .9, 64), white); sl.position.y = 2 + f * 6; U0.add(sl); }
+  const dome = new THREE.Mesh(new THREE.SphereGeometry(23, 64, 24, 0, Math.PI * 2, 0, Math.PI / 2), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: .15, metalness: .3 })); dome.position.y = 21; dome.scale.y = .7; U0.add(dome);
+  const ocu = new THREE.Mesh(new THREE.CylinderGeometry(4, 4, 3, 24), glow(0xfff0c8, 2)); ocu.position.y = 37; U0.add(ocu);
+  const trunkM = mat(0x8a6a4a), frondM = mat(0x3f9a3a, { roughness: .7 });
+  for (let i = 0; i < 24; i++) { const a = i / 24 * Math.PI * 2, r = 80, palm = new THREE.Group(); palm.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+    const tr = new THREE.Mesh(new THREE.CylinderGeometry(.5, .8, 14, 6), trunkM); tr.position.y = 7; tr.rotation.z = .08; palm.add(tr);
+    for (let k = 0; k < 6; k++) { const fr = new THREE.Mesh(new THREE.BoxGeometry(9, .3, 1.6), frondM); fr.position.set(Math.cos(k) * 3.5, 14, Math.sin(k) * 3.5); fr.rotation.y = -k; fr.rotation.z = -.45; palm.add(fr); } U0.add(palm); }
+  U0.traverse((o) => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } });
+  U0.scale.y = .001; U0.visible = false;
+  ANIM.push(() => { const k = Math.min(1, Math.max(0, (UP.value - .8) * 7)); U0.visible = k > 0; U0.scale.y = k <= 0 ? .001 : 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2); }); }
+
 // ── places you can tap ──
 const P = (x, z, y = 12) => [x, Math.max(terrainP(x, z), 0) + y, z];
 const ITEMS = {
@@ -312,7 +349,7 @@ const ITEMS = {
   west: { cat: 'District', name: 'West Districts', pin: P(-430, 170, 40), desc: 'Neighbourhoods of four- and five-storey blocks, each around its own plaza with a fountain or a chapel.', stats: [['Districts', '3'], ['Height', '3–6 floors']] },
   east: { cat: 'District', name: 'East Districts', pin: P(430, 175, 40), desc: 'Mirror of the west: a grid of courtyard blocks turned toward the center, with a plaza at the heart of each district.', stats: [['Districts', '3'], ['Height', '3–6 floors']] },
   stadium: { cat: 'Leisure', name: 'Stadium', pin: P(640, 420, 34), desc: 'An oval stadium with its own forecourt and ring of trees, for games, concerts and festivals.', stats: [['Shape', 'Oval bowl'], ['Uses', 'Sport · Music · Festivals']] },
-  university: { cat: 'Knowledge', name: 'University', pin: P(120, 820, 40), desc: 'On the first slopes of the hills: a domed library at the center of a quadrangle of colleges.', stats: [['Library', 'Domed'], ['Layout', 'Quadrangle']] },
+  university: { cat: 'Knowledge', name: 'University', pin: P(120, 820, 50), dist: 260, desc: 'On the first slopes of the hills: a glass library rotunda under a white dome, inside a ring of curved colleges with roof gardens, lawns and palms. Learning is free for life.', stats: [['Library', 'Glass rotunda'], ['Colleges', 'Ring of 4'], ['Tuition', 'Free']] },
   hills: { cat: 'Nature', name: 'Hill Villages', pin: P(-520, 860, 30), desc: 'Villages of small houses on the green hills behind the city, oriented to the view of the bay.', stats: [['Villages', '3'], ['Homes', 'Low, scattered']] },
   beach: { cat: 'Coast', name: 'Beach & Promenade', pin: P(-250, bayP(-250) + 28, 10), desc: 'Three rows of low beach houses between the seafront promenade and the sand, along the whole bay.', stats: [['Beach', 'Whole bay'], ['Houses', 'Low, 1–2 floors']] },
   port: { cat: 'Coast', name: 'Port', pin: P(380, bayP(380) - 60, 10), desc: 'Piers, a breakwater and harbour warehouses on the east side of the bay.', stats: [['Piers', '4'], ['Warehouses', '12']] },

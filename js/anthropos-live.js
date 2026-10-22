@@ -25,6 +25,9 @@ Ink.prototype.tree = function (...a) {
   _tree.apply(this, a); this.faces = f; this.colors = c; this.edges = e;
 };
 
+const _mark = Ink.prototype.mark;
+Ink.prototype.mark = function (d) { _mark.call(this, d); this.marks[this.marks.length - 1].t = this._tf ? this._tf.length / 3 : 0; };
+
 // ── renderer ──
 const canvas = $('#gl');
 const R = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
@@ -48,12 +51,26 @@ prog(15, 'Drawing Anthropos…');
 const { ink } = buildPolis();
 prog(55, 'Raising the buildings…');
 
+// growth: every vertex knows when its building is raised (bt 0..1), uP sweeps 0→1
+const UP = { value: 0 };
+const M = ink.marks, NM = M.length;
+function btFor(count, key) { const a = new Float32Array(count); let k = 0;
+  for (let v = 0; v < count; v++) { while (k < NM - 1 && v >= (M[k][key] ?? 0)) k++; a[v] = M[k].d < 0 ? 0 : k / NM; } return a; }
+const GROW = `float gk=clamp((uP*1.12-bt)*16.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
+function grow(mat, key) {
+  const prev = mat.onBeforeCompile; mat.customProgramCacheKey = () => 'grow' + key;
+  mat.onBeforeCompile = (sh, r) => { sh.uniforms.uP = UP;
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nattribute float bt;uniform float uP;').replace('#include <begin_vertex>', '#include <begin_vertex>\n' + GROW);
+    if (prev) prev(sh, r); };
+  return mat;
+}
 // windows on vertical faces (no textures, pure shader)
 function windows(mat) {
   mat.customProgramCacheKey = () => 'win';
   mat.onBeforeCompile = (sh) => {
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP;varying vec3 vWN;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWP=(modelMatrix*vec4(position,1.)).xyz;vWN=normalize(mat3(modelMatrix)*normal);');
+    sh.vertexShader = sh.vertexShader.replace('vWP=(modelMatrix*vec4(position,1.)).xyz;', 'vWP=(modelMatrix*vec4(transformed,1.)).xyz;');
     sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP;varying vec3 vWN;')
       .replace('#include <color_fragment>', `#include <color_fragment>
         float side=1.-smoothstep(.3,.6,abs(vWN.y));
@@ -68,17 +85,18 @@ function windows(mat) {
 }
 const geo = (arr) => { const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(arr, 3)); return g; };
 const city = new THREE.Group(); S.add(city);
-{ const g = geo(ink.faces); g.computeVertexNormals();
-  const m = new THREE.Mesh(g, windows(new THREE.MeshStandardMaterial({ color: 0xf3f0ea, roughness: .55, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })));
-  m.castShadow = m.receiveShadow = true; city.add(m); }
-if (ink._tf) { const g = geo(ink._tf); g.computeVertexNormals();
+const depthGrow = () => grow(new THREE.MeshDepthMaterial({ depthPacking: THREE.RGBADepthPacking }), 'd');
+{ const g = geo(ink.faces); g.computeVertexNormals(); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.faces.length / 3, 'f'), 1));
+  const m = new THREE.Mesh(g, grow(windows(new THREE.MeshStandardMaterial({ color: 0xf3f0ea, roughness: .55, side: THREE.DoubleSide, polygonOffset: true, polygonOffsetFactor: 1, polygonOffsetUnits: 1 })), 'f'));
+  m.customDepthMaterial = depthGrow(); m.castShadow = m.receiveShadow = true; city.add(m); }
+if (ink._tf) { const g = geo(ink._tf); g.computeVertexNormals(); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink._tf.length / 3, 't'), 1));
   const cols = new Float32Array(ink._tf.length), c = new THREE.Color();
   for (let i = 0; i < ink._tf.length; i += 9) { c.setHSL(.24 + Math.random() * .07, .32 + Math.random() * .12, .26 + Math.random() * .1); for (let k = 0; k < 9; k += 3) { cols[i + k] = c.r; cols[i + k + 1] = c.g; cols[i + k + 2] = c.b; } }
   g.setAttribute('color', new THREE.BufferAttribute(cols, 3));
-  const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .9, flatShading: true, side: THREE.DoubleSide }));
-  m.castShadow = m.receiveShadow = true; city.add(m); }
-city.add(new THREE.LineSegments(geo(ink.edges), new THREE.LineBasicMaterial({ color: 0x2c3038, transparent: true, opacity: .28 })));
-city.add(new THREE.LineSegments(geo(ink.details), new THREE.LineBasicMaterial({ color: 0x51585f, transparent: true, opacity: .16 })));
+  const m = new THREE.Mesh(g, grow(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .9, flatShading: true, side: THREE.DoubleSide }), 't'));
+  m.customDepthMaterial = depthGrow(); m.castShadow = m.receiveShadow = true; city.add(m); }
+{ const g = geo(ink.edges); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.edges.length / 3, 'e'), 1)); city.add(new THREE.LineSegments(g, grow(new THREE.LineBasicMaterial({ color: 0x2c3038, transparent: true, opacity: .28 }), 'e'))); }
+{ const g = geo(ink.details); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.details.length / 3, 'l'), 1)); city.add(new THREE.LineSegments(g, grow(new THREE.LineBasicMaterial({ color: 0x51585f, transparent: true, opacity: .16 }), 'l'))); }
 
 // ── terrain surface under the drawing ──
 prog(75, 'Shaping the bay…');
@@ -108,6 +126,45 @@ const water = new Water(new THREE.PlaneGeometry(12000, 12000), { textureWidth: M
   sunDirection: SUN.position.clone().normalize(), sunColor: 0xfff0d8, waterColor: 0x0f3f5c, distortionScale: 3, fog: true });
 water.rotation.x = -Math.PI / 2; water.position.y = -.3; S.add(water);
 
+// ── what makes it self-sustaining: on the outskirts ──
+prog(85, 'Wiring the sun, water and food…');
+const SYS = new THREE.Group(); S.add(SYS);
+const mat = (c, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: .6 }, o));
+const ty = (x, z) => Math.max(terrainP(x, z), .6);
+const SYSG = {}; const sg = (id) => { const g = new THREE.Group(); g.userData.id = id; SYS.add(g); SYSG[id] = g; g.visible = false; return g; };
+const inst = (geo, m, list, fn) => { const im = new THREE.InstancedMesh(geo, m, list.length), d = new THREE.Object3D(); list.forEach((v, i) => { d.position.set(0, 0, 0); d.rotation.set(0, 0, 0); d.scale.set(1, 1, 1); fn(d, v, i); d.updateMatrix(); im.setMatrixAt(i, d.matrix); }); im.castShadow = im.receiveShadow = true; return im; };
+{ const g = sg('solar'), pts = []; for (let r = 0; r < 18; r++) for (let c = 0; c < 46; c++) pts.push([-420 + c * 18, 1130 + r * 13]);
+  g.add(inst(new THREE.BoxGeometry(16, .4, 7), mat(0x1f3358, { roughness: .2, metalness: .7 }), pts, (d, [x, z]) => { d.position.set(x, ty(x, z) + 3, z); d.rotation.x = -.5; }));
+  g.add(inst(new THREE.CylinderGeometry(.25, .25, 3, 5), mat(0x999999), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 1.5, z))); }
+{ const g = sg('battery'), pts = []; for (let i = 0; i < 24; i++) pts.push([470 + (i % 6) * 18, 1150 + Math.floor(i / 6) * 9]);
+  g.add(inst(new THREE.BoxGeometry(15, 5, 5), mat(0xf1f1ef, { roughness: .4 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 2.5, z))); }
+const blades = [];
+{ const g = sg('wind'), m = mat(0xf7f7f7, { roughness: .35 });
+  for (let i = 0; i < 9; i++) { const x = -880 + i * 210, z = 1040 + Math.sin(i * 1.7) * 40, y = ty(x, z);
+    const tw = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 3, 110, 16), m); tw.position.set(x, y + 55, z); tw.castShadow = true; g.add(tw);
+    const hub = new THREE.Group(); hub.position.set(x, y + 110, z - 3); const sp = new THREE.Group(); hub.add(sp);
+    for (let k = 0; k < 3; k++) { const p = new THREE.Group(), b = new THREE.Mesh(new THREE.BoxGeometry(2.2, 52, .6), m); b.position.y = 26; b.castShadow = true; p.add(b); p.rotation.z = k * Math.PI * 2 / 3; sp.add(p); }
+    g.add(hub); blades.push(sp); } }
+{ const g = sg('desal'), x0 = 1180, z0 = bayP(1180) + 40, m = mat(0xeeeeee, { roughness: .45 });
+  g.add(inst(new THREE.CylinderGeometry(9, 9, 16, 32), m, [0, 1, 2, 3, 4, 5], (d, i) => d.position.set(x0 + (i % 3) * 22, ty(x0, z0) + 8, z0 + Math.floor(i / 3) * 22)));
+  const h = new THREE.Mesh(new THREE.BoxGeometry(70, 18, 34), mat(0xe2e0da)); h.position.set(x0 - 60, ty(x0, z0) + 9, z0 + 10); h.castShadow = true; g.add(h);
+  const pipe = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 1.5, 220, 8), mat(0x777777, { metalness: .6 })); pipe.rotation.x = Math.PI / 2; pipe.position.set(x0 + 20, 0, z0 - 110); g.add(pipe); }
+{ const g = sg('green'), glass = new THREE.MeshPhysicalMaterial({ color: 0xe3f2ee, roughness: .05, transmission: .5, transparent: true, opacity: .6 });
+  const gg = new THREE.CylinderGeometry(8, 8, 90, 24, 1, false, 0, Math.PI); gg.rotateZ(Math.PI / 2); gg.rotateY(Math.PI / 2);
+  const pts = []; for (let i = 0; i < 24; i++) pts.push([1150 + (i % 8) * 19, 260 + Math.floor(i / 8) * 105]);
+  g.add(inst(gg, glass, pts, (d, [x, z]) => d.position.set(x, ty(x, z), z)));
+  g.add(inst(new THREE.BoxGeometry(15, .6, 88), mat(0x4f7d35, { roughness: 1 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + .4, z))); }
+{ const g = sg('fields'), cols = [0x8fae4a, 0xb3a659, 0x6f9440, 0xc7b867, 0x7ea046];
+  for (let i = 0; i < 20; i++) { const x = 1160 + (i % 4) * 46, z = 620 + Math.floor(i / 4) * 40; const f = new THREE.Mesh(new THREE.BoxGeometry(42, .6, 36), mat(cols[i % 5], { roughness: 1 })); f.position.set(x, ty(x, z) + .3, z); f.receiveShadow = true; g.add(f); } }
+{ const g = sg('works'), m = mat(0xdfe4ec, { roughness: .45 }), x0 = -1290, z0 = 420, y = ty(x0, z0);
+  for (let i = 0; i < 3; i++) { const b = new THREE.Mesh(new THREE.BoxGeometry(120, 22, 34), m); b.position.set(x0, y + 11, z0 - 45 + i * 45); b.castShadow = b.receiveShadow = true; g.add(b);
+    const r = new THREE.Mesh(new THREE.CylinderGeometry(17, 17, 120, 32, 1, false, 0, Math.PI), m); r.rotation.z = Math.PI / 2; r.rotation.y = Math.PI / 2; r.position.set(x0, y + 22, z0 - 45 + i * 45); g.add(r); }
+  const mast = new THREE.Mesh(new THREE.BoxGeometry(3, 80, 3), mat(0xffc21a)); mast.position.set(x0 + 80, y + 40, z0); g.add(mast);
+  const jib = new THREE.Mesh(new THREE.BoxGeometry(70, 2.5, 2.5), mat(0xffc21a)); jib.position.set(x0 + 60, y + 80, z0); g.add(jib); }
+{ const g = sg('digester'), m = mat(0xe6e0d4, { roughness: .5 }), x0 = -1260, z0 = 120, y = ty(x0, z0);
+  g.add(inst(new THREE.SphereGeometry(15, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), m, [0, 1, 2, 3], (d, i) => d.position.set(x0 + (i % 2) * 38, y, z0 + Math.floor(i / 2) * 38))); }
+SYS.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+
 // ── places you can tap ──
 const P = (x, z, y = 12) => [x, Math.max(terrainP(x, z), 0) + y, z];
 const ITEMS = {
@@ -126,14 +183,24 @@ const ITEMS = {
   port: { cat: 'Coast', name: 'Port', pin: P(380, bayP(380) - 60, 10), desc: 'Piers, a breakwater and harbour warehouses on the east side of the bay.', stats: [['Piers', '4'], ['Warehouses', '12']] },
   lighthouse: { cat: 'Coast', name: 'Lighthouse', pin: [-980, 50, bayP(-980) - 10], desc: 'The lighthouse at the west point of the bay, the first thing you see arriving by sea.', stats: [['Height', '43 m']] },
 };
+Object.assign(ITEMS, {
+  solar: { cat: 'Energy', name: 'Solar Field', pin: [0, ty(0, 1250) + 30, 1250], desc: 'Rows of panels behind the hills produce more electricity than the city uses in a year. The sun pays the floor of life.', stats: [['Capacity', '320 MW'], ['Share of demand', '~85%']] },
+  wind: { cat: 'Energy', name: 'Wind Ridge', pin: [-50, ty(-50, 1040) + 150, 1040], desc: 'Turbines on the ridge keep producing at night and in cloudy weeks, when the sun cannot.', stats: [['Turbines', '9'], ['Capacity', '60 MW']] },
+  battery: { cat: 'Energy', name: 'Battery Storage', pin: [515, ty(515, 1165) + 20, 1165], desc: 'Stores the afternoon sun for the night. The city can run a full day without sun or wind.', stats: [['Storage', '1.2 GWh'], ['Autonomy', '~24 h']] },
+  desal: { cat: 'Water', name: 'Desalination Plant', pin: [1150, 40, bayP(1180) + 50], desc: 'Turns sea water into drinking water with solar power. Every litre used in homes is treated and returned to the fields.', stats: [['Output', '15,000 m³/day'], ['Wastewater reused', '100%']] },
+  green: { cat: 'Food', name: 'Greenhouses', pin: [1220, 40, 365], desc: 'Glass greenhouses grow vegetables and fruit all year with recycled water and the city’s own compost.', stats: [['Area', '40 ha'], ['Harvest', 'All year']] },
+  fields: { cat: 'Food', name: 'Fields & Orchards', pin: [1230, 25, 700], desc: 'Fields and orchards for grains, fruit and olives, irrigated with treated water from the city.', stats: [['Area', '600 ha'], ['Irrigation', 'Recycled']] },
+  works: { cat: 'Automation', name: 'Automated Works', pin: [-1290, 70, 420], desc: 'The machines that make life free. Robots build homes, make goods, repair the city and run the farms around the clock. Nobody has to work to live.', stats: [['Robots', '2,400'], ['Runs', '24 / 7 on solar'], ['Hours a resident must work', '0']] },
+  digester: { cat: 'Waste', name: 'Biodigester', pin: [-1240, 40, 140], desc: 'Food scraps and sewage become biogas for kitchens and compost for the fields. Glass, metal and stone are rebuilt into the city. No landfill.', stats: [['Organic waste', '→ Gas + compost'], ['Landfill', '0']] },
+});
 const ORDER = Object.keys(ITEMS);
-const CATS = [['All', null], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']]];
+const CATS = [['All', null], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
 
 // ── post ──
 const composer = new EffectComposer(R); composer.addPass(new RenderPass(S, cam)); composer.addPass(new OutputPass());
 
 // ── controls ──
-const HOME = { p: new THREE.Vector3(780, 620, -760), t: new THREE.Vector3(0, 0, 330) };
+const HOME = { p: new THREE.Vector3(1050, 820, -980), t: new THREE.Vector3(0, 0, 400) };
 cam.position.copy(HOME.p);
 const ctl = new OrbitControls(cam, canvas);
 ctl.target.copy(HOME.t); ctl.enableDamping = true; ctl.dampingFactor = .06; ctl.maxPolarAngle = Math.PI * .45; ctl.minDistance = 60; ctl.maxDistance = 2600;
@@ -145,7 +212,7 @@ let pd = 0; canvas.addEventListener('touchmove', (e) => { if (e.touches.length =
 canvas.addEventListener('touchend', () => (pd = 0));
 let flight = null;
 $('#zin').onclick = () => fly(null, .6); $('#zout').onclick = () => fly(null, 1.6);
-let idleT = 0; ctl.addEventListener('start', () => { ctl.autoRotate = false; idleT = 0; stopTour(); });
+let idleT = 0; ctl.addEventListener('start', () => { if (!build.done) return; ctl.autoRotate = false; idleT = 0; stopTour(); });
 function fly(it, zoom) {
   const fromP = cam.position.clone(), fromT = ctl.target.clone(); let toT, toP;
   if (it) { toT = new THREE.Vector3(...it.pin); toT.y *= .4; const dir = fromP.clone().sub(fromT); dir.y = 0; dir.normalize(); const dist = it.dist || 300; toP = toT.clone().add(dir.multiplyScalar(dist)); toP.y = toT.y + dist * .6; }
@@ -188,14 +255,43 @@ new IntersectionObserver((e) => (visible = e[0].isIntersecting)).observe($('#sta
 function frame() {
   requestAnimationFrame(frame); if (!visible) return;
   const dt = Math.min(clock.getDelta(), .05);
-  water.material.uniforms.time.value += dt * .4;
+  water.material.uniforms.time.value += dt * .4; buildTick(dt); blades.forEach((b, i) => (b.rotation.z += dt * (1 + i * .05)));
   const w = canvas.clientWidth, h = canvas.clientHeight;
   ORDER.forEach((id) => { const e = pinEls[id]; tv.set(...ITEMS[id].pin).project(cam); const vis = tv.z < 1 && Math.abs(tv.x) < 1.02 && Math.abs(tv.y) < 1.02;
     e.classList.toggle('hide', !vis); e.classList.toggle('dimmed', !!filter && !filter.includes(id)); e.style.transform = `translate(${(tv.x * .5 + .5) * w - 9}px,${(-tv.y * .5 + .5) * h - 9}px)`; });
   if (flight) { flight.t += dt / flight.dur; const k = flight.t >= 1 ? 1 : 1 - Math.pow(1 - flight.t, 3); cam.position.lerpVectors(flight.fromP, flight.toP, k); ctl.target.lerpVectors(flight.fromT, flight.toT, k); if (flight.t >= 1) flight = null; }
-  if (!ctl.autoRotate && !sel && !tour) { idleT += dt; if (idleT > 8) ctl.autoRotate = true; }
+  if (build.done && !ctl.autoRotate && !sel && !tour) { idleT += dt; if (idleT > 8) ctl.autoRotate = true; }
   if (tour && !flight) { tour.t += dt; $('#tourbar').style.width = (tour.t / 7 * 100) + '%'; if (tour.t > 7) nextTour(); }
   ctl.update(); composer.render();
+}
+// ── the city rises from the land, then the systems, then the tour ──
+const cap = document.createElement('div'); cap.className = 'buildcap'; $('#stage').appendChild(cap);
+const st = document.createElement('style'); st.textContent = `.buildcap{position:absolute;left:var(--g);top:50%;transform:translateY(-50%);z-index:15;pointer-events:none;max-width:560px}
+.buildcap .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);display:flex;gap:10px;align-items:center}.buildcap .k:before{content:"";width:28px;height:1px;background:#fff}
+.buildcap h2{font-size:clamp(40px,6vw,104px);font-weight:600;letter-spacing:-.05em;line-height:1;margin:.15em 0 .2em;padding-bottom:.08em;color:#fff;text-shadow:0 4px 30px rgba(0,20,50,.45);transition:opacity .6s,transform .6s}
+.buildcap .bar{width:220px;height:2px;background:rgba(255,255,255,.25);margin-top:14px}.buildcap .bar i{display:block;height:100%;background:#fff;width:0}
+.buildcap.out h2{opacity:0;transform:translateY(14px)}.stage.building .title,.stage.building .dock,.stage.building #pins{opacity:0;pointer-events:none}
+.buildcap .sk{pointer-events:auto;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.4);color:#fff;font-size:11px;padding:6px 12px;cursor:pointer}`; document.head.appendChild(st);
+cap.innerHTML = '<span class="k">Anthropos · Construction</span><h2 id="bc">The land.</h2><div class="bar"><i id="bb"></i></div><button class="sk" id="bskip">Skip →</button>';
+$('#stage').classList.add('building');
+const STEPS = [[0, 'The land.'], [.04, 'First, the Capitol.'], [.15, 'Downtown rises.'], [.42, 'The districts.'], [.7, 'Park, river and coast.'], [.88, 'The hills.'], [1.01, 'Then, what makes it self-sustaining.']];
+const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester'];
+let build = { t: -1.8, done: false, sys: -1, last: '' }; const BUILD_T = 16;
+const sysPop = []; const ease = (k) => 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2);
+function setCap(t) { if (t === build.last) return; build.last = t; cap.classList.add('out'); setTimeout(() => { $('#bc').textContent = t; cap.classList.remove('out'); }, 350); }
+function finishBuild() { if (build.done) return; build.done = true; UP.value = 1; SYSORDER.forEach((id) => { SYSG[id].visible = true; SYSG[id].scale.set(1, 1, 1); }); cap.remove(); $('#stage').classList.remove('building'); setTimeout(startTour, 600); }
+$('#bskip').onclick = finishBuild;
+cam.position.set(1300, 1050, -1250); ctl.target.set(0, 0, 420); ctl.autoRotate = true; ctl.autoRotateSpeed = .35;
+function buildTick(dt) {
+  if (build.done) return; build.t += dt;
+  const p = Math.max(0, build.t / BUILD_T); UP.value = Math.min(1, p); $('#bb').style.width = Math.min(100, p * 70) + '%';
+  for (const [at, txt] of STEPS) if (p >= at) var cur = txt; setCap(cur);
+  if (p >= 1) { const k = Math.floor((build.t - BUILD_T) / .9);
+    if (build.sys < 0) { build.sys = 0; flight = { fromP: cam.position.clone(), fromT: ctl.target.clone(), toP: new THREE.Vector3(0, 1500, -900), toT: new THREE.Vector3(0, 0, 600), t: 0, dur: 3 }; }
+    while (build.sys <= k && build.sys < SYSORDER.length) { const g = SYSG[SYSORDER[build.sys]]; g.visible = true; g.scale.set(1, .001, 1); sysPop.push({ g, t: 0 }); build.sys++; }
+    $('#bb').style.width = (70 + 30 * Math.min(1, (build.t - BUILD_T) / (SYSORDER.length * .9))) + '%';
+    if (build.t - BUILD_T > SYSORDER.length * .9 + 2.5) finishBuild(); }
+  sysPop.forEach((s) => { s.t += dt; const k = Math.min(1, s.t / .7); s.g.scale.y = Math.max(.001, ease(k)); });
 }
 prog(100, 'Ready'); setTimeout(() => $('#load').classList.add('gone'), 400);
 frame();

@@ -232,6 +232,12 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 .ix-grid4 .ixi{aspect-ratio:4/3}.lost .ix-p{margin-bottom:0}.lost .ix-grid3{margin-top:4vh}.lost .ixi{aspect-ratio:16/8}.ix-sec.lost .ix-h{max-width:20ch}
 html{scroll-snap-type:y proximity}
 .ix-gate{scroll-snap-align:start;position:relative;z-index:2}
+.mir .ix-h{font-size:clamp(40px,6vw,104px);max-width:18ch}.mir .ix-p{font-size:clamp(19px,1.6vw,24px);max-width:48ch;margin-top:4vh}
+.ix-born{position:relative;z-index:2;height:100vh;height:100svh;background:#05080d;display:grid;place-items:center;text-align:center;scroll-snap-align:start}
+.ix-born .ln{display:block;line-height:.86}.ix-born .w{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .02em .07em;margin:0 .06em}
+.ix-born .w i{display:inline-block;font-style:normal;font-size:clamp(54px,13vw,240px);font-weight:900;letter-spacing:-.075em;transform:translateY(110%) rotate(4deg);background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent}
+.ix-born.in .w i{animation:wup 1.05s cubic-bezier(.16,1,.3,1) forwards;animation-delay:var(--d)}
+.ix-gate{background:linear-gradient(180deg,#05080d 0%,#05080d 72%,#0b2440 100%)!important}
 /* editorial sections */
 .ed{padding:18vh var(--g);border-top:1px solid var(--line);position:relative;overflow:hidden}
 .ed-in{max-width:1240px;margin:0 auto}
@@ -293,19 +299,26 @@ html{scroll-snap-type:y proximity}
 </script>
 </head>
 <body>
-<div id="load"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.15s">WE</i></span><span class="w"><i style="--d:0.47s">WERE</i></span></span><span class="ln"><span class="w"><i style="--d:0.79s">NOT</i></span><span class="w"><i style="--d:1.11s">BORN</i></span></span><span class="ln"><span class="w"><i style="--d:1.43s">TO</i></span><span class="w"><i style="--d:1.75s">WORK.</i></span></span></div><div class="bar"><i id="lb"></i></div></div>
+<div id="load"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.15s">LIFE</i></span><span class="w"><i style="--d:0.47s">IS</i></span><span class="w"><i style="--d:0.79s">A</i></span></span><span class="ln"><span class="w"><i style="--d:1.11s">MIRACLE.</i></span></span></div><div class="bar"><i id="lb"></i></div></div>
 
 <div class="introx">
+  <section class="ix-sec dark mir">
+    <div class="ix-in">
+      <div class="ix-lab">I · THE MIRACLE</div>
+      <h2 class="ix-h wide">Of all the ways matter could arrange itself, one learned to look at the sky.</h2>
+      <p class="ix-p">Fourteen billion years. One small planet. The atoms of a dead star became a creature that sings, builds, loves and asks why. A human life is the rarest thing we know of in the universe. It was never meant to be spent waiting for the weekend.</p>
+    </div>
+  </section>
   <section class="ix-sec">
     <div class="ix-in two">
-      <div><div class="ix-lab">I · THE ARRANGEMENT</div><h2 class="ix-h">For two hundred years we lived by the clock.</h2>
+      <div><div class="ix-lab">II · THE ARRANGEMENT</div><h2 class="ix-h">For two hundred years we lived by the clock.</h2>
         <p class="ix-p">The steam engine moved us from the fields to the mill. Cities were built around jobs, families scattered to follow wages, and a person became what they did for a living. We still live inside that arrangement.</p></div>
       <figure class="ix-fig"><span class="ixi"><img src="img/era/clock.jpg" alt=""></span><figcaption>THE INDUSTRIAL CITY</figcaption></figure>
     </div>
   </section>
   <section class="ix-sec dark lost">
     <div class="ix-in">
-      <div class="ix-lab">II · WHAT WE LOST</div>
+      <div class="ix-lab">III · WHAT WE LOST</div>
       <h2 class="ix-h wide">Somewhere along the way, we forgot what it was all for.</h2>
       <p class="ix-p">We traded the forum for the commute and the festival for the weekend. We learned to introduce ourselves by our jobs, to measure a life in tasks completed, and to fill what little time was left with screens. We became more productive than any people in history, and less sure of why.</p>
       <div class="ix-grid3">
@@ -317,7 +330,7 @@ html{scroll-snap-type:y proximity}
   </section>
   <section class="ix-sec">
     <div class="ix-in">
-      <div class="ix-lab">III · WHY NOW</div><h2 class="ix-h wide">The work that filled a human life can now be done by machines.</h2>
+      <div class="ix-lab">IV · WHY NOW</div><h2 class="ix-h wide">The work that filled a human life can now be done by machines.</h2>
       <div class="ix-grid3">
         <figure><span class="ixi"><img src="img/era/screens.jpg" alt=""></span><figcaption>INTELLIGENCE</figcaption><p>Systems that draft, design, diagnose and coordinate.</p></figure>
         <figure><span class="ixi"><img src="img/era/energy.jpg" alt=""></span><figcaption>ENERGY</figcaption><p>Power from the sun, cheaper every year.</p></figure>
@@ -327,7 +340,7 @@ html{scroll-snap-type:y proximity}
   </section>
   <section class="ix-sec stone">
     <div class="ix-in">
-      <div class="ix-lab">IV · WHAT A FREE PERSON DOES</div><h2 class="ix-h wide">Not leisure. Purpose.</h2>
+      <div class="ix-lab">V · WHAT A FREE PERSON DOES</div><h2 class="ix-h wide">Not leisure. Purpose.</h2>
       <div class="ix-grid4">
         <figure><span class="ixi"><img src="img/era/theater.jpg" alt=""></span><figcaption>ARS</figcaption><p>The arts.</p></figure>
         <figure><span class="ixi"><img src="img/era/piazza.jpg" alt=""></span><figcaption>SCIENTIA</figcaption><p>Knowledge.</p></figure>
@@ -336,6 +349,7 @@ html{scroll-snap-type:y proximity}
       </div>
     </div>
   </section>
+  <section class="ix-born" id="born"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.10s">WE</i></span><span class="w"><i style="--d:0.36s">WERE</i></span></span><span class="ln"><span class="w"><i style="--d:0.62s">NOT</i></span><span class="w"><i style="--d:0.88s">BORN</i></span></span><span class="ln"><span class="w"><i style="--d:1.14s">TO</i></span><span class="w"><i style="--d:1.40s">WORK.</i></span></span></div></section>
   <section class="ix-gate">
     <p class="g1">Nobody built a place for what comes after.</p>
     <p class="g2">So we are building one.</p>
@@ -407,8 +421,8 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
   <svg class="bw" viewBox="0 0 1000 150" preserveAspectRatio="xMidYMid meet" aria-label="Anthropos"><defs><linearGradient id="bwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" letter-spacing="-6" fill="url(#bwg)">ANTHROPOS</text></svg>
 </footer>
 
-<script>{const SC=[...document.querySelectorAll(".ix-sec")];let tk=0;const dep=()=>{tk=0;SC.forEach((sc,i)=>{const nx=SC[i+1]||document.querySelector(".ix-gate");if(!nx)return;const r=nx.getBoundingClientRect().top,p=Math.min(1,Math.max(0,1-r/innerHeight));const inn=sc.firstElementChild;inn.style.transform=`scale(${1-p*.08}) translateY(${-p*4}vh)`;inn.style.opacity=1-p*.7})};addEventListener("scroll",()=>{if(!tk){tk=1;requestAnimationFrame(dep)}},{passive:true})}</script>
-<script>{const io2=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io2.unobserve(x.target)}}),{threshold:.2});document.querySelectorAll(".ix-sec,.ix-gate").forEach(el=>io2.observe(el))}</script>
+<script>{const SC=[...document.querySelectorAll(".ix-sec")];let tk=0;const dep=()=>{tk=0;SC.forEach((sc,i)=>{const nx=SC[i+1]||document.querySelector(".ix-born");if(!nx)return;const r=nx.getBoundingClientRect().top,p=Math.min(1,Math.max(0,1-r/innerHeight));const inn=sc.firstElementChild;inn.style.transform=`scale(${1-p*.08}) translateY(${-p*4}vh)`;inn.style.opacity=1-p*.7})};addEventListener("scroll",()=>{if(!tk){tk=1;requestAnimationFrame(dep)}},{passive:true})}</script>
+<script>{const io2=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io2.unobserve(x.target)}}),{threshold:.2});document.querySelectorAll(".ix-sec,.ix-gate,.ix-born").forEach(el=>io2.observe(el))}</script>
 <script>{const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.15});document.querySelectorAll(".rv").forEach(el=>io.observe(el))}</script>
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};

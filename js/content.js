@@ -127,7 +127,7 @@ export const DISPATCHES = [
     body: p(
       'We have published the Declaration of Return: the founding statement of Anthropos. It says what we believe and what we commit to.',
       '<blockquote>We hold that a life is not measured by its output.</blockquote>',
-      'It looks forward to cities that make their own energy, water and food, so that their citizens can live for something other than a wage.',
+      'It looks back to Rome for the rooms where free people became excellent together, the forum, the baths, the theater and the schools, and forward to cities that make their own energy, water and food, so that their citizens can live for something other than a wage.',
       '<p><a class="lnk" href="index.html#declaration">Read the declaration →</a></p>'
     ),
   },

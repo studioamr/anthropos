@@ -15,230 +15,250 @@ body{background:var(--bg);color:var(--fg);font:500 14px/1.25 "Inter Tight",Helve
 body.locked{overflow:hidden}
 a{color:inherit;text-decoration:none}
 sup{font-size:.45em;vertical-align:top;position:relative;top:.2em;margin-left:.08em}
-.small{font-size:11px;line-height:1.2}
-.dim{color:var(--dim)}
-#grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:50;opacity:.09;mix-blend-mode:screen}
+img{display:block}
+#grain{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:60;opacity:.08;mix-blend-mode:screen}
+#cur{position:fixed;left:0;top:0;width:10px;height:10px;border-radius:50%;background:#fff;mix-blend-mode:difference;pointer-events:none;z-index:70;transform:translate(-50%,-50%);transition:width .35s,height .35s}
+#cur.big{width:84px;height:84px}
+#cur span{position:absolute;inset:0;display:grid;place-items:center;color:#000;font-size:10px;font-weight:700;opacity:0;transition:opacity .3s}
+#cur.big span{opacity:1}
+@media(hover:none){#cur{display:none}}
 
 /* gate */
-#gate{position:fixed;inset:0;z-index:40;background:#000;display:grid;place-items:center;transition:opacity 1s .2s,visibility 0s 1.2s}
-#gate.gone{opacity:0;visibility:hidden}
-#gate button{all:unset;cursor:pointer;width:128px;aspect-ratio:1;background:#0d0d0d;border:1px solid var(--line);display:grid;place-items:center;position:relative;overflow:hidden;transition:transform .5s}
-#gate button:hover{transform:scale(1.06)}
+#gate{position:fixed;inset:0;z-index:55;background:#000;display:grid;place-items:center}
+#gate button{all:unset;cursor:pointer;width:128px;aspect-ratio:1;background:#0d0d0d;border:1px solid var(--line);display:grid;place-items:center;position:relative;overflow:hidden}
 #gate .mini{font-weight:900;font-size:15px;letter-spacing:-.04em;background:linear-gradient(#fff,#8a8f9c 60%,#fff);-webkit-background-clip:text;color:transparent;position:absolute;top:26px}
 #gate .door{position:absolute;bottom:22px;width:16px;height:38px;background:#fff;box-shadow:0 0 18px 4px rgba(255,255,255,.6)}
-#gate .cap{position:absolute;bottom:-28px;font-size:10px;color:var(--dim);letter-spacing:.08em}
 #gate p{position:absolute;bottom:var(--g);font-size:11px;color:var(--dim)}
+#gate .pct{position:absolute;top:var(--g);right:var(--g);font-size:11px;color:var(--dim);font-variant-numeric:tabular-nums}
 
 /* nav */
 nav{position:fixed;top:0;left:0;right:0;z-index:30;display:grid;grid-template-columns:1fr 1fr 1fr 1fr 2fr 1fr;gap:var(--g);padding:var(--g);font-size:12px;mix-blend-mode:difference}
 nav .meta{line-height:1.05;font-size:14px;font-weight:600;text-align:right}
 nav .brand{font-weight:900;letter-spacing:-.03em}
-nav a:hover{opacity:.5}
+nav a{transition:opacity .3s}nav a:hover{opacity:.5}
 nav .r{text-align:right}
 
-/* hero */
-.hero{height:100svh;min-height:620px;position:relative;overflow:hidden}
-.hero svg.word{position:absolute;left:50%;top:20%;width:min(92vw,1300px);transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 0 30px rgba(190,200,255,.35))}
-.door-l{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:clamp(110px,14vw,200px);height:clamp(150px,30vh,300px);background:#fff;box-shadow:0 0 80px 30px rgba(255,255,255,.55),0 0 260px 90px rgba(200,210,255,.18)}
-.floor{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:60vw;height:16vh;background:radial-gradient(ellipse at 50% 100%,rgba(255,255,255,.35),transparent 65%);pointer-events:none}
-.figure{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:clamp(42px,5vw,70px)}
-.side{position:absolute;font-size:11px;top:62%}
+/* hero: door opens into the city */
+.hero{height:100svh;position:relative;overflow:hidden}
+.hero svg.word{position:absolute;left:50%;top:18%;width:min(92vw,1300px);transform:translateX(-50%);overflow:visible;filter:drop-shadow(0 0 30px rgba(190,200,255,.35));z-index:3}
+.hero svg.word text.f{opacity:0}
+.portal{position:absolute;inset:0;z-index:2;clip-path:inset(calc(100% - clamp(150px,30vh,300px)) calc(50% - clamp(55px,7vw,100px)) 0 calc(50% - clamp(55px,7vw,100px)));background:#fff}
+.portal img{width:100%;height:100%;object-fit:cover;opacity:0;transform:scale(1.35)}
+.halo{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:clamp(110px,14vw,200px);height:clamp(150px,30vh,300px);box-shadow:0 0 80px 30px rgba(255,255,255,.55),0 0 260px 90px rgba(200,210,255,.18);z-index:1}
+.side{position:absolute;font-size:11px;top:62%;z-index:4;mix-blend-mode:difference}
 .side.l{left:var(--g)}.side.r{right:var(--g)}
-.corner{position:absolute;bottom:var(--g);font-size:11px}
-.corner.l{left:var(--g)}.corner.r{right:var(--g);background:#111;padding:6px 10px;display:flex;gap:8px;align-items:center}
+.corner{position:absolute;bottom:var(--g);font-size:11px;z-index:4}
+.corner.l{left:var(--g);mix-blend-mode:difference}
+.corner.r{right:var(--g);background:#111;padding:6px 10px;display:flex;gap:8px;align-items:center}
 .corner.r i{width:7px;height:7px;background:#fff;display:inline-block;animation:p 1.6s infinite}
 @keyframes p{50%{opacity:.2}}
+.hero .over{position:absolute;left:var(--g);right:var(--g);bottom:16vh;z-index:4;font-size:clamp(28px,5vw,80px);font-weight:600;letter-spacing:-.045em;line-height:.95;max-width:14ch;opacity:0}
 
-/* text blocks */
+/* words split */
+.w{display:inline-block;overflow:hidden;vertical-align:top}
+.w>span{display:inline-block;transform:translateY(105%)}
+
 section{position:relative;padding:18vh var(--g)}
 .label{font-size:10px;letter-spacing:.06em;text-transform:uppercase;display:flex;align-items:center;gap:6px}
 .label:before{content:"";width:6px;height:6px;border-radius:50%;background:#fff}
 .big{font-size:clamp(22px,3.1vw,46px);line-height:1.02;letter-spacing:-.035em;font-weight:600}
-.manifest{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--g);row-gap:1.6em}
-.manifest .label{grid-column:1/4;align-self:start;margin-top:.8em}
-.manifest .lead{grid-column:1/-1;text-indent:31%}
-.manifest .note{display:contents}
-.manifest .note .k{grid-column:span 1;font-size:10px;align-self:start;margin-top:.7em}
-.n1 .k{grid-column-start:4!important}.n1 .big{grid-column:5/-1}
-.n2 .k{grid-column-start:5!important}.n2 .big{grid-column:6/-1}
-.n3 .k{grid-column-start:4!important}.n3 .big{grid-column:5/-1}
-.n4 .k{grid-column-start:5!important}.n4 .big{grid-column:6/-1}
-.rv{opacity:0;transform:translateY(24px);transition:opacity 1.1s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.2,.7,.2,1)}
-.rv.in{opacity:1;transform:none}
 
-.index{display:grid;grid-template-columns:repeat(2,auto);justify-content:center;gap:.1em 1.2em;margin-top:22vh;font-size:clamp(20px,2.6vw,38px);font-weight:600;letter-spacing:-.035em}
-.index a{display:flex;gap:.35em;align-items:baseline;transition:opacity .3s}
-.index a small{font-size:10px;letter-spacing:0}
-.index:hover a{opacity:.35}.index a:hover{opacity:1}
-.index em{font-style:normal;color:var(--dim)}
+/* manifest: four short lines */
+.manifest .lead{text-indent:31%;margin:1em 0 14vh}
+.lines{border-top:1px solid var(--line)}
+.lines .row{display:grid;grid-template-columns:60px 1fr auto;gap:var(--g);align-items:center;padding:3.2vh 0;border-bottom:1px solid var(--line);position:relative;overflow:hidden}
+.lines .row .k{font-size:10px}
+.lines .row .t{font-size:clamp(32px,6.5vw,110px);font-weight:600;letter-spacing:-.055em;line-height:.9;position:relative;z-index:1;transition:transform .6s cubic-bezier(.2,.7,.2,1)}
+.lines .row .d{font-size:12px;color:var(--dim);max-width:24ch;text-align:right;position:relative;z-index:1}
+.lines .row img{position:absolute;right:22%;top:50%;width:min(26vw,360px);aspect-ratio:4/3;object-fit:cover;transform:translateY(-50%) scale(.6) rotate(-4deg);opacity:0;transition:.6s cubic-bezier(.2,.7,.2,1);pointer-events:none;filter:grayscale(1) contrast(1.1)}
+.lines .row:hover img{opacity:1;transform:translateY(-50%) scale(1) rotate(0)}
+.lines .row:hover .t{transform:translateX(24px)}
 
-/* media */
-.media{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--g);padding:10vh var(--g) 20vh}
-.media figure{grid-column:6/10;aspect-ratio:3/4;overflow:hidden;position:relative;background:#0b0b0b}
-.media figure img{width:100%;height:115%;object-fit:cover;filter:grayscale(1) contrast(1.15) brightness(.85);will-change:transform}
-.media figure figcaption{position:absolute;left:10px;bottom:10px;font-size:11px}
-.media .cap{grid-column:10/13;font-size:10px;text-transform:uppercase;letter-spacing:.04em;line-height:1.3}
-.media .cap .label{margin-bottom:2px}
+/* marquee */
+.marq{overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding:2vh 0;white-space:nowrap}
+.marq div{display:inline-flex;gap:4vw;font-size:clamp(40px,9vw,150px);font-weight:900;letter-spacing:-.06em;line-height:1;animation:mq 26s linear infinite}
+.marq div span:nth-child(even){-webkit-text-stroke:1px #fff;color:transparent}
+@keyframes mq{to{transform:translateX(-50%)}}
 
-/* about: two column */
-.about{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--g);border-top:1px solid var(--line);padding-top:6vh}
-.about .pic{grid-column:1/5;aspect-ratio:3/4.4;overflow:hidden;position:sticky;top:var(--g)}
-.about .pic img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) contrast(1.2)}
-.about .fn{grid-column:5/7;font-size:11px;display:flex;flex-direction:column;gap:3em}
-.about .fn div{display:grid;grid-template-columns:14px 1fr;gap:6px}
-.about .fn a{display:block;margin-top:.8em}
-.about .body{grid-column:8/13;font-size:15px;line-height:1.28}
-.about .body h3{font-weight:500;font-size:15px}
-.about .body .q{display:grid;grid-template-columns:44px 1fr;gap:0 6px;margin-bottom:2.4em}
-.about .body .q p{grid-column:2;text-indent:3em}
-.about .body .q .k{font-size:10px}
-.about .lead{grid-column:1/-1;margin-bottom:12vh}
-.about .lead .big{text-indent:31%}
+/* horizontal gallery */
+.hz{height:100vh;overflow:hidden;position:relative}
+.hz .track{display:flex;gap:3vw;height:100%;align-items:center;padding:0 var(--g);will-change:transform}
+.hz .intro{flex:0 0 min(38vw,520px)}
+.hz .intro .big{margin-top:1em}
+.hz figure{flex:0 0 auto;height:66vh;position:relative;overflow:hidden}
+.hz figure.wide{aspect-ratio:16/10}.hz figure.tall{aspect-ratio:3/4;height:72vh}
+.hz figure img{height:100%;width:120%;object-fit:cover;transform:translateX(-8%)}
+.hz figcaption{position:absolute;left:10px;bottom:10px;font-size:11px;mix-blend-mode:difference;display:flex;gap:8px}
+.hz .bar{position:absolute;left:var(--g);right:var(--g);bottom:var(--g);height:1px;background:var(--line)}
+.hz .bar i{display:block;height:100%;width:0;background:#fff}
+.hz .cnt{position:absolute;right:var(--g);top:calc(var(--g) + 80px);font-size:11px;font-variant-numeric:tabular-nums}
+
+/* plan */
+.plan{height:100vh;display:grid;place-items:center;overflow:hidden;position:relative}
+.plan img{width:min(110vw,1500px);filter:invert(1);mix-blend-mode:screen;clip-path:inset(0 100% 0 0)}
+.plan .tag{position:absolute;font-size:10px;text-transform:uppercase;letter-spacing:.06em;opacity:0;display:flex;align-items:center;gap:8px}
+.plan .tag:before{content:"";width:28px;height:1px;background:#fff}
+.plan .ttl{position:absolute;left:var(--g);top:16vh}
+.plan .ttl .big{margin-top:.6em}
+
+/* numbers */
+.nums{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line)}
+.nums div{padding:4vh var(--g) 6vh 0;border-right:1px solid var(--line)}
+.nums div:last-child{border:0}
+.nums b{display:block;font-size:clamp(40px,7vw,120px);font-weight:600;letter-spacing:-.06em;line-height:1;font-variant-numeric:tabular-nums}
+.nums span{font-size:11px;color:var(--dim)}
+
+/* full bleed */
+.bleed{height:130vh;position:relative;overflow:hidden}
+.bleed img{position:absolute;inset:-15% 0;width:100%;height:130%;object-fit:cover}
+.bleed .mask{position:absolute;inset:0;background:#000;clip-path:inset(0 0 0 0)}
+.bleed .q{position:absolute;left:var(--g);right:var(--g);bottom:12vh;font-size:clamp(30px,6vw,100px);font-weight:600;letter-spacing:-.05em;line-height:.92;max-width:12ch;mix-blend-mode:difference}
 
 /* round */
 .round{border-top:1px solid var(--line)}
-.round .row{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--g);padding:22px 0;border-bottom:1px solid var(--line);align-items:baseline;transition:padding .4s}
-.round .row:hover{padding-left:14px}
+.round .row{display:grid;grid-template-columns:repeat(12,1fr);gap:var(--g);padding:22px 0;border-bottom:1px solid var(--line);align-items:baseline;position:relative}
+.round .row:before{content:"";position:absolute;inset:0;background:#fff;transform:scaleY(0);transform-origin:bottom;transition:transform .45s cubic-bezier(.2,.7,.2,1);z-index:0}
+.round .row:hover:before{transform:scaleY(1)}
+.round .row>*{position:relative;z-index:1;transition:color .3s}
+.round .row:hover>*{color:#000}
 .round .row .k{grid-column:1/2;font-size:10px}
 .round .row .t{grid-column:2/7;font-size:clamp(22px,3vw,44px);font-weight:600;letter-spacing:-.035em}
 .round .row .d{grid-column:7/11;font-size:13px;color:var(--dim)}
 .round .row .v{grid-column:11/13;text-align:right;font-size:clamp(18px,2vw,28px);font-weight:600;letter-spacing:-.03em}
 .legal{font-size:10px;color:var(--dim);margin-top:2em;max-width:60ch}
 
-/* register */
 .join{text-align:center;padding:26vh var(--g)}
-.join .big{max-width:20ch;margin:0 auto 1.2em}
+.join .big{max-width:16ch;margin:0 auto 1.2em}
 .join form{display:flex;max-width:520px;margin:0 auto;border-bottom:1px solid #fff}
 .join input{flex:1;background:none;border:0;color:#fff;font:inherit;font-size:18px;padding:12px 0;outline:none}
 .join input::placeholder{color:var(--dim)}
 .join button{all:unset;cursor:pointer;font-size:18px;padding:12px 0 12px 16px}
 .join .ok{margin-top:16px;font-size:12px;color:var(--dim);min-height:1em}
 
-footer{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--g);padding:var(--g);font-size:11px;border-top:1px solid var(--line)}
-footer .big-word{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.075em;line-height:.8;margin:6vh 0 2vh;background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent;white-space:nowrap;overflow:hidden}
+footer{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--g);padding:var(--g);font-size:11px;border-top:1px solid var(--line);overflow:hidden}
+footer .big-word{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.075em;line-height:.8;margin:6vh 0 2vh;background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent;white-space:nowrap}
+footer .big-word span{display:inline-block}
 
 @media(max-width:760px){
   nav{grid-template-columns:1fr 1fr;font-size:11px}
   nav .hide{display:none}
-  nav .meta{font-size:11px}
   .hero svg.word{top:26%}
   .manifest .lead{text-indent:18%}
-  .manifest .label{grid-column:1/-1}
-  .n1 .big,.n2 .big,.n3 .big,.n4 .big{grid-column:2/-1}
-  .n1 .k,.n2 .k,.n3 .k,.n4 .k{grid-column-start:1!important}
-  .index{grid-template-columns:1fr;justify-items:start}
-  .media figure{grid-column:1/-1}.media .cap{grid-column:1/-1}
-  .about .pic{grid-column:1/-1;position:relative}
-  .about .fn,.about .body{grid-column:1/-1}
+  .lines .row{grid-template-columns:30px 1fr}.lines .row .d{grid-column:2;text-align:left}
+  .lines .row img{display:none}
+  .hz .intro{flex-basis:80vw}
+  .hz figure,.hz figure.tall{height:52vh}
+  .nums{grid-template-columns:1fr 1fr}.nums div:nth-child(2){border-right:0}
   .round .row .t{grid-column:2/-1}.round .row .d{grid-column:2/9}.round .row .v{grid-column:9/-1}
   footer{grid-template-columns:1fr 1fr}
 }
-@media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}*{animation:none!important}}
 </style>
 </head>
 <body class="locked">
 <canvas id="grain"></canvas>
+<div id="cur"><span>VIEW</span></div>
 
 <div id="gate">
-  <button id="enter" aria-label="Enter">
-    <span class="mini">ANTHROPOS</span><span class="door"></span>
-  </button>
-  <p>Click to enter — sound off</p>
+  <span class="pct" id="pct">000</span>
+  <button id="enter" aria-label="Enter"><span class="mini">ANTHROPOS</span><span class="door"></span></button>
+  <p>Click to enter</p>
 </div>
 
 <nav>
   <a class="brand" href="#top">ANTHROPOS<sup>®</sup></a>
   <a class="hide" href="#manifest">Manifest</a>
-  <a class="hide" href="#index">Sequence</a>
-  <a class="hide" href="#about">About</a>
+  <a class="hide" href="#city">The City</a>
+  <a class="hide" href="#round">Sequence</a>
   <div class="meta hide">“THE RETURN” Founding Round<br>aSide: Seed, Land<br>bSide: Phase I, Phase II<br>MMXXVI — Site under evaluation<br>©2026</div>
   <a class="r" href="#join">Join</a>
 </nav>
 
 <header class="hero" id="top">
+  <div class="halo"></div>
+  <div class="portal"><img src="img/res-aerial.jpg" alt="Anthropos, concept render"></div>
   <svg class="word" viewBox="0 0 1200 360" aria-label="Anthropos">
     <defs>
       <linearGradient id="chrome" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#ffffff"/>
-        <stop offset=".38" stop-color="#c9ceda"/>
-        <stop offset=".52" stop-color="#5d6170"/>
-        <stop offset=".6" stop-color="#e9ecf4"/>
-        <stop offset="1" stop-color="#ffffff"/>
+        <stop offset="0" stop-color="#fff"/><stop offset=".38" stop-color="#c9ceda"/><stop offset=".52" stop-color="#5d6170"/><stop offset=".6" stop-color="#e9ecf4"/><stop offset="1" stop-color="#fff"/>
       </linearGradient>
       <path id="arc" d="M40 330 Q600 40 1160 330"/>
-      <filter id="edge"><feMorphology operator="dilate" radius="1.5"/></filter>
     </defs>
-    <text font-family="Inter Tight" font-weight="900" font-size="196" letter-spacing="-10" text-anchor="middle" fill="#3a3d48" transform="translate(0,9)"><textPath href="#arc" startOffset="50%">ANTHROPOS</textPath></text>
-    <text font-family="Inter Tight" font-weight="900" font-size="196" letter-spacing="-10" text-anchor="middle" fill="url(#chrome)" stroke="#fff" stroke-width="1.2"><textPath href="#arc" startOffset="50%">ANTHROPOS</textPath></text>
+    <text class="f" font-family="Inter Tight" font-weight="900" font-size="196" letter-spacing="-10" text-anchor="middle" fill="#3a3d48" transform="translate(0,9)"><textPath href="#arc" startOffset="50%">ANTHROPOS</textPath></text>
+    <text class="f" font-family="Inter Tight" font-weight="900" font-size="196" letter-spacing="-10" text-anchor="middle" fill="url(#chrome)" stroke="#fff" stroke-width="1.2"><textPath href="#arc" startOffset="50%">ANTHROPOS</textPath></text>
   </svg>
-  <div class="floor"></div>
-  <div class="door-l"></div>
-  <svg class="figure" viewBox="0 0 60 150" aria-hidden="true"><g fill="#0a0a0a"><circle cx="30" cy="16" r="11"/><path d="M14 32h32l6 52-8 2-4-30-2 94H34l-4-58-4 58h-8l-2-94-4 30-8-2z"/></g></svg>
   <span class="side l">CITY</span><span class="side r">01</span>
-  <span class="corner l">Founding round →</span>
+  <p class="over">A city where no one has to work to live.</p>
+  <span class="corner l">Scroll to enter ↓</span>
   <span class="corner r"><i></i>The Return — Anthropos®</span>
 </header>
 
-<section id="manifest">
-  <div class="manifest">
-    <span class="label rv">Manifest</span>
-    <p class="big lead rv">For ten thousand years we worked to survive. Machines now do most of that work, and nobody built a place for what comes after. Anthropos is that place: a new city where no one has to work to live.</p>
-    <div class="note n1 rv"><span class="k">A1</span><p class="big">Abundance<sup>1</sup> comes first. Energy, housing and food are designed as infrastructure, so the floor of life is paid before anyone wakes up.</p></div>
-    <div class="note n2 rv"><span class="k">A2</span><p class="big">Citizenship<sup>2</sup> is chosen, not inherited. You apply, you contribute, you belong. A city built by the people who want to live in it.</p></div>
-    <div class="note n3 rv"><span class="k">B1</span><p class="big">The forum<sup>3</sup> returns. Squares, baths, theaters and workshops replace the commute, the cubicle and the scroll.</p></div>
-    <div class="note n4 rv"><span class="k">B2</span><p class="big">Built to last<sup>4</sup>. Stone, light and water. Architecture meant to still be standing in five hundred years.</p></div>
-  </div>
-  <div class="index rv" id="index">
-    <a href="#round"><small>A1</small>Seed <em>(MMXXVI)</em></a>
-    <a href="#round"><small>B1</small>Phase I <em>(MMXXVIII)</em></a>
-    <a href="#round"><small>A2</small>Land <em>(MMXXVII)</em></a>
-    <a href="#round"><small>B2</small>Phase II <em>(MMXXX)</em></a>
+<section id="manifest" class="manifest">
+  <span class="label">Manifest</span>
+  <p class="big lead split">Machines now do the work. Nobody built a place for what comes after. We are building it.</p>
+  <div class="lines">
+    <div class="row"><span class="k">A1</span><span class="t">Abundance</span><span class="d">Energy, homes and food built as infrastructure.</span><img src="img/res-pool.jpg" alt=""></div>
+    <div class="row"><span class="k">A2</span><span class="t">Citizenship</span><span class="d">Chosen, not inherited.</span><img src="img/life-dinner.jpg" alt=""></div>
+    <div class="row"><span class="k">B1</span><span class="t">The Forum</span><span class="d">Squares, baths and theaters instead of the commute.</span><img src="img/life-amphi.jpg" alt=""></div>
+    <div class="row"><span class="k">B2</span><span class="t">Stone</span><span class="d">Built to stand five hundred years.</span><img src="img/res-courtyard.jpg" alt=""></div>
   </div>
 </section>
 
-<div class="media">
-  <figure class="rv"><img data-par src="img/soc/pier.jpg" alt="" loading="lazy"><figcaption>Concept</figcaption></figure>
-  <div class="cap"><span class="label">The Return</span>Polis (concept)<br>100,000 residents</div>
+<div class="marq" aria-hidden="true"><div><span>THE RETURN</span><span>ANTHROPOS</span><span>MMXXVI</span><span>THE RETURN</span><span>ANTHROPOS</span><span>MMXXVI</span></div></div>
+
+<div class="hz" id="city">
+  <span class="cnt"><span id="hzn">01</span> / 06</span>
+  <div class="track">
+    <div class="intro"><span class="label">The City</span><p class="big split">Polis. The first Anthropos city, by the sea.</p></div>
+    <figure class="wide" data-c><img src="img/res-aerial-2.jpg" alt=""><figcaption><span>01</span>Arrival</figcaption></figure>
+    <figure class="tall" data-c><img src="img/res-canal.jpg" alt=""><figcaption><span>02</span>Canals</figcaption></figure>
+    <figure class="wide" data-c><img src="img/gov-city.jpg" alt=""><figcaption><span>03</span>Civic center</figcaption></figure>
+    <figure class="tall" data-c><img src="img/res-boardwalk.jpg" alt=""><figcaption><span>04</span>Boardwalk</figcaption></figure>
+    <figure class="wide" data-c><img src="img/res-courtyard.jpg" alt=""><figcaption><span>05</span>Courtyards</figcaption></figure>
+    <figure class="tall" data-c><img src="img/life-rooftop.jpg" alt=""><figcaption><span>06</span>Evenings</figcaption></figure>
+  </div>
+  <div class="bar"><i id="hzbar"></i></div>
 </div>
 
-<section id="about">
-  <div class="about">
-    <div class="lead"><span class="label rv">Anthropos</span><p class="big rv" style="margin-top:1em">Anthropos Cities is a startup building the first city designed for life after labor. Not a resort, not a gated suburb: a working city with its own charter, its own culture and room for one hundred thousand people who chose to be there.</p></div>
-    <div class="pic rv"><img src="img/soc/bust.jpg" alt="" loading="lazy"></div>
-    <div class="fn">
-      <div><span>1</span><span>The name comes from the Greek for “human being”. The city is built around people, not around work.<a href="index.html">Read more ↗</a></span></div>
-      <div><span>2</span><span>The first site is under evaluation. We will announce it only when the land is secured.<a href="#join">Get notified ↗</a></span></div>
-    </div>
-    <div class="body">
-      <div class="q rv"><h3><span class="k">A:</span></h3><h3>Why now.</h3><span class="k">1</span><p>Automation is making the old bargain, trade your hours for your survival, optional for the first time in history. Countries are competing for talent with special economic zones, charter cities and new residency programs. The tools to design, finance and govern a new city exist today. What is missing is a team willing to build one from zero.</p></div>
-      <div class="q rv"><h3><span class="k">B:</span></h3><h3>How it gets built.</h3><span class="k">2</span><p>In sequence. First a community of founding citizens and a founding round. Then the land, negotiated with a host government. Then a first district of homes, the forum and the infrastructure that pays the floor of life. Every phase is unlocked by the one before it, and every number we publish is one we can defend.</p></div>
-      <a class="rv" href="#round" style="display:block;margin-top:1em">See the sequence →</a>
-    </div>
+<div class="plan" id="plan">
+  <div class="ttl"><span class="label">Master plan</span><p class="big">Four districts.<br>One forum.</p></div>
+  <img src="img/concepts/anthropos.jpg" alt="Anthropos master plan, concept">
+  <span class="tag" style="left:44%;top:56%">The Forum</span>
+  <span class="tag" style="left:30%;top:30%">Hill district</span>
+  <span class="tag" style="left:64%;top:40%">Terraces</span>
+  <span class="tag" style="left:22%;top:72%">The Shore</span>
+</div>
+
+<section style="padding-top:6vh">
+  <div class="nums">
+    <div><b data-n="100000">0</b><span>Residents (target)</span></div>
+    <div><b data-n="4">0</b><span>Districts</span></div>
+    <div><b data-n="1">0</b><span>Forum at the center</span></div>
+    <div><b data-n="500">0</b><span>Years it should stand</span></div>
   </div>
 </section>
 
-<div class="media">
-  <figure class="rv" style="grid-column:2/6"><img data-par src="img/era/forum.jpg" alt="" loading="lazy"><figcaption>Forum</figcaption></figure>
-  <div class="cap" style="grid-column:6/8"><span class="label">Before</span>The forum</div>
-  <figure class="rv" style="grid-column:8/12;margin-top:30vh"><img data-par src="img/soc/rooftop.jpg" alt="" loading="lazy"><figcaption>Concept</figcaption></figure>
+<div class="bleed">
+  <img src="img/life-amphi.jpg" alt="" data-par>
+  <div class="mask"></div>
+  <p class="q split">After labor, the forum returns.</p>
 </div>
 
 <section id="round">
-  <span class="label rv">Sequence</span>
-  <p class="big rv" style="margin:1em 0 8vh;text-indent:31%">Four phases, one billion dollars, one city. Each side of the record only plays once the previous one is finished.</p>
+  <span class="label">Sequence</span>
+  <p class="big split" style="margin:1em 0 8vh;text-indent:31%">Four phases. One billion dollars. One city.</p>
   <div class="round">
-    <div class="row rv"><span class="k">A1</span><span class="t">Seed</span><span class="d">Team, founding citizens, master plan and site selection.</span><span class="v">$10M</span></div>
-    <div class="row rv"><span class="k">A2</span><span class="t">Land</span><span class="d">Agreement with a host government and acquisition of the site.</span><span class="v">$90M</span></div>
-    <div class="row rv"><span class="k">B1</span><span class="t">Phase I</span><span class="d">First district: homes, forum, energy and water.</span><span class="v">$300M</span></div>
-    <div class="row rv"><span class="k">B2</span><span class="t">Phase II</span><span class="d">The city opens to its first hundred thousand residents.</span><span class="v">$600M</span></div>
+    <div class="row"><span class="k">A1</span><span class="t">Seed</span><span class="d">Team, citizens, master plan.</span><span class="v" data-m="10">$0M</span></div>
+    <div class="row"><span class="k">A2</span><span class="t">Land</span><span class="d">Host government and site.</span><span class="v" data-m="90">$0M</span></div>
+    <div class="row"><span class="k">B1</span><span class="t">Phase I</span><span class="d">First district and the forum.</span><span class="v" data-m="300">$0M</span></div>
+    <div class="row"><span class="k">B2</span><span class="t">Phase II</span><span class="d">The city opens.</span><span class="v" data-m="600">$0M</span></div>
   </div>
-  <p class="legal">Target figures, not an offer. This page does not offer securities, tokens or returns. Any future investment will be made only to eligible investors under the applicable legal structure.</p>
+  <p class="legal">Target figures, not an offer. This page does not offer securities, tokens or returns.</p>
 </section>
 
 <section class="join" id="join">
-  <p class="label rv" style="justify-content:center;margin-bottom:2em">Founding citizens</p>
-  <p class="big rv">Be among the first to hear where the city will be.</p>
-  <form id="f" class="rv"><input type="email" required placeholder="Your email" aria-label="Email"><button>Join →</button></form>
+  <p class="label" style="justify-content:center;margin-bottom:2em">Founding citizens</p>
+  <p class="big split">Be first to know where the city will be.</p>
+  <form id="f"><input type="email" required placeholder="Your email" aria-label="Email"><button>Join →</button></form>
   <p class="ok" id="ok"></p>
 </section>
 
@@ -249,29 +269,94 @@ footer .big-word{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacin
   <a href="news.html">Dispatches</a>
   <a href="#top">Back to top ↑</a>
   <span style="text-align:right">The Return — MMXXVI</span>
-  <div class="big-word">ANTHROPOS</div>
+  <div class="big-word" id="bw">ANTHROPOS</div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
 <script>
+gsap.registerPlugin(ScrollTrigger);
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+
 // grain
-const c=document.getElementById('grain'),x=c.getContext('2d');let W,H,id;
-function rs(){W=c.width=innerWidth/2;H=c.height=innerHeight/2;id=x.createImageData(W,H)}rs();addEventListener('resize',rs);
-(function g(){const d=id.data;for(let i=0;i<d.length;i+=4){const v=Math.random()*255;d[i]=d[i+1]=d[i+2]=v;d[i+3]=255}x.putImageData(id,0,0);setTimeout(()=>requestAnimationFrame(g),60)})();
-// gate
-document.getElementById('enter').onclick=()=>{document.getElementById('gate').classList.add('gone');document.body.classList.remove('locked')};
-// reveal
-const io=new IntersectionObserver(e=>e.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}}),{threshold:.15});
-document.querySelectorAll('.rv').forEach(el=>io.observe(el));
-// hero + parallax
-const word=document.querySelector('svg.word'),door=document.querySelector('.door-l');
-addEventListener('scroll',()=>{const y=scrollY,h=innerHeight;
-  if(y<h*1.2){word.style.transform=`translateX(-50%) translateY(${y*-.25}px) scale(${1+y/h*.15})`;word.style.opacity=1-y/h;door.style.height=`calc(clamp(150px,30vh,300px) + ${y*.6}px)`}
-  document.querySelectorAll('[data-par]').forEach(im=>{const r=im.parentNode.getBoundingClientRect();im.style.transform=`translateY(${(r.top/h)*-8}%)`});
-},{passive:true});
+const c=$('#grain'),x=c.getContext('2d');let id;
+function rs(){c.width=innerWidth/2;c.height=innerHeight/2;id=x.createImageData(c.width,c.height)}rs();addEventListener('resize',rs);
+(function g(){const d=id.data;for(let i=0;i<d.length;i+=4){d[i]=d[i+1]=d[i+2]=Math.random()*255;d[i+3]=255}x.putImageData(id,0,0);setTimeout(()=>requestAnimationFrame(g),60)})();
+
+// cursor
+const cur=$('#cur');let mx=innerWidth/2,my=innerHeight/2;
+addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY});
+gsap.ticker.add(()=>{gsap.set(cur,{x:gsap.utils.interpolate(gsap.getProperty(cur,'x'),mx,.18),y:gsap.utils.interpolate(gsap.getProperty(cur,'y'),my,.18)})});
+$$('[data-c],.lines .row').forEach(el=>{el.onmouseenter=()=>cur.classList.add('big');el.onmouseleave=()=>cur.classList.remove('big')});
+
+// split words
+$$('.split').forEach(el=>{el.innerHTML=el.textContent.trim().split(/\s+/).map(w=>`<span class="w"><span>${w}</span></span>`).join(' ')});
+
+// loader counter
+const pct=$('#pct');gsap.to({v:0},{v:100,duration:1.4,ease:'power2.out',onUpdate(){pct.textContent=String(Math.round(this.targets()[0].v)).padStart(3,'0')}});
+
+// intro
+function intro(){
+  const tl=gsap.timeline();
+  tl.to('#gate button',{scale:14,opacity:0,duration:1,ease:'power3.in'})
+    .to('#gate',{autoAlpha:0,duration:.5},'-=.2')
+    .add(()=>document.body.classList.remove('locked'))
+    .fromTo('.halo',{scaleY:0,transformOrigin:'bottom'},{scaleY:1,duration:1.1,ease:'expo.out'},'-=.2')
+    .fromTo('.portal',{opacity:0},{opacity:1,duration:.6},'<')
+    .fromTo('svg.word text.f',{opacity:0,y:80},{opacity:1,y:0,duration:1.4,stagger:.08,ease:'expo.out'},'-=.7')
+    .from('nav>*,.side,.corner',{opacity:0,y:-10,stagger:.05,duration:.6},'-=1');
+}
+$('#enter').onclick=intro;
+
+// hero: door opens into the city render
+gsap.timeline({scrollTrigger:{trigger:'.hero',start:'top top',end:'+=170%',scrub:1,pin:true}})
+  .to('svg.word',{yPercent:-60,scale:1.25,opacity:0,ease:'none'},0)
+  .to('.portal',{clipPath:'inset(0% 0% 0% 0%)',ease:'power2.inOut'},0)
+  .to('.portal img',{opacity:1,scale:1,ease:'power2.out'},.1)
+  .to('.halo',{opacity:0},0)
+  .to('.over',{opacity:1,y:-20},.65);
+
+// word reveals
+$$('.split').forEach(el=>gsap.to(el.querySelectorAll('.w>span'),{y:0,duration:1,stagger:.04,ease:'expo.out',scrollTrigger:{trigger:el,start:'top 85%'}}));
+
+// manifest rows
+gsap.from('.lines .row',{yPercent:60,opacity:0,stagger:.12,duration:1.1,ease:'expo.out',scrollTrigger:{trigger:'.lines',start:'top 80%'}});
+gsap.from('.lines .row .t',{letterSpacing:'0.08em',stagger:.12,duration:1.6,ease:'expo.out',scrollTrigger:{trigger:'.lines',start:'top 80%'}});
+
+// marquee speeds with scroll
+const mq=$('.marq div');ScrollTrigger.create({onUpdate:s=>{gsap.to(mq,{skewX:gsap.utils.clamp(-12,12,s.getVelocity()/-150),duration:.4})}});
+
+// horizontal gallery
+const track=$('.hz .track'),figs=$$('.hz figure');
+const hz=gsap.to(track,{x:()=>-(track.scrollWidth-innerWidth),ease:'none',
+  scrollTrigger:{trigger:'.hz',start:'top top',end:()=>'+='+(track.scrollWidth-innerWidth),scrub:1,pin:true,invalidateOnRefresh:true,
+  onUpdate:s=>{$('#hzbar').style.width=s.progress*100+'%';$('#hzn').textContent=String(Math.min(6,1+Math.floor(s.progress*6))).padStart(2,'0')}}});
+figs.forEach(f=>{
+  gsap.to(f.querySelector('img'),{xPercent:8,ease:'none',scrollTrigger:{trigger:f,containerAnimation:hz,start:'left right',end:'right left',scrub:true}});
+  gsap.from(f,{clipPath:'inset(100% 0 0 0)',duration:1.2,ease:'expo.out',scrollTrigger:{trigger:f,containerAnimation:hz,start:'left 90%'}});
+});
+
+// master plan draws itself
+gsap.timeline({scrollTrigger:{trigger:'#plan',start:'top top',end:'+=150%',scrub:1,pin:true}})
+  .fromTo('#plan img',{scale:1.4,rotate:-6},{scale:1,rotate:0,ease:'none'},0)
+  .to('#plan img',{clipPath:'inset(0 0% 0 0)',ease:'none'},0)
+  .to('#plan .tag',{opacity:1,stagger:.15},.5);
+
+// counters
+$$('[data-n]').forEach(b=>{const n=+b.dataset.n;ScrollTrigger.create({trigger:b,start:'top 85%',once:true,onEnter:()=>gsap.to({v:0},{v:n,duration:2,ease:'power3.out',onUpdate(){b.textContent=Math.round(this.targets()[0].v).toLocaleString('en-US')}})})});
+$$('[data-m]').forEach(b=>{const n=+b.dataset.m;ScrollTrigger.create({trigger:b,start:'top 90%',once:true,onEnter:()=>gsap.to({v:0},{v:n,duration:1.6,ease:'power3.out',onUpdate(){b.textContent='$'+Math.round(this.targets()[0].v)+'M'}})})});
+gsap.from('.round .row',{opacity:0,x:-40,stagger:.1,duration:.9,ease:'expo.out',scrollTrigger:{trigger:'.round',start:'top 80%'}});
+
+// full bleed reveal + parallax
+gsap.to('.bleed .mask',{clipPath:'inset(0 0 100% 0)',ease:'none',scrollTrigger:{trigger:'.bleed',start:'top 80%',end:'top 10%',scrub:1}});
+gsap.to('.bleed img',{yPercent:12,ease:'none',scrollTrigger:{trigger:'.bleed',start:'top bottom',end:'bottom top',scrub:true}});
+
+// footer letters
+const bw=$('#bw');bw.innerHTML=[...bw.textContent].map(l=>`<span>${l}</span>`).join('');
+gsap.from('#bw span',{yPercent:110,stagger:.05,duration:1.2,ease:'expo.out',scrollTrigger:{trigger:'footer',start:'top 85%'}});
+
 // form
-document.getElementById('f').onsubmit=e=>{e.preventDefault();const m=e.target[0].value;
-  location.href='mailto:hello@anthroposcities.com?subject=Founding%20citizen&body='+encodeURIComponent(m);
-  document.getElementById('ok').textContent='Thank you. Your mail app will open to confirm.'};
+$('#f').onsubmit=e=>{e.preventDefault();location.href='mailto:hello@anthroposcities.com?subject=Founding%20citizen&body='+encodeURIComponent(e.target[0].value);$('#ok').textContent='Thank you. Your mail app will open to confirm.'};
 </script>
 </body>
 </html>

@@ -220,8 +220,8 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 #load .ph{text-align:center;padding:0 var(--g);transition:transform 1.25s cubic-bezier(.76,0,.24,1)}#load.out .ph{transform:translateY(30vh)}
 #load .ln{display:block;line-height:.86}
 #load .w{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .02em .07em;margin:0 .06em}
-#load .w i{display:inline-block;font-style:normal;font-size:clamp(54px,13vw,240px);font-weight:900;letter-spacing:-.075em;transform:translateY(110%) rotate(4deg);background:linear-gradient(100deg,#7d828e 0%,#fff 22%,#9aa0b0 45%,#2a2c33 62%,#e9ebee 80%,#fff 100%);background-size:250% 100%;background-position:100% 0;-webkit-background-clip:text;color:transparent;will-change:transform}
-#load.go .w i{animation:wup 1.05s cubic-bezier(.16,1,.3,1) forwards,sheen 2.6s cubic-bezier(.4,0,.2,1) forwards;animation-delay:var(--d),calc(var(--d) + .4s)}
+#load .w i{display:inline-block;font-style:normal;font-size:clamp(54px,13vw,240px);font-weight:900;letter-spacing:-.075em;transform:translateY(110%) rotate(4deg);background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent;will-change:transform}
+#load.go .w i{animation:wup 1.05s cubic-bezier(.16,1,.3,1) forwards;animation-delay:var(--d)}
 @keyframes wup{to{transform:none}}@keyframes sheen{to{background-position:0 0}}
 #load .bar{position:absolute;left:var(--g);right:var(--g);bottom:var(--g);height:1px;background:rgba(255,255,255,.12)}
 #load .bar i{display:block;height:100%;width:0;background:#fff;transition:width .3s}
@@ -229,7 +229,7 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 .ix-sec{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;overflow:hidden;scroll-snap-align:start;box-shadow:0 -40px 80px rgba(0,0,0,.18);padding:10vh var(--g)}
 .ix-sec>.ix-in{width:100%;transform-origin:50% 0;will-change:transform,filter}
 .ix-sec.dark{background:#0d1014;color:#f3f1ec}.ix-sec.dark .ix-p,.ix-sec.dark p{color:rgba(243,241,236,.7)!important}.ix-sec.stone{background:#e6e1d6}
-.ix-grid4 .ixi{aspect-ratio:4/3}
+.ix-grid4 .ixi{aspect-ratio:4/3}.lost .ix-p{margin-bottom:0}.lost .ix-grid3{margin-top:4vh}.lost .ixi{aspect-ratio:16/8}.ix-sec.lost .ix-h{max-width:20ch}
 html{scroll-snap-type:y proximity}
 .ix-gate{scroll-snap-align:start;position:relative;z-index:2}
 /* editorial sections */
@@ -303,9 +303,21 @@ html{scroll-snap-type:y proximity}
       <figure class="ix-fig"><span class="ixi"><img src="img/era/clock.jpg" alt=""></span><figcaption>THE INDUSTRIAL CITY</figcaption></figure>
     </div>
   </section>
-  <section class="ix-sec dark">
+  <section class="ix-sec dark lost">
     <div class="ix-in">
-      <div class="ix-lab">II · WHY NOW</div><h2 class="ix-h wide">The work that filled a human life can now be done by machines.</h2>
+      <div class="ix-lab">II · WHAT WE LOST</div>
+      <h2 class="ix-h wide">Somewhere along the way, we forgot what it was all for.</h2>
+      <p class="ix-p">We traded the forum for the commute and the festival for the weekend. We learned to introduce ourselves by our jobs, to measure a life in tasks completed, and to fill what little time was left with screens. We became more productive than any people in history, and less sure of why.</p>
+      <div class="ix-grid3">
+        <figure><span class="ixi"><img src="img/era/mill.jpg" alt=""></span><figcaption>THE MILL</figcaption><p>We left the fields and the squares for the smoke.</p></figure>
+        <figure><span class="ixi"><img src="img/era/commute.jpg" alt=""></span><figcaption>THE COMMUTE</figcaption><p>Two hours a day, going to work and coming back.</p></figure>
+        <figure><span class="ixi"><img src="img/era/cubicles.jpg" alt=""></span><figcaption>THE CUBICLE</figcaption><p>A life measured in tasks, named by a job title.</p></figure>
+      </div>
+    </div>
+  </section>
+  <section class="ix-sec">
+    <div class="ix-in">
+      <div class="ix-lab">III · WHY NOW</div><h2 class="ix-h wide">The work that filled a human life can now be done by machines.</h2>
       <div class="ix-grid3">
         <figure><span class="ixi"><img src="img/era/screens.jpg" alt=""></span><figcaption>INTELLIGENCE</figcaption><p>Systems that draft, design, diagnose and coordinate.</p></figure>
         <figure><span class="ixi"><img src="img/era/energy.jpg" alt=""></span><figcaption>ENERGY</figcaption><p>Power from the sun, cheaper every year.</p></figure>
@@ -315,10 +327,10 @@ html{scroll-snap-type:y proximity}
   </section>
   <section class="ix-sec stone">
     <div class="ix-in">
-      <div class="ix-lab">III · WHAT A FREE PERSON DOES</div><h2 class="ix-h wide">Not leisure. Purpose.</h2>
+      <div class="ix-lab">IV · WHAT A FREE PERSON DOES</div><h2 class="ix-h wide">Not leisure. Purpose.</h2>
       <div class="ix-grid4">
         <figure><span class="ixi"><img src="img/era/theater.jpg" alt=""></span><figcaption>ARS</figcaption><p>The arts.</p></figure>
-        <figure><span class="ixi"><img src="img/era/looms.jpg" alt=""></span><figcaption>SCIENTIA</figcaption><p>Knowledge.</p></figure>
+        <figure><span class="ixi"><img src="img/era/piazza.jpg" alt=""></span><figcaption>SCIENTIA</figcaption><p>Knowledge.</p></figure>
         <figure><span class="ixi"><img src="img/era/stadium.jpg" alt=""></span><figcaption>VIRTUS</figcaption><p>Honor.</p></figure>
         <figure><span class="ixi"><img src="img/era/forum.jpg" alt=""></span><figcaption>RES PUBLICA</figcaption><p>The forum.</p></figure>
       </div>

@@ -42,7 +42,7 @@ if ($('#city3d')) mountCity($('#city3d'));
 // ── residencias ──
 const RES = [
   ['res-pool', 'Main pool'], ['res-sculpture', 'Sculpture court'], ['res-salon', 'Grand salon'], ['res-spa', 'Spa'],
-  ['res-courtyard', 'Residence courtyard'], ['res-boardwalk', 'Beach boardwalk'], ['res-arrival', 'Arrival court'],
+  ['res-courtyard', 'Residence courtyard'], ['res-boardwalk', 'Beach boardwalk'], ['res-canal', 'The water walk'],
 ];
 const rm = $('#resMosaic');
 if (rm) rm.innerHTML = RES.map(([k, t]) => `<figure><div class="img zoom"><img src="img/${k}.jpg" alt="${t}, concept study" loading="lazy"></div><figcaption>${t}</figcaption></figure>`).join('');

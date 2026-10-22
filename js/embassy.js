@@ -6,7 +6,7 @@ import { submit, toast } from './forms.js';
 $('#embMark').innerHTML = EMBLEM;
 
 // mosaico en blanco y negro que se va encendiendo
-const IM = ['embassy-1', 'embassy-2', 'life-music', 'life-dinner', 'life-dinner-2', 'life-amphi', 'life-gallery', 'life-darkroom', 'life-rooftop', 'life-library', 'res-salon', 'res-sculpture', 'res-pool', 'res-courtyard', 'res-spa', 'res-canal'];
+const IM = ['soc/dinner', 'soc/rooftop', 'soc/pier', 'soc/dj', 'soc/friends', 'soc/bust', 'soc/gallery', 'soc/sea', 'era/piazza', 'res-salon', 'res-sculpture', 'res-pool', 'res-courtyard', 'res-spa', 'res-canal'];
 const tiles = $('#tiles');
 tiles.innerHTML = Array.from({ length: 18 }, (_, i) => `<div style="background-image:url(img/${IM[i % IM.length]}.jpg)"></div>`).join('');
 const ds = [...tiles.children];

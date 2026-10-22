@@ -4,7 +4,7 @@ const p = (...xs) => xs.map((x) => (x.startsWith('<') ? x : `<p>${x}</p>`)).join
 export const ESSAYS = [
   {
     slug: 'thinking-state', n: 'I', kicker: 'Essay', home: true, date: 'October 16, 2026',
-    title: 'The Thinking State', cover: 'img/essay-1.jpg',
+    title: 'The Thinking State', cover: 'img/era/screens.jpg',
     dek: 'Every great polity was built around its scarcest resource. Ours will be built around intelligence, and it should own its own.',
     body: p(
       'Every polity that mattered was organized around whatever was scarcest in its age. River kingdoms were organized around water, and the officials who measured the flood became priests. Maritime republics were organized around ships, so their senates were full of captains and insurers. The industrial nation-state was organized around labor: it counted workers, schooled them, taxed their wages, and drafted their sons.',
@@ -24,7 +24,7 @@ export const ESSAYS = [
   },
   {
     slug: 'after-the-office', n: 'II', kicker: 'Essay', home: true, date: 'October 16, 2026',
-    title: 'After the Office', cover: 'img/essay-2.jpg',
+    title: 'After the Office', cover: 'img/era/cubicles.jpg',
     dek: 'For two centuries a job told us who we were and where to live. What do we become when it no longer has to?',
     body: p(
       'Ask a stranger who they are and they will usually tell you what they do. This is a recent habit. For most of history, a person was first a member of a family, a faith, a guild, or a city, and only incidentally a producer of goods.',
@@ -41,7 +41,7 @@ export const ESSAYS = [
   },
   {
     slug: 'the-last-committee', n: 'III', kicker: 'Essay', home: true, date: 'October 16, 2026',
-    title: 'The Last Committee', cover: 'img/essay-3.jpg',
+    title: 'The Last Committee', cover: 'img/era/clock.jpg',
     dek: 'Representative democracy was a workaround for the cost of listening. That cost is about to fall to almost nothing.',
     body: p(
       'Representative government was an engineering compromise. A nation of millions could not gather in one square, so it sent delegates. The delegates could not read millions of letters, so they hired staff, the staff formed committees, and the committees wrote the laws. Each layer was a way of coping with the cost of listening.',
@@ -71,7 +71,7 @@ export const ESSAYS = [
   },
   {
     slug: 'charter', n: '—', kicker: 'Draft Charter · MMXXVI', home: false, date: 'October 16, 2026',
-    title: 'Draft Charter, Version One', cover: 'img/essay-5.jpg',
+    title: 'Draft Charter, Version One', cover: 'img/soc/pier.jpg',
     dek: 'The founding principles of the republic, published for comment before any member is bound by them.',
     body: p(
       'This is a draft, published so that the first members can read, question, and amend it before it binds anyone. It is not a legal instrument. Anthropos will always operate under the laws of every country in which it acts.',
@@ -121,7 +121,7 @@ export const DISPATCHES = [
     ),
   },
   {
-    slug: 'declaration', kind: 'Declaration', date: 'October 21, 2026', year: 2026, cover: 'img/essay-5.jpg',
+    slug: 'declaration', kind: 'Declaration', date: 'October 21, 2026', year: 2026, cover: 'img/soc/pier.jpg',
     title: 'The Declaration of Return, MMXXVI',
     dek: 'Why we are building cities where no one has to work to live.',
     body: p(
@@ -132,7 +132,7 @@ export const DISPATCHES = [
     ),
   },
   {
-    slug: 'self-sustaining', kind: 'Field notes', date: 'October 21, 2026', year: 2026, cover: 'img/era/energy.jpg',
+    slug: 'self-sustaining', kind: 'Field notes', date: 'October 21, 2026', year: 2026, cover: 'img/site-2.jpg',
     title: 'What a self-sustaining city has to make',
     dek: 'Energy, water, food and services: the four systems that let a city work so its people don’t have to.',
     body: p(

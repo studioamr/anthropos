@@ -77,9 +77,9 @@ $$('.counters b[data-c]').forEach((b) => once(b, () => countUp(b, +b.dataset.c, 
 once($('#cityMap'), () => mountView($('#cityMap'), () => byId(CONFIG.cityConcept).build(), { noWheel: true }));
 
 // ── residencias: mosaico + tira arrastrable ──
-const RES = [['res-pool', 'Main pool'], ['res-salon', 'Grand salon'], ['res-sculpture', 'Sculpture court'], ['res-spa', 'Spa'], ['res-courtyard', 'Residence courtyard'], ['res-arrival', 'Arrival court']];
+const RES = [['res-pool', 'Main pool'], ['res-salon', 'Grand salon'], ['res-sculpture', 'Sculpture court'], ['res-spa', 'Spa'], ['res-courtyard', 'Residence courtyard'], ['res-aerial-2', 'The academy']];
 $('#resMason').innerHTML = RES.map(([k, t]) => `<figure><img src="img/${k}.jpg" alt="${t}, concept" loading="lazy"><figcaption class="mono">${t}</figcaption></figure>`).join('');
-const STRIP = [['res-boardwalk', 'Beach boardwalk'], ['res-canal', 'The water walk'], ['res-aerial-2', 'The academy'], ['life-rooftop', 'Rooftop'], ['life-gallery', 'Gallery'], ['life-library', 'Reading room'], ['res-spa', 'Spa'], ['hero', 'The coast']];
+const STRIP = [['res-boardwalk', 'Beach boardwalk'], ['res-canal', 'The water walk'], ['site-1', 'The headland'], ['soc/sea', 'Morning swim'], ['site-2', 'Open land'], ['soc/rooftop', 'Rooftop'], ['hero', 'The coast']];
 const strip = $('#strip');
 strip.innerHTML = STRIP.map(([k, t]) => `<figure><img src="img/${k}.jpg" alt="${t}, concept" loading="lazy"><figcaption class="mono">${t}</figcaption></figure>`).join('');
 let sd = null; strip.addEventListener('pointerdown', (e) => { sd = [e.clientX, strip.scrollLeft]; strip.setPointerCapture(e.pointerId); });
@@ -97,13 +97,12 @@ function cycler(root, pool, n, { every = 1700, capEl = null } = {}) {
   setInterval(() => { if (!vis || document.hidden) return; let k = next, g = 0; while (shown.has(k) && g++ < pool.length) k = (k + 1) % pool.length; next = (k + 1) % pool.length; put(tiles[(Math.random() * tiles.length) | 0], k); }, every);
 }
 const E = (k, c) => ['img/era/' + k + '.jpg', c], I = (k, c) => ['img/' + k + '.jpg', c];
-const ERA = [E('forum', 'Rome · the forum'), E('baths', 'Rome · the baths'), E('stadium', 'Greece · the stadium'), E('theater', 'Greece · the theater'), E('masons', '1200 · the cathedral'), E('workshop', '1500 · the workshop'),
-  E('mill', '1850 · the mill'), E('looms', '1880 · the looms'), E('assembly', '1920 · the line'), E('clock', '1950 · the clock'), E('cubicles', '1995 · the cubicle'), E('commute', '2010 · the commute'), E('screens', '2025 · the screens'),
-  E('harvest', 'Next · machines in the fields'), E('energy', 'Next · a city that powers itself'), E('piazza', 'Next · the piazza'), I('life-amphi', 'Next · the theater, again'), I('res-pool', 'Next · the baths, again'), I('essay-4', 'Next · the colonnade'), I('life-library', 'Next · the academy'), I('life-dinner', 'Next · the long table'), I('life-music', 'Next · the studio'), I('res-sculpture', 'Next · the sculpture court'), I('life-gallery', 'Next · the gallery')];
+const ERA = [E('mill', '1850 · the mill'), E('looms', '1880 · the looms'), E('assembly', '1920 · the line'), E('clock', '1950 · the clock'), E('cubicles', '1995 · the cubicle'), E('commute', '2010 · the commute'), E('screens', '2025 · the screens'),
+  E('piazza', 'Next · the piazza'), I('essay-4', 'Next · the colonnade'), I('res-pool', 'Next · the baths, again'), I('res-sculpture', 'Next · the sculpture court'), I('soc/dinner', 'Next · the long table'), I('soc/gallery', 'Next · the gallery'), I('soc/sea', 'Next · the sea'), I('soc/friends', 'Next · each other')];
 cycler($('#eraGrid'), ERA, 8, { every: 1500, capEl: $('#eraCap') });
 const S = (k, c) => ['img/soc/' + k + '.jpg', c];
 const SOC = [S('dinner', 'Dinner'), S('rooftop', 'Rooftop'), S('pier', 'The pier'), S('dj', 'Courtyard set'), S('friends', 'Friends'), S('bust', 'After the opening'), S('gallery', 'Opening night'), S('sea', 'Morning swim'),
-  I('life-dinner-2', 'Long tables'), I('life-amphi', 'Concerts by the sea'), I('life-rooftop', 'Nightlife'), I('life-music', 'The studio'), I('life-darkroom', 'The darkroom'), I('res-boardwalk', 'The beach')];
+  I('res-boardwalk', 'The beach'), I('res-canal', 'The water walk'), E('piazza', 'The piazza')];
 const lg = $('#lifeGrid'); lg.classList.add('era'); cycler(lg, SOC, 8, { every: 1900 });
 const FROM = ['Founders', 'Engineers', 'Researchers', 'Artists', 'Musicians', 'Architects', 'Writers', 'Athletes', 'Filmmakers', 'Designers'];
 $('#fromTrack').innerHTML = [...FROM, ...FROM].map((t) => `<span>${t}</span>`).join('');

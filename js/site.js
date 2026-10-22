@@ -86,6 +86,7 @@ export function boot() {
   $$('[data-name]').forEach((el) => (el.textContent = CONFIG.name));
   $$('[data-country]').forEach((el) => (el.textContent = CONFIG.country));
   $$('[data-coast]').forEach((el) => (el.textContent = CONFIG.coast));
+  if (document.body.dataset.chrome === "none") return;
   header(); menu(); footer(); reveal();
 }
 

@@ -56,11 +56,11 @@ const { ink } = buildPolis();
 prog(55, 'Raising the buildings…');
 
 // growth: every vertex knows when its building is raised (bt 0..1), uP sweeps 0→1
-const UP = { value: 0 };
+const UP = { value: 0 }, CAPP = { value: 0 };
 const M = ink.marks, NM = M.length;
 function btFor(count, key) { const a = new Float32Array(count); let k = 0;
   for (let v = 0; v < count; v++) { while (k < NM - 1 && v >= (M[k][key] ?? 0)) k++; a[v] = M[k].d < 0 ? 0 : k / NM; } return a; }
-const GROW = `if(position.z>-80.&&abs(position.x-(-170.+70.*sin(position.z/160.)+30.*sin(position.z/61.)))<40.&&position.y<6.)transformed.y=-60.;if(distance(position.xz,vec2(120.,820.))<92.||(abs(position.x)<64.&&position.z>192.&&position.z<268.&&position.y>1.))transformed.y=-60.;float gk=clamp((uP*1.12-bt)*16.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
+const GROW = `if(position.z>-80.&&abs(position.x-(-170.+70.*sin(position.z/160.)+30.*sin(position.z/61.)))<40.&&position.y<6.)transformed.y=-60.;if(distance(position.xz,vec2(120.,820.))<92.||(abs(position.x)<64.&&position.z>192.&&position.z<268.&&position.y>1.))transformed.y=-60.;float gk=clamp((uP*1.08-bt)*9.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
 function grow(mat, key) {
   const prev = mat.onBeforeCompile; mat.customProgramCacheKey = () => 'grow' + key;
   mat.onBeforeCompile = (sh, r) => { sh.uniforms.uP = UP;
@@ -539,7 +539,7 @@ pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 30
 // ── the Capitol: travertine podium, clear glass hall you can see into, assembly chamber, lattice dome, plinths ──
 { const G0 = new THREE.Group(); G0.position.set(0, .3, 230); S.add(G0);
   const trav = surf(0xd8ccb4, { roughness: .75, metalness: 0 }, 'pad'), stone = new THREE.MeshStandardMaterial({ color: 0xe8e1d3, roughness: .6 }), bronze = new THREE.MeshStandardMaterial({ color: 0x5a4632, roughness: .4, metalness: .8 });
-  const clear = new THREE.MeshStandardMaterial({ color: 0xdff0f8, roughness: .1, metalness: 0, envMapIntensity: .15, transparent: true, opacity: .07, depthWrite: false, side: THREE.DoubleSide });
+  const clear = new THREE.MeshStandardMaterial({ color: 0x4f6f86, roughness: .06, metalness: .7, envMapIntensity: 1.2, transparent: true, opacity: .58, depthWrite: false, side: THREE.DoubleSide });
   const wood = new THREE.MeshStandardMaterial({ color: 0x5e3a22, roughness: .5 }), seat = new THREE.MeshStandardMaterial({ color: 0x1d3f73, roughness: .45 }), floorM = new THREE.MeshStandardMaterial({ color: 0xece6da, roughness: .4 });
   // stepped podium
   for (let k = 0; k < 4; k++) { const st = new THREE.Mesh(new THREE.BoxGeometry(150 - k * 7, 1.2, 96 - k * 7), trav); st.position.y = .6 + k * 1.2; G0.add(st); }
@@ -567,6 +567,14 @@ pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 30
   const glassBox = new THREE.Mesh(new THREE.BoxGeometry(120, 15, 68), clear); glassBox.position.y = base + 7.8; G0.add(glassBox);
   const mul = []; for (let i = 0; i <= 30; i++) mul.push([-60 + i * 4, -34], [-60 + i * 4, 34]); for (let i = 0; i <= 17; i++) mul.push([-60, -34 + i * 4], [60, -34 + i * 4]);
   G0.add(inst(new THREE.BoxGeometry(.25, 15, .25), bronze, mul, (d, [x, z]) => d.position.set(x, base + 7.8, z)));
+  // monumental stone fins all around, warm light inside, LED ring and beacon spire
+  const fins = []; for (let i = 0; i <= 22; i++) fins.push([-63 + i * 6, -36.5, 0], [-63 + i * 6, 36.5, 0]); for (let i = 0; i <= 12; i++) fins.push([-63, -36 + i * 6, 1], [63, -36 + i * 6, 1]);
+  G0.add(inst(new THREE.BoxGeometry(1, 15.4, 3.2), stone, fins, (d, [x, z, r]) => { d.position.set(x, base + 7.8, z); d.rotation.y = r ? Math.PI / 2 : 0; }));
+  const warm = glow(0xffd9a0, 1.4); [[0, -26], [0, 26]].forEach(([x, z]) => { const l = new THREE.Mesh(new THREE.BoxGeometry(116, .3, .5), warm); l.position.set(x, base + 7.5, z + (z > 0 ? -7 : 7)); G0.add(l); });
+  const led = new THREE.Mesh(new THREE.TorusGeometry(28.6, .45, 8, 128), glow(0x8fe8ff, 2.6)); led.rotation.x = Math.PI / 2; led.position.y = base + 17.2; G0.add(led);
+  const spire = new THREE.Mesh(new THREE.CylinderGeometry(.25, .9, 30, 12), bronze); spire.position.y = base + 60; G0.add(spire);
+  const beacon = new THREE.Mesh(new THREE.SphereGeometry(1.4, 16, 12), glow(0xffffff, 3)); beacon.position.y = base + 75.5; G0.add(beacon);
+  ANIM.push((t) => { beacon.scale.setScalar(1 + .35 * Math.max(0, Math.sin(t * 2.2))); led.material.color.setRGB(.56, .91, 1).multiplyScalar(1.8 + .8 * Math.sin(t * 1.3)); });
   // floating roof canopy with deep overhang, slender perimeter columns, roof garden ring
   [[0, -38, 136, 8], [0, 38, 136, 8], [-64, 0, 8, 68], [64, 0, 8, 68]].forEach(([x, z, w, dd]) => { const fr = new THREE.Mesh(new THREE.BoxGeometry(w, 1.6, dd), stone); fr.position.set(x, base + 16.1, z); G0.add(fr); });
   const roofGlass = new THREE.Mesh(new THREE.BoxGeometry(120, .3, 68), clear); roofGlass.position.y = base + 16.4;
@@ -587,7 +595,23 @@ pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 30
     const sc = new THREE.Mesh(i % 2 ? new THREE.TorusKnotGeometry(1.6, .45, 80, 10) : new THREE.ConeGeometry(1.4, 6, 4), bronze); sc.position.set(x, 6.2, z); G0.add(sc); });
   G0.traverse((o) => { if (o.isMesh && !o.material.transparent && !o.material.wireframe) { o.castShadow = o.receiveShadow = true; } else if (o.isMesh) { o.castShadow = false; } });
   G0.scale.y = .001; G0.visible = false;
-  ANIM.push(() => { const k = Math.min(1, Math.max(0, UP.value * 14)); G0.visible = k > 0; G0.scale.y = k <= 0 ? .001 : 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2); }); }
+  ANIM.push(() => { const k = CAPP.value; G0.visible = k > 0; G0.scale.y = k <= 0 ? .001 : Math.max(.001, k < 1 ? k * k * (3 - 2 * k) : 1); }); }
+
+// ── construction crews: cranes around the Capitol, then a crane front that moves outward ──
+{ const yel = new THREE.MeshStandardMaterial({ color: 0xf2b705, roughness: .5, metalness: .4 }), dark = new THREE.MeshStandardMaterial({ color: 0x3a3d42, metalness: .5 });
+  const mk = (h) => { const c = new THREE.Group(); const mast = new THREE.Mesh(new THREE.BoxGeometry(2.2, h, 2.2), yel); mast.position.y = h / 2; c.add(mast);
+    const lat = new THREE.Mesh(new THREE.BoxGeometry(2.3, h, 2.3), new THREE.MeshBasicMaterial({ color: 0x8a6a00, wireframe: true })); lat.position.y = h / 2; c.add(lat);
+    const jib = new THREE.Group(); jib.position.y = h; const arm = new THREE.Mesh(new THREE.BoxGeometry(48, 1.6, 1.6), yel); arm.position.x = 14; jib.add(arm);
+    const cw = new THREE.Mesh(new THREE.BoxGeometry(6, 3, 3), dark); cw.position.x = -10; jib.add(cw); const cab = new THREE.Mesh(new THREE.BoxGeometry(3, 3, 3), dark); cab.position.y = -2; jib.add(cab);
+    const line = new THREE.Mesh(new THREE.BoxGeometry(.15, h * .6, .15), dark); line.position.set(30, -h * .3, 0); jib.add(line); const hook = new THREE.Mesh(new THREE.BoxGeometry(4, 2, 4), mat(0xb5562a)); hook.position.set(30, -h * .6, 0); jib.add(hook);
+    const lamp = new THREE.Mesh(new THREE.SphereGeometry(.7, 8, 6), glow(0xff3b2a, 4)); lamp.position.y = 3; jib.add(lamp); c.add(jib); c.userData.jib = jib; c.traverse((o) => o.isMesh && (o.castShadow = true)); S.add(c); c.visible = false; return c; };
+  const capCr = [[-80, 170], [80, 170], [-80, 300], [80, 300]].map(([x, z]) => { const c = mk(70); c.position.set(x, .3, z); return c; });
+  const front = Array.from({ length: 16 }, () => mk(55));
+  ANIM.push((t) => {
+    capCr.forEach((c, i) => { c.visible = CAPP.value > .001 && CAPP.value < .999; c.userData.jib.rotation.y = Math.sin(t * .5 + i) * 1.6 + i; });
+    const u = UP.value, on = u > .002 && u < .985; const k = Math.min(NM - 1, Math.floor(u * 1.08 * NM)), R = Math.max(60, (M[k] && M[k].d) || 0);
+    front.forEach((c, i) => { const a = i / 16 * Math.PI * 2 + .2, x = DOWN[0] + Math.cos(a) * R * 1.15, z = DOWN[1] + Math.sin(a) * R * .9;
+      const okk = on && z > bayP(x) + 80 && Math.abs(x) < 1150 && z < 1000; c.visible = okk; if (okk) { c.position.set(x, ty(x, z), z); c.userData.jib.rotation.y = Math.sin(t * .6 + i * 1.7) * 1.8; } }); }); }
 
 // ── places you can tap ──
 const P = (x, z, y = 12) => [x, Math.max(terrainP(x, z), 0) + y, z];
@@ -753,7 +777,7 @@ function buildTick(dt) {
   const interactive = q > .985;
   if (interactive && !build.done) { build.done = true; $('#stage').classList.remove('building'); ctl.enabled = true; ctl.autoRotate = true; }
   if (!interactive && build.done) { build.done = false; $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false; stopTour(); if (sel) { sel = null; $('#stage').classList.remove('sel'); } flight = null; }
-  UP.value = sm(clamp01(Q / .6));
+  CAPP.value = clamp01((Q - .012) / .075); UP.value = sm(clamp01((Q - .1) / .52));
   SYSORDER.forEach((id, i) => { const k = clamp01((Q - (SYS0 + i * SYSW)) / (SYSW * .6)); const g = SYSG[id]; g.visible = k > 0; g.scale.y = easeB(k); });
   if (!build.done) { const [cp, ct] = pose(Q); cam.position.lerp(cp, .09); ctl.target.lerp(ct, .09);
     let cur = CAPS[0][1]; for (const [at, t] of CAPS) if (Q >= at) cur = t; setCap(cur, Q); $('#pi').style.height = Q * 100 + '%'; $('#bh').style.opacity = Q < .02 ? .8 : 0; }

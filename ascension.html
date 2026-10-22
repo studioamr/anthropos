@@ -40,6 +40,26 @@ nav a:hover{opacity:.6}
 .title h1{font-size:clamp(44px,7vw,120px);font-weight:600;letter-spacing:-.06em;line-height:.85;margin:.15em 0 .25em;background:linear-gradient(180deg,#fff 0%,#d9dce4 50%,#8e93a0 100%);-webkit-background-clip:text;color:transparent}
 .title p{font-size:15px;line-height:1.3;color:rgba(255,255,255,.85);max-width:34ch;text-shadow:0 1px 12px rgba(0,0,0,.5)}
 .stage.sel .title{opacity:0}
+.stage.intro .title,.stage.intro .dock,.stage.intro .ctrl,.stage.intro #pins,.stage.intro .info{opacity:0;pointer-events:none}
+.title,.dock,.ctrl,#pins{transition:opacity 1.2s}
+.story{position:absolute;left:var(--g);top:50%;transform:translateY(-50%);z-index:15;max-width:560px;pointer-events:none;opacity:0;transition:opacity 1s}
+.stage.intro .story{opacity:1}
+.story .sk{font-size:11px;letter-spacing:.14em;color:var(--dim);display:flex;gap:10px;align-items:center}
+.story .sk:before{content:"";width:28px;height:1px;background:#fff}
+.story h2{font-size:clamp(46px,7.5vw,128px);font-weight:600;letter-spacing:-.06em;line-height:.86;margin:.18em 0 .3em;background:linear-gradient(180deg,#fff,#c9ccd4 60%,#7d828e);-webkit-background-clip:text;color:transparent}
+.story p{font-size:clamp(15px,1.3vw,19px);line-height:1.35;color:rgba(255,255,255,.85);max-width:30ch}
+.story>*{transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1),filter .9s}
+.story.out>*{opacity:0;transform:translateY(18px);filter:blur(6px)}
+.story.out h2{transform:translateY(40px)}
+.segs{position:absolute;left:var(--g);right:var(--g);bottom:var(--g);z-index:15;display:flex;gap:6px;opacity:0;transition:opacity 1s}
+.stage.intro .segs{opacity:1}
+.segs div{flex:1;height:2px;background:rgba(255,255,255,.18);position:relative;cursor:pointer}
+.segs div:after{content:attr(data-t);position:absolute;top:8px;left:0;font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);white-space:nowrap;overflow:hidden;max-width:100%}
+.segs i{position:absolute;inset:0;background:#fff;transform-origin:left;transform:scaleX(0)}
+.skip{position:absolute;right:var(--g);bottom:calc(var(--g) + 30px);z-index:16;background:var(--glass);border:1px solid var(--line);padding:8px 14px;font-size:11px;backdrop-filter:blur(10px);opacity:0;pointer-events:none;transition:opacity 1s}
+.stage.intro .skip{opacity:1;pointer-events:auto}
+.skip:hover{border-color:#fff}
+@media(max-width:760px){.story{top:auto;bottom:90px;transform:none}.segs div:after{display:none}}
 
 /* dock */
 .dock{position:absolute;left:var(--g);right:var(--g);bottom:var(--g);z-index:12;display:flex;gap:8px;align-items:center;overflow-x:auto;scrollbar-width:none}
@@ -127,7 +147,7 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
 </head>
 <body>
 
-<div class="stage" id="stage">
+<div class="stage intro" id="stage">
   <canvas id="gl"></canvas>
   <div class="shade"></div>
   <canvas id="grain"></canvas>
@@ -164,6 +184,9 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
     <button id="zout" aria-label="Zoom out">−</button>
   </div>
 
+  <div class="story out" id="story"><span class="sk"><span id="stK">I</span>&nbsp;/ XI</span><h2 id="stT"></h2><p id="stS"></p></div>
+  <div class="segs" id="segs"></div>
+  <button class="skip" id="skip">Skip intro →</button>
   <div class="dock" id="dock">
     <button class="chip" id="tour"><i></i>▶ Tour the city</button>
     <span class="sep"></span>
@@ -240,14 +263,14 @@ function facade(m){return m}
 const OCC=new THREE.MeshBasicMaterial({color:0x030405,polygonOffset:true,polygonOffsetFactor:2,polygonOffsetUnits:2});
 
 // point-cloud shaders
-const PV=`attribute float rnd;uniform float uTime,uHi,uDim,uSize,uPR,uBase;varying vec3 vC;varying float vA;
+const PV=`attribute float rnd;uniform float uTime,uHi,uDim,uSize,uPR,uBase,uReveal;varying vec3 vC;varying float vA;
 void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;float d=-mv.z;
 float tw=.78+.22*sin(uTime*1.6+rnd*60.);
 gl_PointSize=clamp(uSize*uPR*(.7+rnd*.6)*(1.+uHi*.3)*(300./d),1.,9.);
 float fade=1.-smoothstep(800.,2600.,d);
-vA=(.5+uHi*.25)*tw*fade*mix(1.,.13,uDim)*uBase;vC=color*(1.+uHi*.35);}`;
+vA=(.5+uHi*.25)*tw*fade*mix(1.,.13,uDim)*uBase*step(length((modelMatrix*vec4(position,1.)).xz),uReveal);vC=color*(1.+uHi*.35);}`;
 const PF=`varying vec3 vC;varying float vA;void main(){float r=length(gl_PointCoord-.5);if(r>.5)discard;gl_FragColor=vec4(vC,vA*smoothstep(.5,.08,r));}`;
-const pmat=size=>new THREE.ShaderMaterial({uniforms:{uTime:U.time,uBase:{value:1},uHi:{value:0},uDim:{value:0},uSize:{value:size},uPR:{value:R.getPixelRatio()}},vertexShader:PV,fragmentShader:PF,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+const pmat=size=>new THREE.ShaderMaterial({uniforms:{uTime:U.time,uBase:{value:1},uReveal:{value:1e5},uHi:{value:0},uDim:{value:0},uSize:{value:size},uPR:{value:R.getPixelRatio()}},vertexShader:PV,fragmentShader:PF,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
 function cloud(P,C,Rn,mat){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('rnd',new THREE.Float32BufferAttribute(Rn,1));const p=new THREE.Points(g,mat);p.frustumCulled=false;p.raycast=()=>{};return p}
 
 // ---------- terrain: black occluder + topographic dust
@@ -657,7 +680,8 @@ function frame(){
   blades.forEach((b,i)=>b.rotation.z+=dt*(1.1+i*.05));
   trams.forEach((tr,i)=>{const a=t*.05+i*Math.PI/3;tr.position.set(Math.cos(a)*RING,0,Math.sin(a)*RING);tr.rotation.y=-a});
   boats.forEach(o=>{const a=t*o.s+o.o;o.b.position.set(Math.cos(a)*o.r*1.2+60,0,Math.sin(a)*o.r*.35+330);o.b.rotation.y=-a;o.b.position.y=Math.sin(t*1.5+o.o)*.2});
-  flows.forEach(f=>{const on=!sel||f.ids.includes(sel)?1:0;const want=sel?(on?1:.05):.55;f.mat.opacity+=(want-f.mat.opacity)*.06;
+  storyTick(dt);
+  flows.forEach(f=>{const on=!sel||f.ids.includes(sel)?1:0;const want=!REV.has(f.ids[0])?0:sel?(on?1:.05):.55;f.mat.opacity+=(want-f.mat.opacity)*.06;
     const a=f.geo.attributes.position.array;for(let i=0;i<f.n;i++){const u=(i/f.n+t*.05+f.off)%1;f.cv.getPointAt(u,tv);a[i*3]=tv.x;a[i*3+1]=tv.y+Math.sin(u*30+t*2)*.4;a[i*3+2]=tv.z}f.geo.attributes.position.needsUpdate=true});
   // pins
   const w=canvas.clientWidth,h=canvas.clientHeight;
@@ -667,7 +691,62 @@ function frame(){
   if(!ctl.autoRotate&&!sel&&!tour){idleT+=dt;if(idleT>8)ctl.autoRotate=true}
   if(tour&&!flight){tour.t+=dt;$('#tourbar').style.width=(tour.t/7*100)+'%';if(tour.t>7)nextTour()}
   ctl.update();composer.render()}
-prog(100,'Ready');setTimeout(()=>$('#load').classList.add('gone'),400);
+// ---------- STORY: the city is built in front of you
+const REV=new Set(),anims=[],stage=$('#stage');
+const LIFE=S.children.filter(o=>o.isPoints&&(o.material===winMat||o.material===pplMat)).concat(pulses);
+const ROOTS={};const NOT=new Set([ground,...LIFE]);
+S.children.forEach(o=>{if(NOT.has(o)||o.isPoints||o.isLight)return;let id=null;o.traverse(m=>{if(!id&&m.userData&&m.userData.id)id=m.userData.id});(ROOTS[id||'misc']=ROOTS[id||'misc']||[]).push(o)});
+Object.values(ROOTS).flat().forEach(o=>{o.visible=false;o.scale.y=.001});LIFE.forEach(o=>o.visible=false);
+// master-plan drawing
+const plan=G();S.add(plan);const planLines=[];
+function pl(pts){const g=new THREE.BufferGeometry().setFromPoints(pts.map(([x,z])=>new THREE.Vector3(x,1.6,z)));const m=new THREE.LineBasicMaterial({color:0xffffff,transparent:true,opacity:.75,blending:THREE.AdditiveBlending,depthWrite:false});
+  const l=new THREE.Line(g,m);l.raycast=()=>{};g.setDrawRange(0,0);plan.add(l);planLines.push({l,n:pts.length})}
+const circ=(r,n=200)=>Array.from({length:n+1},(_,i)=>[Math.cos(i/n*Math.PI*2)*r,Math.sin(i/n*Math.PI*2)*r]);
+[30,38,84,118,150,300].forEach(r=>pl(circ(r)));pl([[-125,0],[125,0]]);pl([[0,-125],[0,125]]);
+for(let k=0;k<12;k++){const a=k/12*Math.PI*2;pl([[Math.cos(a)*38,Math.sin(a)*38],[Math.cos(a)*118,Math.sin(a)*118]])}
+let planK=0,planOn=0;
+function reveal(id,delay=0){if(REV.has(id))return;REV.add(id);(ROOTS[id]||[]).forEach((o,i)=>anims.push({o,t:-delay-i*.04,dur:2.6}));
+  if(id==='homes'&&PM.homes)anims.push({u:PM.homes.uniforms.uReveal,from:30,to:125,t:-delay,dur:4});
+  if(id==='belt'&&PM.belt)anims.push({u:PM.belt.uniforms.uReveal,from:120,to:330,t:-delay,dur:4})}
+const STORY=[
+ {t:'The land',s:'Two thousand hectares of untouched coast. Sea, wind and sun. Nothing else, yet.',show:[],cam:[[560,170,640],[0,0,40]]},
+ {t:'The plan',s:'One forum. Two avenues. A ring. Four districts. Drawn before a single stone is laid.',plan:1,show:[],cam:[[30,560,60],[0,0,0]]},
+ {t:'The forum',s:'The city begins at its heart: the square where citizens meet, debate and vote.',show:['forum','theater'],cam:[[80,55,90],[0,6,0]]},
+ {t:'The districts',s:'Homes rise in rings around the forum. Stone, courtyards and green roofs.',show:['homes','misc','library','market','baths'],cam:[[210,140,220],[0,8,0]]},
+ {t:'The green belt',s:'Forty thousand trees close the circle and keep the city at human scale.',show:['belt','school','clinic'],cam:[[360,240,360],[0,0,0]]},
+ {t:'Energy',s:'A solar field, a wind ridge and batteries. The sun pays the floor of life.',show:['solar','wind','battery','compute'],cam:[[170,170,-10],[-100,0,-200]]},
+ {t:'Water',s:'Fresh water from the sea and the rain, and canals that return every litre to the soil.',show:['desal','reservoir','canals'],cam:[[70,120,320],[-110,0,90]]},
+ {t:'Food',s:'Greenhouses, fields and fish farms grow the city’s food within sight.',show:['green','fields','fish'],cam:[[400,150,200],[220,0,40]]},
+ {t:'The loop',s:'Nothing leaves. Waste becomes gas for the kitchens and soil for the fields.',show:['digester'],cam:[[40,100,280],[140,0,130]]},
+ {t:'Movement',s:'A tram ring, a harbor, and streets made for walking.',show:['tram','harbor'],cam:[[0,190,210],[0,0,20]]},
+ {t:'Life',s:'Then the lights come on. Anthropos City is alive.',life:1,show:[],cam:[[170,165,190],[0,8,0]]}];
+const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];const DUR=6.8;
+STORY.forEach((c,i)=>{const d=document.createElement('div');d.dataset.t=c.t;d.innerHTML='<i></i>';d.onclick=()=>goChapter(i);$('#segs').appendChild(d)});
+let story={i:-1,t:0,on:true};
+function goChapter(i){
+  for(let k=0;k<i;k++)STORY[k].show.forEach(id=>reveal(id));if(i>=1)planOn=1;
+  story.i=i;story.t=0;const c=STORY[i];const el=$('#story');el.classList.add('out');
+  setTimeout(()=>{$('#stK').textContent=ROMAN[i];$('#stT').textContent=c.t;$('#stS').textContent=c.s;el.classList.remove('out')},600);
+  [...$('#segs').children].forEach((d,k)=>d.firstChild.style.transform=`scaleX(${k<i?1:0})`);
+  c.show.forEach((id,k)=>reveal(id,.6+k*.35));if(c.plan)planOn=1;
+  if(c.life)setTimeout(()=>LIFE.forEach(o=>o.visible=true),900);
+  flight={fromP:cam.position.clone(),fromT:ctl.target.clone(),toP:new THREE.Vector3(...c.cam[0]),toT:new THREE.Vector3(...c.cam[1]),t:0,dur:i?3.2:.01};
+  ctl.autoRotate=true;ctl.autoRotateSpeed=.5}
+function endStory(){story.on=false;stage.classList.remove('intro');STORY.forEach(c=>c.show.forEach(id=>reveal(id)));planOn=1;LIFE.forEach(o=>o.visible=true);
+  ctl.enabled=true;ctl.autoRotateSpeed=.35;$('#story').classList.add('out')}
+function playStory(){stage.classList.add('intro');ctl.enabled=false;deselect&&sel&&deselect();story.on=true;goChapter(0)}
+$('#skip').onclick=endStory;
+{const b=document.createElement('button');b.className='chip';b.innerHTML='<i></i>↺ Watch the story';b.onclick=()=>{location.reload()};$('#dock').insertBefore(b,$('#dock').children[1])}
+function storyTick(dt){
+  anims.forEach(a=>{a.t+=dt;if(a.t<0)return;const k=Math.min(1,a.t/a.dur),e=1-Math.pow(1-k,3);
+    if(a.o){a.o.visible=true;a.o.scale.y=Math.max(.001,e)}else a.u.value=a.from+(a.to-a.from)*e;a.done=k>=1});
+  for(let i=anims.length-1;i>=0;i--)if(anims[i].done)anims.splice(i,1);
+  if(planOn&&planK<1){planK=Math.min(1,planK+dt/3.2)}
+  planLines.forEach((p,i)=>{const k=THREE.MathUtils.clamp(planK*1.6-i*.04,0,1);p.l.geometry.setDrawRange(0,Math.floor(p.n*k));p.l.material.opacity=REV.has('homes')?.08:.75});
+  if(!story.on||story.i<0)return;story.t+=dt;$('#segs').children[story.i].firstChild.style.transform=`scaleX(${Math.min(1,story.t/DUR)})`;
+  if(story.t>DUR){if(story.i<STORY.length-1)goChapter(story.i+1);else endStory()}}
+cam.position.set(...STORY[0].cam[0]);ctl.target.set(...STORY[0].cam[1]);ctl.enabled=false;
+prog(100,'Ready');setTimeout(()=>{$('#load').classList.add('gone');goChapter(0)},400);
 frame();
 
 $('#f').onsubmit=e=>{e.preventDefault();location.href='mailto:hello@anthroposcities.com?subject=Founding%20citizen&body='+encodeURIComponent(e.target[0].value);$('#ok').textContent='Thank you. Your mail app will open to confirm.'};

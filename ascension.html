@@ -16,7 +16,12 @@ a{color:inherit;text-decoration:none}
 button{font:inherit;color:inherit;cursor:pointer}
 sup{font-size:.45em;vertical-align:top;position:relative;top:.2em;margin-left:.08em}
 
-.stage{position:relative;height:100svh;overflow:hidden;background:#0b2440}
+.scrolly{position:relative}
+.stage.intro #gl{pointer-events:none}
+.story .hint{margin-top:2.2em;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);display:flex;gap:8px;align-items:center}
+.story .hint i{display:inline-block;animation:bob 1.6s infinite}
+@keyframes bob{50%{transform:translateY(5px)}}
+.stage{position:sticky;top:0;height:100svh;overflow:hidden;background:#0b2440}
 #gl{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:none}
 #gl:active{cursor:grabbing}
 #grain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.05;mix-blend-mode:overlay;z-index:4}
@@ -148,6 +153,7 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
 </head>
 <body>
 
+<div class="scrolly" id="scrolly">
 <div class="stage intro" id="stage">
   <canvas id="gl"></canvas>
   <div class="shade"></div>
@@ -185,13 +191,14 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
     <button id="zout" aria-label="Zoom out">−</button>
   </div>
 
-  <div class="story out" id="story"><span class="sk"><span id="stK">I</span>&nbsp;/ XI</span><h2 id="stT"></h2><p id="stS"></p></div>
+  <div class="story out" id="story"><span class="sk"><span id="stK">I</span>&nbsp;/ XII</span><h2 id="stT"></h2><p id="stS"></p><span class="hint">Scroll to build the city <i>↓</i></span></div>
   <div class="segs" id="segs"></div>
   <button class="skip" id="skip">Skip intro →</button>
   <div class="dock" id="dock">
     <button class="chip" id="tour"><i></i>▶ Tour the city</button>
     <span class="sep"></span>
   </div>
+</div>
 </div>
 
 <section class="loop" id="loop">
@@ -408,7 +415,7 @@ prog(52,'Planting forty thousand trees…');
   for(let i=0;i<N*3&&pts.length<N;i++){const a=rnd()*Math.PI*2,r=128+Math.pow(rnd(),.8)*170,x=Math.cos(a)*r,z=Math.sin(a)*r*.95;
     if(z>SHORE-40)continue;if(Math.hypot(x+150,z+110)<26||Math.hypot(x-150,z+100)<26||Math.hypot(x+185,z-60)<30||Math.hypot(x+150,z+215)<30)continue;
     if(x>215&&z>-120)continue;if(z<-200&&x>-160&&x<140)continue;if(Math.hypot(x-150,z-150)<34)continue;if(Math.abs(Math.hypot(x,z)-148)<4)continue;
-    if(fbm(x*.03,z*.03)<.32)continue;pts.push([x,z,.7+rnd()*.9,rnd()])}
+    if(Math.hypot(x-210,z+200)<42)continue;if(fbm(x*.03,z*.03)<.32)continue;pts.push([x,z,.7+rnd()*.9,rnd()])}
   const trunk=I(new THREE.CylinderGeometry(.25,.35,3,5),std(0x4b3a2a),pts.length,(d,i)=>{const[x,z,s]=pts[i];d.position.set(x,H(x,z)+1.5*s,z);d.scale.setScalar(s)});
   const can=I(new THREE.IcosahedronGeometry(2.6,1),std(0xffffff,{roughness:.95,flatShading:true}),pts.length,(d,i)=>{const[x,z,s,k]=pts[i];d.position.set(x,H(x,z)+4.2*s,z);d.scale.set(s*(1+k*.3),s*(1.2+k*.5),s*(1+k*.3));d.rotation.y=k*6},
     i=>new THREE.Color().setHSL(.2+hash(i,4)*.08,.38+hash(i,6)*.15,.09+hash(i,8)*.07));
@@ -502,6 +509,21 @@ prog(88,'Growing the food…');
   const st=new THREE.Mesh(new THREE.CylinderGeometry(1,1.2,22,12),m);st.position.set(-10,11,-10);g.add(st);
   g.position.set(150,0,135);S.add(own('digester',g))}
 
+// ---------- AUTOMATED WORKS + drones
+item('works',{cat:'Automation',name:'Automated Works',pin:[210,22,-200],desc:'The machines that make life free. Robots here build homes, make goods, repair the city and run the farms around the clock. People design, supervise and invent, if they want to. Nobody has to.',stats:[['Robots','2,400'],['Runs','24 / 7 on solar'],['Builds','Homes · Goods · Repairs'],['Hours a resident must work','0']],flow:'Powered by <b>the microgrid</b> · delivers to <b>Market</b> and homes'});
+{const g=G(),m=std(0xdfe3ea);const y=H(210,-200);
+  for(let i=0;i<3;i++){const h=new THREE.Mesh(new THREE.BoxGeometry(46,12,16),m);h.position.set(0,y+6,-20+i*20);g.add(h);
+    const r=new THREE.Mesh(new THREE.CylinderGeometry(8,8,46,24,1,false,0,Math.PI),m);r.rotation.z=Math.PI/2;r.rotation.y=Math.PI/2;r.position.set(0,y+12,-20+i*20);g.add(r)}
+  g.add(I(new THREE.BoxGeometry(3,2,3),std(0xf2b04a),14,(d,i)=>{d.position.set(-24+i*3.6,y+1,16)}));
+  const crane=new THREE.Mesh(new THREE.BoxGeometry(1.2,34,1.2),m);crane.position.set(30,y+17,0);g.add(crane);
+  const arm=new THREE.Mesh(new THREE.BoxGeometry(30,1,1),m);arm.position.set(18,y+34,0);g.add(arm);
+  g.position.set(210,0,-200);S.add(own('works',g))}
+const DRONES=[];{const hubs=[[210,-200],[245,-60],[260,70],[24,58],[-40,-40],[60,40],[-70,70],[0,0],[150,135]];
+  const geo=new THREE.BufferGeometry();const n=MOBILE?40:90;geo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(n*3),3));
+  for(let i=0;i<n;i++){const a=hubs[Math.floor(rnd()*hubs.length)],b=hubs[Math.floor(rnd()*hubs.length)];DRONES.push({a,b,o:rnd(),sp:.04+rnd()*.05,h:28+rnd()*22})}
+  var droneGeo=geo;var droneObj=new THREE.Points(geo,new THREE.PointsMaterial({color:0xbfe6ff,size:MOBILE?6:5,sizeAttenuation:false,transparent:true,opacity:.95,blending:THREE.AdditiveBlending,depthWrite:false,toneMapped:false}));
+  droneObj.frustumCulled=false;droneObj.raycast=()=>{};droneObj.visible=false;S.add(droneObj)}
+
 // ---------- HARBOR + boats
 const boats=[];
 {const g=G(),m=std(0x8a6f50);
@@ -544,11 +566,11 @@ flow(['digester','fields','green'],[[150,12,135],[200,14,95],[250,8,70]],60,0xd6
 
 // ---------- turn every surface into light
 prog(92,'Turning the city into light…');
-const COL={energy:0xffa51f,water:0x22d8ff,food:0x86ff3c,waste:0xc46bff,civic:0xff5733,compute:0x8f8cff,move:0xf4f4f4,homes:0x9fa7b3,belt:0xa9b8a9};
-const CATOF={solar:'energy',wind:'energy',battery:'energy',compute:'compute',desal:'water',reservoir:'water',canals:'water',green:'food',fields:'food',fish:'food',market:'civic',digester:'waste',tram:'move',harbor:'move',forum:'civic',theater:'civic',baths:'civic',library:'civic',school:'civic',clinic:'civic',homes:'homes',belt:'belt'};
+const COL={energy:0xffa51f,water:0x22d8ff,food:0x86ff3c,waste:0xc46bff,civic:0xff5733,compute:0x8f8cff,works:0x5aa8ff,move:0xf4f4f4,homes:0x9fa7b3,belt:0xa9b8a9};
+const CATOF={works:'works',solar:'energy',wind:'energy',battery:'energy',compute:'compute',desal:'water',reservoir:'water',canals:'water',green:'food',fields:'food',fish:'food',market:'civic',digester:'waste',tram:'move',harbor:'move',forum:'civic',theater:'civic',baths:'civic',library:'civic',school:'civic',clinic:'civic',homes:'homes',belt:'belt'};
 const DENS={homes:.7,belt:.32,solar:.32,fields:.45,green:.8,forum:1.4,theater:1.2};
 const PM={},LM={},SM={};
-const SOL={energy:0xf2b04a,water:0x4cc3ea,food:0x8ccf63,waste:0xb98be0,civic:0xff7650,compute:0x8f8cff,move:0xf2f2f2,homes:0xece6db,belt:0x5f8f6c};
+const SOL={energy:0xf2b04a,water:0x4cc3ea,food:0x8ccf63,waste:0xb98be0,civic:0xff7650,compute:0x8f8cff,works:0x6aaeff,move:0xf2f2f2,homes:0xece6db,belt:0x5f8f6c};
 function solid(id){const k=id||'_';if(!SM[k])SM[k]=new THREE.MeshStandardMaterial({color:id?SOL[CATOF[id]]:0xcfc9bd,roughness:.75,polygonOffset:true,polygonOffsetFactor:2,polygonOffsetUnits:2});return SM[k]}
 const CITY=['homes','forum','theater','baths','library','market','tram'];
 function matFor(id){const k=id||'_';if(!PM[k]){PM[k]=pmat(id==='belt'?1.4:1.6);PM[k].uniforms.uBase.value=id==='homes'?.35:.45;const op=id==='homes'?.12:id==='solar'?.08:CITY.includes(id)?.45:id?.22:.12;
@@ -606,8 +628,8 @@ function fly(it,zoom){
   flight={fromP,fromT,toP,toT,t:0,dur:it?2.2:.8}}
 
 // ---------- pins + dock
-const ORDER=['forum','homes','solar','wind','battery','compute','desal','reservoir','canals','green','fields','fish','market','digester','tram','harbor','theater','baths','library','school','clinic','belt'];
-const CATS=[['All',null],['Energy',['solar','wind','battery','compute']],['Water',['desal','reservoir','canals']],['Food',['green','fields','fish','market']],['Waste',['digester']],['Life',['forum','homes','theater','baths','library','school','clinic','tram','harbor','belt']]];
+const ORDER=['forum','homes','solar','wind','battery','compute','desal','reservoir','canals','green','fields','fish','market','digester','works','tram','harbor','theater','baths','library','school','clinic','belt'];
+const CATS=[['All',null],['Energy',['solar','wind','battery','compute']],['Water',['desal','reservoir','canals']],['Food',['green','fields','fish','market']],['Waste',['digester']],['Automation',['works','compute']],['Life',['forum','homes','theater','baths','library','school','clinic','tram','harbor','belt']]];
 const pinEls={};
 ORDER.forEach((id,i)=>{const it=ITEMS[id];const e=document.createElement('div');e.className='pin';e.innerHTML=`<b>${String(i+1).padStart(2,'0')}</b><span>${it.name}</span>`;
   e.onclick=ev=>{ev.stopPropagation();select(id)};$('#pins').appendChild(e);pinEls[id]=e});
@@ -692,6 +714,8 @@ function frame(){
   terrainMat.uniforms.uDim.value+=(((sel||filter)?.45:0)-terrainMat.uniforms.uDim.value)*.05;
   blades.forEach((b,i)=>b.rotation.z+=dt*(1.1+i*.05));
   trams.forEach((tr,i)=>{const a=t*.05+i*Math.PI/3;tr.position.set(Math.cos(a)*RING,0,Math.sin(a)*RING);tr.rotation.y=-a});
+  if(REV.has('works')){droneObj.visible=true;const da=droneGeo.attributes.position.array;DRONES.forEach((d,i)=>{const u=(d.o+t*d.sp)%1,k=u<.5?u*2:2-u*2;const e=k*k*(3-2*k);
+    da[i*3]=d.a[0]+(d.b[0]-d.a[0])*e;da[i*3+2]=d.a[1]+(d.b[1]-d.a[1])*e;da[i*3+1]=6+Math.sin(e*Math.PI)*d.h});droneGeo.attributes.position.needsUpdate=true}
   boats.forEach(o=>{const a=t*o.s+o.o;o.b.position.set(Math.cos(a)*o.r*1.2+60,0,Math.sin(a)*o.r*.35+330);o.b.rotation.y=-a;o.b.position.y=Math.sin(t*1.5+o.o)*.2});
   storyTick(dt);
   flows.forEach(f=>{const on=!sel||f.ids.includes(sel)?1:0;const want=!REV.has(f.ids[0])?0:sel?(on?1:.05):.55;f.mat.opacity+=(want-f.mat.opacity)*.06;
@@ -731,34 +755,42 @@ const STORY=[
  {t:'Water',s:'Fresh water from the sea and the rain, and canals that return every litre to the soil.',show:['desal','reservoir','canals'],cam:[[70,120,320],[-110,0,90]]},
  {t:'Food',s:'Greenhouses, fields and fish farms grow the city’s food within sight.',show:['green','fields','fish'],cam:[[400,150,200],[220,0,40]]},
  {t:'The loop',s:'Nothing leaves. Waste becomes gas for the kitchens and soil for the fields.',show:['digester'],cam:[[40,100,280],[140,0,130]]},
+ {t:'The machines',s:'Robots build, farm, repair and deliver, day and night. People choose what to do with their time.',show:['works'],cam:[[330,120,-80],[200,0,-170]]},
  {t:'Movement',s:'A tram ring, a harbor, and streets made for walking.',show:['tram','harbor'],cam:[[0,190,210],[0,0,20]]},
  {t:'Life',s:'Then the lights come on. Anthropos is alive.',life:1,show:[],cam:[[170,165,190],[0,8,0]]}];
-const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI'];const DUR=6.8;
-STORY.forEach((c,i)=>{const d=document.createElement('div');d.dataset.t=c.t;d.innerHTML='<i></i>';d.onclick=()=>goChapter(i);$('#segs').appendChild(d)});
-let story={i:-1,t:0,on:true};
+const ROMAN=['I','II','III','IV','V','VI','VII','VIII','IX','X','XI','XII'];
+STORY.forEach((c,i)=>{const d=document.createElement('div');d.dataset.t=c.t;d.innerHTML='<i></i>';d.onclick=()=>scrollToCh(i+.05);$('#segs').appendChild(d)});
+const SC=$('#scrolly');const VHC=.85;function sizeScroll(){SC.style.height=(STORY.length*VHC+1.6)*innerHeight+'px'}sizeScroll();addEventListener('resize',sizeScroll);
+function scrollToCh(x){scrollTo({top:SC.offsetTop+x*VHC*innerHeight,behavior:'smooth'})}
+const LIFEI=STORY.findIndex(c=>c.life);
+let story={i:-1,t:0,on:true,frac:0};
 function goChapter(i){
   for(let k=0;k<i;k++)STORY[k].show.forEach(id=>reveal(id));if(i>=1)planOn=1;
   story.i=i;story.t=0;const c=STORY[i];const el=$('#story');el.classList.add('out');
   setTimeout(()=>{$('#stK').textContent=ROMAN[i];$('#stT').textContent=c.t;$('#stS').textContent=c.s;el.classList.remove('out')},600);
   [...$('#segs').children].forEach((d,k)=>d.firstChild.style.transform=`scaleX(${k<i?1:0})`);
   c.show.forEach((id,k)=>reveal(id,.6+k*.35));if(c.plan)planOn=1;
-  if(c.life)setTimeout(()=>LIFE.forEach(o=>o.visible=true),900);
+  setTimeout(()=>{if(story.on)LIFE.forEach(o=>o.visible=story.i>=LIFEI)},900);
   flight={fromP:cam.position.clone(),fromT:ctl.target.clone(),toP:new THREE.Vector3(...c.cam[0]),toT:new THREE.Vector3(...c.cam[1]),t:0,dur:i?3.2:.01};
   ctl.autoRotate=true;ctl.autoRotateSpeed=.5}
 function endStory(){story.on=false;stage.classList.remove('intro');STORY.forEach(c=>c.show.forEach(id=>reveal(id)));planOn=1;LIFE.forEach(o=>o.visible=true);
   ctl.enabled=true;ctl.autoRotateSpeed=.35;$('#story').classList.add('out');
   flight={fromP:cam.position.clone(),fromT:ctl.target.clone(),toP:new THREE.Vector3(170,165,190),toT:new THREE.Vector3(0,8,0),t:0,dur:2.4}}
 function playStory(){stage.classList.add('intro');ctl.enabled=false;deselect&&sel&&deselect();story.on=true;goChapter(0)}
-$('#skip').onclick=endStory;
-{const b=document.createElement('button');b.className='chip';b.innerHTML='<i></i>↺ Watch the story';b.onclick=()=>{location.reload()};$('#dock').insertBefore(b,$('#dock').children[1])}
+$('#skip').onclick=()=>scrollTo({top:SC.offsetTop+SC.offsetHeight-innerHeight,behavior:'smooth'});
+function resumeStory(){story.on=true;stage.classList.add('intro');ctl.enabled=false;if(sel)deselect();stopTour()}
+function onScroll(){const total=SC.offsetHeight-innerHeight,y=scrollY-SC.offsetTop;const x=Math.max(0,y)/(VHC*innerHeight);const N=STORY.length;
+  if(y>total-innerHeight*.35||x>=N+.4){if(story.on)endStory();return}
+  if(!story.on)resumeStory();const i=Math.min(N-1,Math.floor(x));story.frac=Math.min(1,x-i);if(i!==story.i)goChapter(i)}
+addEventListener('scroll',onScroll,{passive:true});
+{const b=document.createElement('button');b.className='chip';b.innerHTML='<i></i>↺ Watch the story';b.onclick=()=>scrollToCh(0);$('#dock').insertBefore(b,$('#dock').children[1])}
 function storyTick(dt){
   anims.forEach(a=>{a.t+=dt;if(a.t<0)return;const k=Math.min(1,a.t/a.dur),e=1-Math.pow(1-k,3);
     if(a.o){a.o.visible=true;a.o.scale.y=Math.max(.001,e)}else a.u.value=a.from+(a.to-a.from)*e;a.done=k>=1});
   for(let i=anims.length-1;i>=0;i--)if(anims[i].done)anims.splice(i,1);
   if(planOn&&planK<1){planK=Math.min(1,planK+dt/3.2)}
   planLines.forEach((p,i)=>{const k=THREE.MathUtils.clamp(planK*1.6-i*.04,0,1);p.l.geometry.setDrawRange(0,Math.floor(p.n*k));p.l.material.opacity=REV.has('homes')?.08:.75});
-  if(!story.on||story.i<0)return;story.t+=dt;$('#segs').children[story.i].firstChild.style.transform=`scaleX(${Math.min(1,story.t/DUR)})`;
-  if(story.t>DUR){if(story.i<STORY.length-1)goChapter(story.i+1);else endStory()}}
+  if(!story.on||story.i<0)return;$('#segs').children[story.i].firstChild.style.transform=`scaleX(${story.frac})`}
 cam.position.set(...STORY[0].cam[0]);ctl.target.set(...STORY[0].cam[1]);ctl.enabled=false;
 prog(100,'Ready');setTimeout(()=>{$('#load').classList.add('gone');goChapter(0)},400);
 frame();

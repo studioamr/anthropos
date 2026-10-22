@@ -254,7 +254,8 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 .ix-sec>.ix-in{width:100%;transform-origin:50% 0;will-change:transform,filter}
 .ix-sec.dark{background:#0d1014;color:#f3f1ec}.ix-sec.dark .ix-p,.ix-sec.dark p{color:rgba(243,241,236,.7)!important}.ix-sec.stone{background:#e6e1d6}
 .ix-grid4 .ixi{aspect-ratio:4/3}.lost .ix-p{margin-bottom:0}.lost .ix-grid3{margin-top:4vh}.lost .ixi{aspect-ratio:16/8}.ix-sec.lost .ix-h{max-width:20ch}
-html{scroll-snap-type:y proximity}
+html{scroll-snap-type:y proximity}.ix-sec,.ix-born{scroll-snap-stop:always}
+body.lock{overflow:hidden}
 .ix-gate{scroll-snap-align:start;position:relative;z-index:2}
 .mir .ix-h{font-size:clamp(40px,6vw,104px);max-width:18ch}.mir .ix-p{font-size:clamp(19px,1.6vw,24px);max-width:48ch;margin-top:4vh}
 .ix-born{position:relative;z-index:2;height:100vh;height:100svh;background:#05080d;display:grid;place-items:center;text-align:center;scroll-snap-align:start}
@@ -322,7 +323,7 @@ html{scroll-snap-type:y proximity}
 }}
 </script>
 </head>
-<body>
+<body class="lock">
 <div id="load"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.15s">LIFE</i></span><span class="w"><i style="--d:0.47s">IS</i></span><span class="w"><i style="--d:0.79s">A</i></span></span><span class="ln"><span class="w"><i style="--d:1.11s">MIRACLE.</i></span></span></div><div class="bar"><i id="lb"></i></div></div>
 
 <div class="introx">
@@ -439,12 +440,13 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
   <svg class="bw" viewBox="0 0 1000 150" preserveAspectRatio="xMidYMid meet" aria-label="Anthropos"><defs><linearGradient id="bwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" letter-spacing="-6" fill="url(#bwg)">ANTHROPOS</text></svg>
 </footer>
 
+<script>{history.scrollRestoration="manual";scrollTo(0,0);const blk=e=>{if(document.body.classList.contains("lock"))e.preventDefault()};addEventListener("wheel",blk,{passive:false});addEventListener("touchmove",blk,{passive:false});addEventListener("keydown",e=>{if(document.body.classList.contains("lock")&&["ArrowDown","ArrowUp","PageDown","PageUp","Space"," ","End","Home"].includes(e.key))e.preventDefault()})}</script>
 <script>{const SC=[...document.querySelectorAll(".ix-sec")];let tk=0;const dep=()=>{tk=0;SC.forEach((sc,i)=>{const nx=SC[i+1]||document.querySelector(".ix-born");if(!nx)return;const r=nx.getBoundingClientRect().top,p=Math.min(1,Math.max(0,1-r/innerHeight));const inn=sc.firstElementChild;inn.style.transform=`scale(${1-p*.08}) translateY(${-p*4}vh)`;inn.style.opacity=1-p*.7})};addEventListener("scroll",()=>{if(!tk){tk=1;requestAnimationFrame(dep)}},{passive:true})}</script>
 <script>{const io2=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io2.unobserve(x.target)}}),{threshold:.2});document.querySelectorAll(".ix-sec,.ix-gate,.ix-born").forEach(el=>io2.observe(el))}</script>
 <script>{const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.15});document.querySelectorAll(".rv").forEach(el=>io.observe(el))}</script>
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=33"></script>
+<script type="module" src="js/anthropos-live.js?v=34"></script>
 </body>
 </html>

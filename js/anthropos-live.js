@@ -834,7 +834,7 @@ function buildTick(dt) {
 if (/[?&]debug/.test(location.search)) window.__F = () => frame(), window.__S = SYSG, window.__B = () => [build, readQ(), UP.value], window.__go = (id, d = 260) => { const it = ITEMS[id]; it.dist = d; fly(it); flight.dur = .01; };
 let U_T = 0; setInterval(() => (U_T += .05), 50);
 prog(100); try { R.compile(S, cam); } catch (e) {}
-requestAnimationFrame(() => requestAnimationFrame(() => { $('#load').classList.add('go'); setTimeout(() => $('#load').classList.add('out'), 3500); }));
+requestAnimationFrame(() => requestAnimationFrame(() => { $('#load').classList.add('go'); setTimeout(() => { scrollTo(0, 0); $('#load').classList.add('out'); setTimeout(() => document.body.classList.remove('lock'), 900); }, 3500); }));
 frame();
 
 $('#f').onsubmit = (e) => { e.preventDefault(); const f = new FormData(e.target), body = [...f.entries()].map(([k, v]) => k + ': ' + v).join('\n'); location.href = 'mailto:hello@anthroposcities.com?subject=' + encodeURIComponent('Anthropos registration · ' + f.get('as')) + '&body=' + encodeURIComponent(body); $('#ok').textContent = 'Thank you. Your mail app will open to confirm your registration.'; };

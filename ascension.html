@@ -851,7 +851,7 @@ function onScroll(){const total=SC.offsetHeight-innerHeight,y=scrollY-SC.offsetT
 addEventListener('scroll',onScroll,{passive:true});
 {const b=document.createElement('button');b.className='chip';b.innerHTML='<i></i>↺ Watch the story';b.onclick=()=>scrollToCh(0);$('#dock').insertBefore(b,$('#dock').children[1])}
 function storyTick(dt){
-  {const on=story.on&&story.i<=1?1:0;site.material.opacity+=(on*.9-site.material.opacity)*.05;siteTag.style.opacity=site.material.opacity;tv.set(160,30,-250).project(cam);siteTag.style.transform=`translate(${(tv.x*.5+.5)*canvas.clientWidth-9}px,${(-tv.y*.5+.5)*canvas.clientHeight-9}px)`}
+  if(!site.visible){}else{const on=story.on&&story.i<=1?1:0;site.material.opacity+=(on*.9-site.material.opacity)*.05;siteTag.style.opacity=site.material.opacity;tv.set(160,30,-250).project(cam);siteTag.style.transform=`translate(${(tv.x*.5+.5)*canvas.clientWidth-9}px,${(-tv.y*.5+.5)*canvas.clientHeight-9}px)`}
   anims.forEach(a=>{a.t+=dt;if(a.t<0)return;if(a.root)a.root.visible=true;const m=a.mesh;
     if(a.inst){let all=true;for(let i=0;i<a.base.length;i++){const k=(a.t-a.del[i])/.45;if(k<1)all=false;if(k<=0||a.del[i]<-1)continue;
         const[p,q,sc]=a.base[i];const kk=Math.min(1,k),e=easeBack(kk);_s.copy(sc).multiplyScalar(Math.max(.0001,e));_p.copy(p);_p.y+=(1-kk)*6;_M.compose(_p,q,_s);m.setMatrixAt(i,_M);
@@ -867,7 +867,13 @@ function storyTick(dt){
   planLines.forEach((p,i)=>{const k=THREE.MathUtils.clamp(planK*1.6-i*.04,0,1);p.l.geometry.setDrawRange(0,Math.floor(p.n*k));p.l.material.opacity=REV.has('homes')?.08:.75});
 }
 cam.position.set(...STORY[0].cam[0]);ctl.target.set(...STORY[0].cam[1]);ctl.enabled=false;
-prog(100,'Ready');setTimeout(()=>{$('#load').classList.add('gone');goChapter(0)},400);
+// finished city, no build sequence
+removeEventListener('scroll',onScroll);SC.style.height='auto';
+Object.keys(ROOTS).forEach(id=>{REV.add(id);ROOTS[id].forEach(o=>o.visible=true)});LIFE.forEach(o=>o.visible=true);
+story.on=false;stage.classList.remove('intro');plan.visible=false;site.visible=false;siteTag.remove();cranes.visible=false;$('#story').remove();
+[...$('#dock').children].forEach(b=>{if(/Watch the story/.test(b.textContent))b.remove()});
+ctl.enabled=true;ctl.autoRotate=true;ctl.autoRotateSpeed=.3;cam.position.set(170,165,190);ctl.target.set(0,8,0);
+prog(100,'Ready');setTimeout(()=>$('#load').classList.add('gone'),400);
 frame();
 
 $('#f').onsubmit=e=>{e.preventDefault();location.href='mailto:hello@anthroposcities.com?subject=Founding%20citizen&body='+encodeURIComponent(e.target[0].value);$('#ok').textContent='Thank you. Your mail app will open to confirm.'};

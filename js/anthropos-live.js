@@ -6,6 +6,7 @@ import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
 import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
 import { Ink } from './cityengine.js';
 import { buildPolis, bayP, terrainP, river, PARK, DISTRICTS, DRAD, DOWN } from './polis.js';
 
@@ -164,6 +165,20 @@ const blades = [];
 { const g = sg('digester'), m = mat(0xe6e0d4, { roughness: .5 }), x0 = -1260, z0 = 120, y = ty(x0, z0);
   g.add(inst(new THREE.SphereGeometry(15, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2), m, [0, 1, 2, 3], (d, i) => d.position.set(x0 + (i % 2) * 38, y, z0 + Math.floor(i / 2) * 38))); }
 SYS.traverse((o) => { if (o.isMesh) { o.castShadow = true; o.receiveShadow = true; } });
+// electric identity: every system glows in its own colour, and live cables tie it to the city
+const ELEC = { solar: 0x2f7bff, wind: 0x00f0ff, battery: 0xff2bd6, desal: 0x00d9ff, green: 0x7dff2e, fields: 0xc8ff3a, works: 0x9b5cff, digester: 0xff8a1f };
+const CABLES = [];
+for (const [id, c] of Object.entries(ELEC)) { const col = new THREE.Color(c);
+  SYSG[id].traverse((o) => { if (!o.isMesh) return; o.material = o.material.clone(); o.material.emissive = col.clone(); o.material.emissiveIntensity = id === 'solar' ? 1.6 : .9; }); }
+const cable = (id, a, b, h) => { const A = new THREE.Vector3(a[0], ty(a[0], a[1]) + 6, a[1]), B = new THREE.Vector3(b[0], ty(b[0], b[1]) + 6, b[1]);
+  const M = A.clone().lerp(B, .5); M.y += h; const cv = new THREE.QuadraticBezierCurve3(A, M, B);
+  const m = new THREE.MeshBasicMaterial({ color: new THREE.Color(ELEC[id]).multiplyScalar(3.2), toneMapped: false, transparent: true, opacity: .9 });
+  const t = new THREE.Mesh(new THREE.TubeGeometry(cv, 80, 2.2, 8), m); SYSG[id].add(t); CABLES.push({ m, base: m.color.clone(), ph: Math.random() * 6 }); };
+cable('solar', [0, 1130], [0, 640], 90); cable('solar', [-300, 1130], [-260, 560], 70); cable('wind', [-450, 1040], [-430, 420], 120);
+cable('battery', [515, 1150], [300, 560], 80); cable('desal', [1120, bayP(1180) + 50], [620, 90], 40); cable('green', [1150, 365], [700, 260], 50);
+cable('fields', [1160, 700], [760, 520], 50); cable('works', [-1230, 420], [-760, 300], 60); cable('digester', [-1200, 140], [-760, 110], 40);
+// glowing rings on turbine hubs and battery light strips
+blades.forEach((b) => { const r = new THREE.Mesh(new THREE.TorusGeometry(5, .9, 8, 32), new THREE.MeshBasicMaterial({ color: new THREE.Color(0x00f0ff).multiplyScalar(2.5), toneMapped: false })); b.parent.add(r); });
 
 // ── places you can tap ──
 const P = (x, z, y = 12) => [x, Math.max(terrainP(x, z), 0) + y, z];
@@ -197,7 +212,9 @@ const ORDER = Object.keys(ITEMS);
 const CATS = [['All', null], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
 
 // ── post ──
-const composer = new EffectComposer(R); composer.addPass(new RenderPass(S, cam)); composer.addPass(new OutputPass());
+const composer = new EffectComposer(R); composer.addPass(new RenderPass(S, cam));
+if (!MOBILE) composer.addPass(new UnrealBloomPass(new THREE.Vector2(512, 512), .7, .5, 1.5));
+composer.addPass(new OutputPass());
 
 // ── controls ──
 const HOME = { p: new THREE.Vector3(1050, 820, -980), t: new THREE.Vector3(0, 0, 400) };
@@ -264,45 +281,51 @@ function frame() {
   if (tour && !flight) { tour.t += dt; $('#tourbar').style.width = (tour.t / 7 * 100) + '%'; if (tour.t > 7) nextTour(); }
   ctl.update(); composer.render();
 }
-// ── the city rises from the land, then the systems, then the tour ──
+// ── SCROLL: empty land → the whole city, with the camera spinning, diving and pulling out ──
 const cap = document.createElement('div'); cap.className = 'buildcap'; $('#stage').appendChild(cap);
-const st = document.createElement('style'); st.textContent = `.buildcap{position:absolute;left:var(--g);top:50%;transform:translateY(-50%);z-index:15;pointer-events:none;max-width:560px}
-.buildcap .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);display:flex;gap:10px;align-items:center}.buildcap .k:before{content:"";width:28px;height:1px;background:#fff}
-.buildcap h2{font-size:clamp(40px,6vw,104px);font-weight:600;letter-spacing:-.05em;line-height:1;margin:.15em 0 .2em;padding-bottom:.08em;color:#fff;text-shadow:0 4px 30px rgba(0,20,50,.45);transition:opacity .6s,transform .6s}
-.buildcap .bar{width:220px;height:2px;background:rgba(255,255,255,.25);margin-top:14px}.buildcap .bar i{display:block;height:100%;background:#fff;width:0}
-.buildcap.out h2{opacity:0;transform:translateY(14px)}.stage.building .title,.stage.building .dock,.stage.building #pins{opacity:0;pointer-events:none}
-.buildcap .sk{pointer-events:auto;margin-top:18px;background:none;border:1px solid rgba(255,255,255,.4);color:#fff;font-size:11px;padding:6px 12px;cursor:pointer}`; document.head.appendChild(st);
-cap.innerHTML = '<span class="k">Anthropos · Construction</span><h2 id="bc">The land.</h2><div class="bar"><i id="bb"></i></div><button class="sk" id="bskip">Skip →</button>';
-$('#stage').classList.add('building');
-const STEPS = [[0, 'The land.'], [.04, 'First, the Capitol.'], [.15, 'Downtown rises.'], [.42, 'The districts.'], [.7, 'Park, river and coast.'], [.88, 'The hills.'], [1.01, 'Then, what makes it self-sustaining.']];
+const st = document.createElement('style'); st.textContent = `.buildcap{position:absolute;left:var(--g);bottom:14vh;z-index:15;pointer-events:none;max-width:620px}
+.buildcap .k{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.75);display:flex;gap:10px;align-items:center}.buildcap .k:before{content:"";width:28px;height:1px;background:#fff}
+.buildcap h2{font-size:clamp(42px,6.4vw,112px);font-weight:600;letter-spacing:-.05em;line-height:1;margin:.12em 0 .15em;padding-bottom:.08em;color:#fff;text-shadow:0 4px 30px rgba(0,20,50,.5);transition:opacity .5s,transform .5s,filter .5s}
+.buildcap .hint{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:.8;display:flex;gap:8px;align-items:center}.buildcap .hint i{animation:bob 1.6s infinite;display:inline-block}
+@keyframes bob{50%{transform:translateY(5px)}}
+.buildcap.out h2{opacity:0;transform:translateY(16px);filter:blur(6px)}
+.stage.building .title,.stage.building .dock,.stage.building #pins,.stage.building .ctrl{opacity:0;pointer-events:none}.stage.building #gl{pointer-events:none}
+.stage:not(.building) .buildcap{opacity:0}.buildcap{transition:opacity .8s}
+.prog{position:absolute;right:var(--g);top:50%;transform:translateY(-50%);z-index:15;width:2px;height:34vh;background:rgba(255,255,255,.25);pointer-events:none;transition:opacity .8s}.prog i{display:block;width:100%;background:#fff;height:0}
+.stage:not(.building) .prog{opacity:0}`; document.head.appendChild(st);
+cap.innerHTML = '<span class="k" id="bk">Anthropos · 00</span><h2 id="bc">The land.</h2><span class="hint" id="bh">Scroll to build the city <i>↓</i></span>';
+const pr = document.createElement('div'); pr.className = 'prog'; pr.innerHTML = '<i id="pi"></i>'; $('#stage').appendChild(pr);
+$('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false;
+const SC = $('#scrolly'); const sizeSC = () => (SC.style.height = innerHeight * 11 + 'px'); sizeSC(); addEventListener('resize', sizeSC);
 const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester'];
-let build = { t: -1.8, done: false, sys: -1, last: '' }; const BUILD_T = 22;
-const sysPop = []; const ease = (k) => 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2);
-function setCap(t) { if (t === build.last) return; build.last = t; cap.classList.add('out'); setTimeout(() => { $('#bc').textContent = t; cap.classList.remove('out'); }, 350); }
-function finishBuild() { if (build.done) return; build.done = true; Object.values(ITEMS).forEach((it) => delete it.dist); UP.value = 1; SYSORDER.forEach((id) => { SYSG[id].visible = true; SYSG[id].scale.set(1, 1, 1); }); cap.remove(); $('#stage').classList.remove('building'); setTimeout(startTour, 600); }
-$('#bskip').onclick = finishBuild;
-cam.position.set(1300, 1050, -1250); ctl.target.set(0, 0, 420); ctl.autoRotate = false; ctl.autoRotateSpeed = .35;
-const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
-const SHOTS = [[0, V3(1300, 1050, -1250), V3(0, 0, 420)], [.04, V3(170, 95, 70), V3(0, 22, 230)], [.16, V3(360, 230, -40), V3(0, 25, 270)],
-  [.4, V3(950, 680, -520), V3(0, 0, 320)], [.6, V3(-280, 200, 320), V3(60, 0, 480)], [.76, V3(620, 85, -320), V3(0, 0, -30)],
-  [.9, V3(-120, 360, 520), V3(0, 40, 860)], [1, V3(1150, 1150, -950), V3(0, 0, 520)]];
-const sm = (k) => k * k * (3 - 2 * k);
-function shotAt(p) { let i = 0; while (i < SHOTS.length - 2 && p > SHOTS[i + 1][0]) i++; const [a, pa, ta] = SHOTS[i], [b, pb, tb] = SHOTS[i + 1];
-  const k = sm(Math.min(1, Math.max(0, (p - a) / (b - a)))); return [pa.clone().lerp(pb, k), ta.clone().lerp(tb, k)]; }
+const SYS0 = .62, SYSW = .0375;
+const K = [[0, 0, 0, 400, 1800, 1200, -2.3], [.05, 0, 20, 230, 230, 110, -1.7], [.13, 0, 25, 270, 520, 260, -.3], [.24, 0, 0, 330, 1350, 950, 1.3],
+  [.34, 60, 0, 480, 380, 170, 2.9], [.42, river(380), 0, 380, 260, 70, 4.2], [.5, 0, 0, -30, 650, 110, 5.3], [.58, 0, 40, 860, 620, 380, 6.5]];
+SYSORDER.forEach((id, i) => { const [x, y, z] = ITEMS[id].pin; K.push([SYS0 + (i + .5) * SYSW, x, y * .4, z, id === 'solar' || id === 'wind' ? 700 : 520, 300, 7.4 + i * .95]); });
+K.push([.95, 0, 0, 520, 2100, 1600, 15.2], [1, 0, 0, 450, 1500, 1050, 16]);
+const CAPS = [[0, 'The land.'], [.04, 'First, the Capitol.'], [.11, 'Downtown rises.'], [.21, 'The districts.'], [.31, 'Park and river.'], [.46, 'The coast.'], [.55, 'The hills.']];
+const SYSCAP = ['The sun pays.', 'The wind, at night.', 'Power, stored.', 'Water from the sea.', 'Food, grown here.', 'Fields and orchards.', 'Machines do the work.', 'Nothing is wasted.'];
+SYSORDER.forEach((id, i) => CAPS.push([SYS0 + i * SYSW, SYSCAP[i]])); CAPS.push([.93, 'Anthropos.']);
+const sm = (k) => k * k * (3 - 2 * k), clamp01 = (x) => Math.min(1, Math.max(0, x));
+const easeB = (k) => (k <= 0 ? .001 : 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2));
+function pose(q) { let i = 0; while (i < K.length - 2 && q > K[i + 1][0]) i++; const a = K[i], b = K[i + 1], k = sm(clamp01((q - a[0]) / (b[0] - a[0])));
+  const v = a.map((x, j) => x + (b[j] - x) * k); const T = new THREE.Vector3(v[1], v[2], v[3]); return [T.clone().add(new THREE.Vector3(Math.cos(v[6]) * v[4], v[5], Math.sin(v[6]) * v[4])), T]; }
+let build = { done: false, last: '', q: 0 };
+function setCap(t, q) { if (t === build.last) return; build.last = t; cap.classList.add('out'); setTimeout(() => { $('#bc').textContent = t; $('#bk').textContent = 'Anthropos · ' + String(Math.round(q * 100)).padStart(2, '0'); cap.classList.remove('out'); }, 260); }
+function readQ() { const tot = SC.offsetHeight - innerHeight; return clamp01((scrollY - SC.offsetTop) / tot); }
 function buildTick(dt) {
-  if (build.done) return; build.t += dt;
-  const p = Math.max(0, build.t / BUILD_T);
-  if (p < 1) { ctl.autoRotate = false; const [cp, ct] = shotAt(p); cam.position.lerp(cp, .04); ctl.target.lerp(ct, .04); } UP.value = Math.min(1, p); $('#bb').style.width = Math.min(100, p * 70) + '%';
-  for (const [at, txt] of STEPS) if (p >= at) var cur = txt; setCap(cur);
-  if (p >= 1) { const k = Math.floor((build.t - BUILD_T) / 1.8);
-    if (build.sys < 0) build.sys = 0;
-    while (build.sys <= k && build.sys < SYSORDER.length) { const it = ITEMS[SYSORDER[build.sys]]; it.dist = 520; fly(it); const g = SYSG[SYSORDER[build.sys]]; g.visible = true; g.scale.set(1, .001, 1); sysPop.push({ g, t: 0 }); build.sys++; }
-    $('#bb').style.width = (70 + 30 * Math.min(1, (build.t - BUILD_T) / (SYSORDER.length * 1.8))) + '%';
-    if (build.t - BUILD_T > SYSORDER.length * 1.8 + 2) finishBuild(); }
-  sysPop.forEach((s) => { s.t += dt; const k = Math.min(1, s.t / .7); s.g.scale.y = Math.max(.001, ease(k)); });
+  const q = readQ(); build.q += (q - build.q) * Math.min(1, dt * 4); const Q = build.q;
+  const interactive = q > .985;
+  if (interactive && !build.done) { build.done = true; $('#stage').classList.remove('building'); ctl.enabled = true; ctl.autoRotate = true; }
+  if (!interactive && build.done) { build.done = false; $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false; stopTour(); if (sel) { sel = null; $('#stage').classList.remove('sel'); } flight = null; }
+  UP.value = sm(clamp01(Q / .6));
+  SYSORDER.forEach((id, i) => { const k = clamp01((Q - (SYS0 + i * SYSW)) / (SYSW * .6)); const g = SYSG[id]; g.visible = k > 0; g.scale.y = easeB(k); });
+  CABLES.forEach((c, i) => c.m.color.copy(c.base).multiplyScalar(.75 + .35 * Math.sin(U_T * 3 + c.ph)));
+  if (!build.done) { const [cp, ct] = pose(Q); cam.position.lerp(cp, .09); ctl.target.lerp(ct, .09);
+    let cur = CAPS[0][1]; for (const [at, t] of CAPS) if (Q >= at) cur = t; setCap(cur, Q); $('#pi').style.height = Q * 100 + '%'; $('#bh').style.opacity = Q < .02 ? .8 : 0; }
 }
-if (/[?&]debug/.test(location.search)) window.__adv = (sec) => { for (let i = 0; i < sec * 30; i++) { buildTick(1 / 30); if (flight) { flight.t += 1 / 30 / flight.dur; const k = flight.t >= 1 ? 1 : 1 - Math.pow(1 - flight.t, 3); cam.position.lerpVectors(flight.fromP, flight.toP, k); ctl.target.lerpVectors(flight.fromT, flight.toT, k); if (flight.t >= 1) flight = null; } } ctl.update(); composer.render(); };
-prog(100); build.t = -1.8 - 3.6; setTimeout(() => $('#load').classList.add('gone'), 3600);
+let U_T = 0; setInterval(() => (U_T += .05), 50);
+prog(100); setTimeout(() => $('#load').classList.add('gone'), 3600);
 frame();
 
 $('#f').onsubmit = (e) => { e.preventDefault(); location.href = 'mailto:hello@anthroposcities.com?subject=Founding%20citizen&body=' + encodeURIComponent(e.target[0].value); $('#ok').textContent = 'Thank you. Your mail app will open to confirm.'; };

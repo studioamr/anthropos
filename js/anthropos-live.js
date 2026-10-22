@@ -276,23 +276,32 @@ cap.innerHTML = '<span class="k">Anthropos · Construction</span><h2 id="bc">The
 $('#stage').classList.add('building');
 const STEPS = [[0, 'The land.'], [.04, 'First, the Capitol.'], [.15, 'Downtown rises.'], [.42, 'The districts.'], [.7, 'Park, river and coast.'], [.88, 'The hills.'], [1.01, 'Then, what makes it self-sustaining.']];
 const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester'];
-let build = { t: -1.8, done: false, sys: -1, last: '' }; const BUILD_T = 16;
+let build = { t: -1.8, done: false, sys: -1, last: '' }; const BUILD_T = 22;
 const sysPop = []; const ease = (k) => 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2);
 function setCap(t) { if (t === build.last) return; build.last = t; cap.classList.add('out'); setTimeout(() => { $('#bc').textContent = t; cap.classList.remove('out'); }, 350); }
-function finishBuild() { if (build.done) return; build.done = true; UP.value = 1; SYSORDER.forEach((id) => { SYSG[id].visible = true; SYSG[id].scale.set(1, 1, 1); }); cap.remove(); $('#stage').classList.remove('building'); setTimeout(startTour, 600); }
+function finishBuild() { if (build.done) return; build.done = true; Object.values(ITEMS).forEach((it) => delete it.dist); UP.value = 1; SYSORDER.forEach((id) => { SYSG[id].visible = true; SYSG[id].scale.set(1, 1, 1); }); cap.remove(); $('#stage').classList.remove('building'); setTimeout(startTour, 600); }
 $('#bskip').onclick = finishBuild;
-cam.position.set(1300, 1050, -1250); ctl.target.set(0, 0, 420); ctl.autoRotate = true; ctl.autoRotateSpeed = .35;
+cam.position.set(1300, 1050, -1250); ctl.target.set(0, 0, 420); ctl.autoRotate = false; ctl.autoRotateSpeed = .35;
+const V3 = (x, y, z) => new THREE.Vector3(x, y, z);
+const SHOTS = [[0, V3(1300, 1050, -1250), V3(0, 0, 420)], [.04, V3(170, 95, 70), V3(0, 22, 230)], [.16, V3(360, 230, -40), V3(0, 25, 270)],
+  [.4, V3(950, 680, -520), V3(0, 0, 320)], [.6, V3(-280, 200, 320), V3(60, 0, 480)], [.76, V3(620, 85, -320), V3(0, 0, -30)],
+  [.9, V3(-120, 360, 520), V3(0, 40, 860)], [1, V3(1150, 1150, -950), V3(0, 0, 520)]];
+const sm = (k) => k * k * (3 - 2 * k);
+function shotAt(p) { let i = 0; while (i < SHOTS.length - 2 && p > SHOTS[i + 1][0]) i++; const [a, pa, ta] = SHOTS[i], [b, pb, tb] = SHOTS[i + 1];
+  const k = sm(Math.min(1, Math.max(0, (p - a) / (b - a)))); return [pa.clone().lerp(pb, k), ta.clone().lerp(tb, k)]; }
 function buildTick(dt) {
   if (build.done) return; build.t += dt;
-  const p = Math.max(0, build.t / BUILD_T); UP.value = Math.min(1, p); $('#bb').style.width = Math.min(100, p * 70) + '%';
+  const p = Math.max(0, build.t / BUILD_T);
+  if (p < 1) { ctl.autoRotate = false; const [cp, ct] = shotAt(p); cam.position.lerp(cp, .04); ctl.target.lerp(ct, .04); } UP.value = Math.min(1, p); $('#bb').style.width = Math.min(100, p * 70) + '%';
   for (const [at, txt] of STEPS) if (p >= at) var cur = txt; setCap(cur);
-  if (p >= 1) { const k = Math.floor((build.t - BUILD_T) / .9);
-    if (build.sys < 0) { build.sys = 0; flight = { fromP: cam.position.clone(), fromT: ctl.target.clone(), toP: new THREE.Vector3(0, 1500, -900), toT: new THREE.Vector3(0, 0, 600), t: 0, dur: 3 }; }
-    while (build.sys <= k && build.sys < SYSORDER.length) { const g = SYSG[SYSORDER[build.sys]]; g.visible = true; g.scale.set(1, .001, 1); sysPop.push({ g, t: 0 }); build.sys++; }
-    $('#bb').style.width = (70 + 30 * Math.min(1, (build.t - BUILD_T) / (SYSORDER.length * .9))) + '%';
-    if (build.t - BUILD_T > SYSORDER.length * .9 + 2.5) finishBuild(); }
+  if (p >= 1) { const k = Math.floor((build.t - BUILD_T) / 1.8);
+    if (build.sys < 0) build.sys = 0;
+    while (build.sys <= k && build.sys < SYSORDER.length) { const it = ITEMS[SYSORDER[build.sys]]; it.dist = 520; fly(it); const g = SYSG[SYSORDER[build.sys]]; g.visible = true; g.scale.set(1, .001, 1); sysPop.push({ g, t: 0 }); build.sys++; }
+    $('#bb').style.width = (70 + 30 * Math.min(1, (build.t - BUILD_T) / (SYSORDER.length * 1.8))) + '%';
+    if (build.t - BUILD_T > SYSORDER.length * 1.8 + 2) finishBuild(); }
   sysPop.forEach((s) => { s.t += dt; const k = Math.min(1, s.t / .7); s.g.scale.y = Math.max(.001, ease(k)); });
 }
+if (/[?&]debug/.test(location.search)) window.__adv = (sec) => { for (let i = 0; i < sec * 30; i++) { buildTick(1 / 30); if (flight) { flight.t += 1 / 30 / flight.dur; const k = flight.t >= 1 ? 1 : 1 - Math.pow(1 - flight.t, 3); cam.position.lerpVectors(flight.fromP, flight.toP, k); ctl.target.lerpVectors(flight.fromT, flight.toT, k); if (flight.t >= 1) flight = null; } } ctl.update(); composer.render(); };
 prog(100); build.t = -1.8 - 3.6; setTimeout(() => $('#load').classList.add('gone'), 3600);
 frame();
 

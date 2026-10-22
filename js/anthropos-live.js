@@ -60,7 +60,7 @@ const UP = { value: 0 }, CAPP = { value: 0 };
 const M = ink.marks, NM = M.length;
 function btFor(count, key) { const a = new Float32Array(count); let k = 0;
   for (let v = 0; v < count; v++) { while (k < NM - 1 && v >= (M[k][key] ?? 0)) k++; a[v] = M[k].d < 0 ? 0 : k / NM; } return a; }
-const GROW = `if(position.z>-80.&&abs(position.x-(-170.+70.*sin(position.z/160.)+30.*sin(position.z/61.)))<40.&&position.y<6.)transformed.y=-60.;if(distance(position.xz,vec2(120.,820.))<92.||(abs(position.x)<97.&&position.z>150.&&position.z<315.&&position.y>1.))transformed.y=-60.;float gk=clamp((uP*1.08-bt)*9.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
+const GROW = `if(distance(position.xz,vec2(205.,470.))<44.||distance(position.xz,vec2(-60.,500.))<42.||distance(position.xz,vec2(420.,960.))<24.)transformed.y=-60.;if(position.z>-80.&&abs(position.x-(-170.+70.*sin(position.z/160.)+30.*sin(position.z/61.)))<40.&&position.y<6.)transformed.y=-60.;if(distance(position.xz,vec2(120.,820.))<92.||(abs(position.x)<97.&&position.z>150.&&position.z<315.&&position.y>1.))transformed.y=-60.;float gk=clamp((uP*1.08-bt)*9.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
 function grow(mat, key) {
   const prev = mat.onBeforeCompile; mat.customProgramCacheKey = () => 'grow' + key;
   mat.onBeforeCompile = (sh, r) => { sh.uniforms.uP = UP;
@@ -240,7 +240,7 @@ const BRIDGES = new THREE.Group(); S.add(BRIDGES); BRIDGES.visible = false;
   const T = [], N = MOBILE ? 7000 : 15000; let tries = 0;
   while (T.length < N && tries++ < N * 12) { const x = X0 + Math.random() * 2600, z = Z0 + Math.random() * 1600;
     const coast = bayP(x); if (z < coast + 58) continue; const gx = Math.floor((x - X0) / CS), gz = Math.floor((z - Z0) / CS); if (occ[gz * NX + gx]) continue;
-    if (RIV(x, z) < 22 || LAKE(x, z) < 1.15 || roadAt(x, z) || roadAt(x + 3, z) || roadAt(x - 3, z) || roadAt(x, z + 3) || roadAt(x, z - 3)) continue; if (Math.hypot(x - UNI[0], z - UNI[1]) < 95) continue; if (Math.abs(x) < 100 && z > 145 && z < 320) continue;
+    if (RIV(x, z) < 22 || LAKE(x, z) < 1.15 || roadAt(x, z) || roadAt(x + 3, z) || roadAt(x - 3, z) || roadAt(x, z + 3) || roadAt(x, z - 3)) continue; if (Math.hypot(x - UNI[0], z - UNI[1]) < 95) continue; if (Math.abs(x) < 100 && z > 145 && z < 320) continue; if (Math.hypot(x - 205, z - 470) < 46 || Math.hypot(x + 60, z - 500) < 44 || Math.hypot(x - 420, z - 960) < 26) continue;
     const inCity = DISTRICTS.some((d, k) => Math.hypot(x - d[0], z - d[1]) < DRAD[k] * 1.1); if (!inCity && Math.random() < .6) continue;
     T.push([x, HW(x, z), z, .7 + Math.random() * .9]); }
   const leafM = new THREE.MeshStandardMaterial({ roughness: .85 }), trunkM = new THREE.MeshStandardMaterial({ color: 0x6b4f38, roughness: 1 });
@@ -576,6 +576,38 @@ pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 30
   G0.scale.y = .001; G0.visible = false;
   ANIM.push(() => { const k = CAPP.value; G0.visible = k > 0; G0.scale.y = k <= 0 ? .001 : Math.max(.001, k < 1 ? k * k * (3 - 2 * k) : 1); }); }
 
+// ── places of life: the Baths, the Amphitheater, the Observatory ──
+const LIFE3D = [];
+function lifeG(x, z) { const g = new THREE.Group(); g.position.set(x, ty(x, z), z); S.add(g); g.visible = false; LIFE3D.push(g); return g; }
+{ const white = mat(0xf3f0ea, { roughness: .45 }), stoneL = mat(0xd9cfbd, { roughness: .7 }), waterM = mat(0x2f7fa6, { roughness: .03, metalness: .5 }), bronzeL = mat(0x6b5236, { metalness: .8, roughness: .35 });
+  // THERMAE · stepped pools under a long colonnade
+  { const g = lifeG(205, 470);
+    const base = new THREE.Mesh(new THREE.BoxGeometry(70, 1.2, 46), stoneL); base.position.y = .6; g.add(base);
+    [[-14, -6, 30, 18], [16, -6, 22, 18], [0, 13, 54, 10]].forEach(([x, z, w, d]) => { const p = new THREE.Mesh(new THREE.BoxGeometry(w, .3, d), waterM); p.position.set(x, 1.3, z); g.add(p); });
+    const cols = []; for (let i = 0; i < 15; i++) cols.push(-33 + i * 4.7); g.add(inst(new THREE.CylinderGeometry(.45, .45, 8, 12), white, cols, (d, x) => d.position.set(x, 5.2, -21)));
+    const roof = new THREE.Mesh(new THREE.BoxGeometry(72, 1, 8), white); roof.position.set(0, 9.6, -21); g.add(roof);
+    const hall = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 9, 40), white); hall.position.set(-27, 5.7, 12); g.add(hall);
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(9.2, 40, 16, 0, Math.PI * 2, 0, Math.PI / 2), white); dome.position.set(-27, 10.2, 12); g.add(dome);
+    const ocu = new THREE.Mesh(new THREE.CylinderGeometry(1.8, 1.8, .6, 20), glow(0xfff0d0, 1.4)); ocu.position.set(-27, 19.4, 12); g.add(ocu); }
+  // AMPHITHEATER · stone tiers facing the lake
+  { const g = lifeG(-60, 500);
+    for (let r = 0; r < 10; r++) { const r0 = 14 + r * 2.3, y = .8 + r * .8;
+      const tread = new THREE.Mesh(new THREE.RingGeometry(r0, r0 + 2.3, 64, 1, Math.PI * .1, Math.PI * .8), stoneL); tread.rotation.x = -Math.PI / 2; tread.position.y = y; g.add(tread);
+      const riser = new THREE.Mesh(new THREE.CylinderGeometry(r0, r0, .8, 64, 1, true, Math.PI * .6, Math.PI * .8), stoneL); riser.material.side = THREE.DoubleSide; riser.position.y = y - .4; g.add(riser); }
+    const stage = new THREE.Mesh(new THREE.CylinderGeometry(11, 11, 1, 48, 1, false, -Math.PI / 2, Math.PI), white); stage.position.y = .5; g.add(stage);
+    const sc = new THREE.Mesh(new THREE.BoxGeometry(26, 9, 1.2), white); sc.position.set(0, 4.5, 11.5); g.add(sc);
+    const shell = new THREE.Mesh(new THREE.SphereGeometry(13, 40, 16, Math.PI, Math.PI, 0, Math.PI / 2), white); shell.material = white; shell.position.set(0, .6, 9); shell.scale.set(1, .8, .6); g.add(shell);
+    const lamps = []; for (let i = 0; i < 9; i++) lamps.push(i); g.add(inst(new THREE.SphereGeometry(.5, 8, 6), glow(0xffd9a0, 2), lamps, (d, i) => { const a = Math.PI * (.12 + i * .095); d.position.set(Math.cos(a) * 37, 9, -Math.sin(a) * 37); })); }
+  // OBSERVATORY · a white dome on the hill, open slit, telescope
+  { const g = lifeG(420, 960);
+    const drum = new THREE.Mesh(new THREE.CylinderGeometry(12, 12, 10, 48), white); drum.position.y = 5; g.add(drum);
+    const dome = new THREE.Mesh(new THREE.SphereGeometry(12.2, 48, 20, 0, Math.PI * 2, 0, Math.PI / 2), mat(0xe8eaec, { metalness: .6, roughness: .25 })); dome.position.y = 10; g.add(dome);
+    const slit = new THREE.Mesh(new THREE.BoxGeometry(3, 13, 12.6), mat(0x1c2026)); slit.position.set(0, 16, 0); g.add(slit);
+    const tel = new THREE.Mesh(new THREE.CylinderGeometry(1, 1.4, 12, 16), bronzeL); tel.position.set(0, 18, -2); tel.rotation.x = -.6; g.add(tel);
+    const deck = new THREE.Mesh(new THREE.CylinderGeometry(20, 21, 1, 48), stoneL); deck.position.y = .3; g.add(deck); }
+  LIFE3D.forEach((g) => g.traverse((o) => { if (o.isMesh) o.castShadow = o.receiveShadow = true; }));
+  ANIM.push(() => LIFE3D.forEach((g) => (g.visible = UP.value > .62))); }
+
 // ── construction crews: cranes around the Capitol, then a crane front that moves outward ──
 { const yel = new THREE.MeshStandardMaterial({ color: 0xf2b705, roughness: .5, metalness: .4 }), dark = new THREE.MeshStandardMaterial({ color: 0x3a3d42, metalness: .5 });
   const mk = (h) => { const c = new THREE.Group(); const mast = new THREE.Mesh(new THREE.BoxGeometry(2.2, h, 2.2), yel); mast.position.y = h / 2; c.add(mast);
@@ -622,8 +654,18 @@ Object.assign(ITEMS, {
   works: { cat: 'Automation', name: 'Automated Works', pin: PIN('works', 80), desc: 'The machines that make life free. Robots build homes, make goods, repair the city and run the farms around the clock. Nobody has to work to live.', stats: [['Robots', '2,400'], ['Runs', '24 / 7 on solar'], ['Hours a resident must work', '0']] },
   digester: { cat: 'Waste', name: 'Biodigester', pin: PIN('digester', 60), desc: 'Food scraps and sewage become biogas for kitchens and compost for the fields. Glass, metal and stone are rebuilt into the city. No landfill.', stats: [['Organic waste', '→ Gas + compost'], ['Landfill', '0']] },
 });
-const ORDER = Object.keys(ITEMS);
-const CATS = [['All', null], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['ai', 'solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
+Object.assign(ITEMS, {
+  respublica: { cat: 'Vocation IV · Res Publica', name: 'Res Publica · The Forum', pin: P(-60, 330, 18), desc: 'The public thing. Citizens deliberate in person, under a short constitution, with an intelligence that serves the forum and never the other way round. The Capitol, the mall and the squares around them are the stage.', stats: [['Governance', 'In person'], ['Constitution', 'Short, written'], ['The Mind', 'Serves the forum']] },
+  ars: { cat: 'Vocation I · Ars', name: 'Ars · The Arts District', pin: P(-260, 520, 30), desc: 'Music, sculpture, film, architecture and the night. Workshops at cost and patronage paid for by the wealth the machines produce. Every courtyard has a studio; every evening has a stage.', stats: [['Studios', 'At cost'], ['Patronage', 'City-funded'], ['Nights', 'Concerts · film · dance']] },
+  scientia: { cat: 'Vocation II · Scientia', name: 'Scientia · The Knowledge District', pin: P(300, 540, 30), desc: 'Philosophy, science and engineering. Study not to get a job but to understand. Libraries open day and night, laboratories open to anyone, and the time clock becomes a bell again.', stats: [['Libraries', '24 / 7'], ['Labs', 'Open to all'], ['Tuition', 'Free for life']] },
+  virtus: { cat: 'Vocation III · Virtus', name: 'Virtus · The District of Honor', pin: P(560, 300, 30), desc: 'The body as a work of art. Athletics, fencing, wrestling, the mountain and the sea. Compete with honor, lose with dignity, train again. The stadium is its temple.', stats: [['Stadium', '1'], ['Gymnasia', 'In every district'], ['Sea & mountain', 'At the door']] },
+  thermae: { cat: 'Life', name: 'The Baths', pin: P(205, 470, 22), desc: 'Thermal pools under a long colonnade and a domed hall, open to every citizen. The afternoon ritual of Rome, returned: bathe, talk, rest, begin again.', stats: [['Pools', '3 + domed hall'], ['Open', 'Every day'], ['Cost', 'Free for citizens']] },
+  amphi: { cat: 'Life', name: 'The Amphitheater', pin: P(-60, 500, 20), desc: 'Stone tiers facing the lake. Concerts, plays and lectures under the open sky, lit by lanterns at night.', stats: [['Seats', '~3,000'], ['Season', 'All year'], ['Entry', 'Free']] },
+  observatory: { cat: 'Life', name: 'The Observatory', pin: [420, ty(420, 960) + 32, 960], desc: 'A public observatory on the hills behind the city. Dark-sky rules keep the stars visible from every rooftop.', stats: [['Telescope', '1.5 m'], ['Open nights', 'Every clear night']] },
+  market: { cat: 'Life', name: 'The Evening Market', pin: P(300, bayP(300) + 62, 12), desc: 'Every evening the promenade fills with stalls of food grown within sight of the city, and dinners that run late by the sea.', stats: [['Stalls', '~200'], ['Food travels', '< 5 km']] },
+});
+const ORDER = ['capitol', 'respublica', 'downtown', 'ars', 'scientia', 'virtus', 'thermae', 'amphi', 'park', 'mall', 'river', 'ring', 'market', 'beach', 'university', 'observatory', 'stadium', 'west', 'east', 'hills', 'port', 'lighthouse', 'ai', 'solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester'].filter((k) => ITEMS[k]);
+const CATS = [['All', null], ['Life', ['respublica', 'ars', 'scientia', 'virtus', 'thermae', 'amphi', 'observatory', 'market', 'park', 'beach']], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['ai', 'solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
 
 // ── time of day: dawn · day · sunset · night ──
 const PM2 = new THREE.PMREMGenerator(R), TOD = {};
@@ -766,4 +808,4 @@ let U_T = 0; setInterval(() => (U_T += .05), 50);
 prog(100); setTimeout(() => $('#load').classList.add('gone'), 4400);
 frame();
 
-$('#f').onsubmit = (e) => { e.preventDefault(); location.href = 'mailto:hello@anthroposcities.com?subject=Founding%20citizen&body=' + encodeURIComponent(e.target[0].value); $('#ok').textContent = 'Thank you. Your mail app will open to confirm.'; };
+$('#f').onsubmit = (e) => { e.preventDefault(); const f = new FormData(e.target), body = [...f.entries()].map(([k, v]) => k + ': ' + v).join('\n'); location.href = 'mailto:hello@anthroposcities.com?subject=' + encodeURIComponent('Anthropos registration · ' + f.get('as')) + '&body=' + encodeURIComponent(body); $('#ok').textContent = 'Thank you. Your mail app will open to confirm your registration.'; };

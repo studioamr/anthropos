@@ -418,48 +418,7 @@ html{scroll-snap-type:y proximity}
 </div>
 </div>
 
-<section class="vox" id="vocations">
-  <div class="vx-in">
-    <div class="vx-top"><div><div class="vx-lab">I · WHAT WE ARE BUILDING</div><h2>A CITY FOR<br>WHAT COMES AFTER</h2></div>
-      <p>Anthropos is a new city for one hundred thousand people, designed from the first stone for a world in which machines do the work. It produces its own energy, water and food. It is coordinated by an intelligence that its citizens own. And it is organized not around jobs, but around the four things a free person does.</p></div>
-    <div class="vx-pill">
-      <div><b>01</b><h4>A city that sustains itself</h4><p>Sun and wind for power, the sea and the rain for water, greenhouses and fields within sight for food, and a closed loop for waste. The floor of life is paid before anyone wakes up.</p></div>
-      <div><b>02</b><h4>A society of free people</h4><p>Founders, artists, scholars, athletes and builders, living side by side, with time to practice, study, compete and create. Not a resort. A culture.</p></div>
-      <div><b>03</b><h4>A republic with a mind</h4><p>An intelligence runs the systems and drafts the proposals. Citizens deliberate in person and decide. A short written charter stands above both.</p></div>
-    </div>
 
-    <div class="vx-lab sec">II · THE FOUR VOCATIONS</div>
-    <h2 class="sm">If the machine produces,<br>the citizen creates.</h2>
-    <div class="vx-rows">
-      <article><i>I</i><div><h3>Ars <em>· the arts</em></h3><p>Music, sculpture, film, architecture, dance and the night. The arts district wraps the great park and the lake. Its courtyards hold studios rented at cost, workshops for wood, metal and stone, rehearsal rooms and small theaters. Patronage is paid for by the wealth the machines produce, so an artist never has to sell their time to make their work.</p></div><ul><li>Studios at cost</li><li>The Amphitheater</li><li>City patronage</li></ul></article>
-      <article><i>II</i><div><h3>Scientia <em>· knowledge</em></h3><p>Philosophy, science and engineering, studied to understand rather than to be employed. The university climbs the first slope of the hills around a glass library that never closes. Laboratories are open to anyone. Above it, the observatory keeps the sky dark enough to see the stars from every roof.</p></div><ul><li>The University</li><li>Open laboratories</li><li>The Observatory</li></ul></article>
-      <article><i>III</i><div><h3>Virtus <em>· honor</em></h3><p>The body as a work. Athletics, fencing, wrestling, swimming, the mountain and the sea. Every district has a gymnasium, the stadium hosts the games and festivals of the city, and the great baths close every day. Compete with honor, lose with dignity, train again.</p></div><ul><li>The Stadium</li><li>Gymnasia</li><li>The Baths</li></ul></article>
-      <article><i>IV</i><div><h3>Res Publica <em>· the forum</em></h3><p>The public thing. At the center stands the Capitol, and around it the squares where citizens meet in person to decide what binds them: what to build, what to protect, who to welcome. The Mind prepares the proposals and answers every question. It never decides.</p></div><ul><li>The Capitol</li><li>The forum</li><li>The charter</li></ul></article>
-    </div>
-
-    <div class="vx-lab sec">III · A DAY IN ANTHROPOS</div>
-    <h2 class="sm">Not leisure. A demanding,<br>beautiful life.</h2>
-    <ol class="vx-day">
-      <li><b>07:00</b><span>The sea at dawn, then the gymnasium.</span></li>
-      <li><b>09:00</b><span>The studio, the laboratory or the library. The work you chose.</span></li>
-      <li><b>13:00</b><span>Lunch from the market, grown a few kilometres away.</span></li>
-      <li><b>16:00</b><span>The baths, and an argument in the forum.</span></li>
-      <li><b>20:00</b><span>The amphitheater, a concert, or a long dinner on the promenade.</span></li>
-      <li><b>23:00</b><span>The observatory is open on clear nights.</span></li>
-    </ol>
-
-    <div class="vx-two">
-      <div><div class="vx-lab sec">IV · WHAT A CITIZEN RECEIVES</div>
-        <ul class="vx-list"><li>A home by the sea, in a quarter built to last centuries</li><li>Energy, water and the city's services, provided by the city itself</li><li>The forum, the baths, the schools and the vote</li><li>Studios, laboratories and gymnasia at cost</li><li>The founding citizen card, valid in every Anthropos city</li><li>A voice in the charter and in every binding decision</li></ul></div>
-      <div><div class="vx-lab sec">V · HOW IT IS BUILT</div>
-        <ol class="vx-phase"><li><b>Founding</b>A community of founding citizens and the master plan.</li><li><b>Land</b>An agreement with a host country and the site, under its laws.</li><li><b>First quarter</b>Homes, a resort, a members' club, and the energy and water systems from day one.</li><li><b>The city</b>Districts, the Capitol, the university and the stadium, quarter by quarter.</li></ol></div>
-    </div>
-
-    <div class="vx-lab sec">VI · WHAT IT IS NOT</div>
-    <div class="vx-not"><p><s>A gated resort.</s> It is a city, open to everyone who shares its aims.</p><p><s>A tax haven or a secession.</s> It lives under the laws of the country that hosts it, and enriches it.</p><p><s>A city run by a machine.</s> The Mind serves the forum. People decide.</p><p><s>A fantasy of leisure.</s> It is a life of practice, study, competition and responsibility.</p></div>
-    <p class="vx-note">Concept. Figures are design targets; the site is under evaluation. This page does not offer securities, tokens or returns.</p>
-  </div>
-</section>
 
 <section class="ideasx" id="articles">
   <div class="ix-in">
@@ -493,6 +452,6 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=32"></script>
+<script type="module" src="js/anthropos-live.js?v=33"></script>
 </body>
 </html>

@@ -39,13 +39,13 @@ const S = new THREE.Scene();
 { const c = document.createElement('canvas'); c.width = 4; c.height = 512; const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, 512);
   g.addColorStop(0, '#2a5d93'); g.addColorStop(.5, '#86afd3'); g.addColorStop(.8, '#e3ecf2'); g.addColorStop(1, '#c9d9e4'); x.fillStyle = g; x.fillRect(0, 0, 4, 512);
   const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; S.background = t; }
-S.fog = new THREE.Fog(0xcfdde8, 2600, 6000);
+S.fog = new THREE.Fog(0xcfdde8, 3800, 11500);
 { const pm = new THREE.PMREMGenerator(R); S.environment = pm.fromScene(new RoomEnvironment(), .04).texture; }
-const cam = new THREE.PerspectiveCamera(36, 1, 2, 9000);
+const cam = new THREE.PerspectiveCamera(36, 1, 2, 16000);
 S.add(new THREE.HemisphereLight(0xdfeaff, 0x55604a, .35));
-const SUN = new THREE.DirectionalLight(0xffe4c0, 3.4); SUN.position.set(-900, 820, -520); SUN.castShadow = true;
-SUN.shadow.mapSize.set(4096, 4096); Object.assign(SUN.shadow.camera, { left: -1300, right: 1300, top: 1000, bottom: -1000, near: 50, far: 3500 });
-SUN.shadow.bias = -.0004; SUN.shadow.normalBias = 1.2; SUN.target.position.set(0, 0, 350); S.add(SUN, SUN.target);
+const SUN = new THREE.DirectionalLight(0xffe4c0, 3.4); SUN.position.set(-1800, 1640, -240); SUN.castShadow = true;
+SUN.shadow.mapSize.set(4096, 4096); Object.assign(SUN.shadow.camera, { left: -2600, right: 2600, top: 1800, bottom: -1800, near: 50, far: 7000 });
+SUN.shadow.bias = -.0004; SUN.shadow.normalBias = 1.2; SUN.target.position.set(0, 0, 800); S.add(SUN, SUN.target);
 
 // ── the city ──
 prog(15, 'Drawing Anthropos…');
@@ -101,6 +101,15 @@ if (ink._tf) { const g = geo(ink._tf); g.computeVertexNormals(); g.setAttribute(
 
 // ── terrain surface under the drawing ──
 prog(75, 'Shaping the bay…');
+const vh = (x, z) => { const s = Math.sin(x * 127.1 + z * 311.7) * 43758.5453; return s - Math.floor(s); };
+const vn = (x, z) => { const ix = Math.floor(x), iz = Math.floor(z), fx = x - ix, fz = z - iz, u = fx * fx * (3 - 2 * fx), v = fz * fz * (3 - 2 * fz);
+  return (vh(ix, iz) * (1 - u) + vh(ix + 1, iz) * u) * (1 - v) + (vh(ix, iz + 1) * (1 - u) + vh(ix + 1, iz + 1) * u) * v; };
+const ridged = (x, z) => { let a = 0, f = 1, w = .5; for (let k = 0; k < 5; k++) { a += w * (1 - Math.abs(vn(x * f, z * f) * 2 - 1)) ** 2; f *= 2.1; w *= .5; } return a; };
+const sstep = (a, b, x) => { const t = Math.min(1, Math.max(0, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+function HW(x, z) { const coast = bayP(x); if (z < coast) return -2 - Math.min(14, (coast - z) * .05);
+  let h = terrainP(x, z) + 150 * Math.exp(-((x + 1500) ** 2) / 700 ** 2 - ((z - 1950) ** 2) / 300 ** 2);
+  const m = Math.max(sstep(2500, 3700, z), sstep(2700, 3900, Math.abs(x)) * sstep(coast + 300, coast + 1200, z));
+  return h + m * (260 + 900 * ridged(x * .00055, z * .00055)); }
 const RIV = (x, z) => (z > bayP(x) - 10 ? Math.abs(x - river(z)) : 1e9);
 const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36 ** 2;
 { const N = MOBILE ? 220 : 380, g = new THREE.PlaneGeometry(3400, 2300, N, Math.round(N * .68)); g.rotateX(-Math.PI / 2); g.translate(0, 0, 330);
@@ -110,7 +119,7 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
     const x = p.getX(i), z = p.getZ(i), coast = bayP(x); let y;
     if (z < coast) { y = -2 - Math.min(14, (coast - z) * .05); c.copy(bed); }
     else {
-      y = terrainP(x, z) - .05;
+      y = HW(x, z) - .05;
       const n = Math.sin(x * .013) * Math.cos(z * .011) * .5 + .5;
       c.copy(sage).lerp(deep, n * .5).lerp(dry, Math.min(1, Math.max(0, (y - 20) / 70)));
       if (z < coast + 52) c.copy(sand);
@@ -122,29 +131,39 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
   }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeVertexNormals();
   const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 })); m.receiveShadow = true; S.add(m); }
+// the wider world: plains, the western ridge and a mountain wall behind; the sea only in front
+{ const N = MOBILE ? 200 : 360, g = new THREE.PlaneGeometry(11000, 8000, N, Math.round(N * .73)); g.rotateX(-Math.PI / 2); g.translate(0, 0, 1800);
+  const p = g.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Color();
+  const sand = new THREE.Color(0xe6d6b0), sage = new THREE.Color(0xa3b78c), forest = new THREE.Color(0x4f7442), rock = new THREE.Color(0x8d877b), snow = new THREE.Color(0xf4f6f8), bed = new THREE.Color(0x2c5a6d);
+  for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), coast = bayP(x), y = HW(x, z);
+    if (z < coast) c.copy(bed); else if (z < coast + 52) c.copy(sand);
+    else { c.copy(sage).lerp(forest, sstep(60, 260, y) * .8 + vn(x * .004, z * .004) * .15).lerp(rock, sstep(380, 700, y)).lerp(snow, sstep(780, 980, y)); }
+    p.setY(i, y - .45); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+  g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeVertexNormals();
+  const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 })); m.receiveShadow = true; S.add(m); }
 const wn = new THREE.TextureLoader().load('img/tex/waternormals.jpg', (t) => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
 const water = new Water(new THREE.PlaneGeometry(12000, 12000), { textureWidth: MOBILE ? 256 : 1024, textureHeight: MOBILE ? 256 : 1024, waterNormals: wn,
   sunDirection: SUN.position.clone().normalize(), sunColor: 0xfff0d8, waterColor: 0x0f3f5c, distortionScale: 3, fog: true });
 water.rotation.x = -Math.PI / 2; water.position.y = -.3; S.add(water);
 
-// ── what makes it self-sustaining: on the outskirts, detailed and alive ──
+// ── what makes it self-sustaining: real scale, detailed and alive ──
 prog(85);
 const SYS = new THREE.Group(); S.add(SYS);
 const mat = (c, o = {}) => new THREE.MeshStandardMaterial(Object.assign({ color: c, roughness: .6 }, o));
 const glow = (c, k = 2.6) => new THREE.MeshBasicMaterial({ color: new THREE.Color(c).multiplyScalar(k), toneMapped: false });
-const ty = (x, z) => Math.max(terrainP(x, z), .6);
+const ty = (x, z) => Math.max(HW(x, z), .6);
 const SYSG = {}; const sg = (id) => { const g = new THREE.Group(); g.userData.id = id; SYS.add(g); SYSG[id] = g; g.visible = false; return g; };
 const inst = (geo, m, list, fn) => { const im = new THREE.InstancedMesh(geo, m, list.length), d = new THREE.Object3D(); list.forEach((v, i) => { d.position.set(0, 0, 0); d.rotation.set(0, 0, 0); d.scale.set(1, 1, 1); fn(d, v, i); d.updateMatrix(); im.setMatrixAt(i, d.matrix); }); im.castShadow = im.receiveShadow = true; return im; };
 const ANIM = []; const UT = { value: 0 };
-const ELEC = { solar: 0x2f7bff, wind: 0x00f0ff, battery: 0xff2bd6, desal: 0x00d9ff, green: 0x7dff2e, fields: 0xc8ff3a, works: 0x9b5cff, digester: 0xff8a1f };
+const ELEC = { solar: 0x2f7bff, wind: 0x00f0ff, battery: 0xff2bd6, desal: 0x00d9ff, green: 0x7dff2e, fields: 0xc8ff3a, works: 0x9b5cff, digester: 0xff8a1f, ai: 0xbfeaff };
 const _o = new THREE.Object3D();
-// moving robots: a few small glowing machines per system
-function rovers(g, n, col, path) { const im = new THREE.InstancedMesh(new THREE.BoxGeometry(5, 2.4, 3.4), mat(0xf2f2f2, { emissive: new THREE.Color(col), emissiveIntensity: .8 }), n); im.castShadow = true; g.add(im);
-  const lamp = new THREE.InstancedMesh(new THREE.SphereGeometry(.9, 8, 6), glow(col, 4), n); g.add(lamp);
-  ANIM.push((t) => { for (let i = 0; i < n; i++) { const [x, y, z, ry] = path(i, t); _o.position.set(x, y + 1.2, z); _o.rotation.set(0, ry, 0); _o.updateMatrix(); im.setMatrixAt(i, _o.matrix); _o.position.y += 1.8; _o.updateMatrix(); lamp.setMatrixAt(i, _o.matrix); } im.instanceMatrix.needsUpdate = lamp.instanceMatrix.needsUpdate = true; }); }
+function rovers(g, n, col, path, s = 1) { const im = new THREE.InstancedMesh(new THREE.BoxGeometry(5 * s, 2.4 * s, 3.4 * s), mat(0xf2f2f2, { emissive: new THREE.Color(col), emissiveIntensity: .8 }), n); im.castShadow = true; g.add(im);
+  const lamp = new THREE.InstancedMesh(new THREE.SphereGeometry(.9 * s, 8, 6), glow(col, 4), n); g.add(lamp);
+  ANIM.push((t) => { for (let i = 0; i < n; i++) { const [x, y, z, ry] = path(i, t); _o.position.set(x, y + 1.2 * s, z); _o.rotation.set(0, ry, 0); _o.updateMatrix(); im.setMatrixAt(i, _o.matrix); _o.position.y += 1.8 * s; _o.updateMatrix(); lamp.setMatrixAt(i, _o.matrix); } im.instanceMatrix.needsUpdate = lamp.instanceMatrix.needsUpdate = true; }); }
+const C = { solar: [0, 1750], battery: [1050, 1330], wind: [-1500, 1950], desal: [1650, bayP(1650) + 50], green: [1730, 400], fields: [1900, 1230], works: [-1750, 450], digester: [-1650, -40], ai: [0, 230] };
 
-// SOLAR: cells, frames, a light sheen sweeping the field, inverters, cleaning robots
-{ const g = sg('solar'), pts = []; for (let r = 0; r < 18; r++) for (let c = 0; c < 46; c++) pts.push([-420 + c * 18, 1130 + r * 13]);
+// SOLAR · 1.6 × 1 km of panels, cells, a sweep of light, inverters and cleaning robots
+{ const g = sg('solar'), pts = []; for (let z = 1250; z <= 2250; z += 14) for (let x = -800; x <= 800; x += 18) pts.push([x, z]);
   const pm = mat(0x16295a, { roughness: .15, metalness: .8, emissive: new THREE.Color(ELEC.solar), emissiveIntensity: .25 });
   pm.onBeforeCompile = (sh) => { sh.uniforms.uT = UT;
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec2 vU;varying vec3 vW;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvU=uv;vW=(modelMatrix*instanceMatrix*vec4(position,1.)).xyz;');
@@ -152,105 +171,134 @@ function rovers(g, n, col, path) { const im = new THREE.InstancedMesh(new THREE.
       .replace('#include <emissivemap_fragment>', `#include <emissivemap_fragment>
         vec2 cl=abs(fract(vU*vec2(12.,5.))-.5);float grid=1.-smoothstep(.42,.48,max(cl.x,cl.y));
         diffuseColor.rgb=mix(vec3(.75,.8,.9),diffuseColor.rgb,grid);
-        float sweep=smoothstep(60.,0.,abs(mod(vW.x+vW.z*.4-uT*160.,1400.)-700.));
-        totalEmissiveRadiance+=vec3(.25,.55,1.)*sweep*1.6*grid;`); };
-  pm.customProgramCacheKey = () => 'solarcells';
+        float sweep=smoothstep(90.,0.,abs(mod(vW.x+vW.z*.5-uT*240.,2600.)-1300.));
+        totalEmissiveRadiance+=vec3(.25,.55,1.)*sweep*.55*grid;`); };
+  pm.customProgramCacheKey = () => 'solarcells2';
   g.add(inst(new THREE.BoxGeometry(16, .4, 7), pm, pts, (d, [x, z]) => { d.position.set(x, ty(x, z) + 3, z); d.rotation.x = -.5; }));
-  g.add(inst(new THREE.BoxGeometry(16.6, .3, .4), mat(0xd8dde5, { metalness: .6, roughness: .3 }), pts, (d, [x, z]) => { d.position.set(x, ty(x, z) + 1.4, z + 3.2); }));
-  g.add(inst(new THREE.CylinderGeometry(.25, .25, 3, 5), mat(0x999999), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 1.5, z)));
-  const inv = []; for (let i = 0; i < 6; i++) inv.push([-380 + i * 150, 1120]);
-  g.add(inst(new THREE.BoxGeometry(8, 5, 5), mat(0xeef2f8), inv, (d, [x, z]) => d.position.set(x, ty(x, z) + 2.5, z)));
-  g.add(inst(new THREE.BoxGeometry(8.2, .6, 5.2), glow(ELEC.solar, 3), inv, (d, [x, z]) => d.position.set(x, ty(x, z) + 5.2, z)));
-  rovers(g, 10, ELEC.solar, (i, t) => { const row = 1136 + (i * 2) * 13 + 6, x = -420 + ((t * 30 + i * 140) % 830); return [x, ty(x, row) + .5, row, 0]; }); }
+  if (!MOBILE) g.add(inst(new THREE.CylinderGeometry(.3, .3, 3, 5), mat(0x999999), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 1.5, z)));
+  const inv = []; for (let x = -720; x <= 720; x += 160) for (let z = 1300; z <= 2200; z += 150) inv.push([x, z]);
+  g.add(inst(new THREE.BoxGeometry(10, 6, 6), mat(0xeef2f8), inv, (d, [x, z]) => d.position.set(x, ty(x, z) + 3, z)));
+  g.add(inst(new THREE.BoxGeometry(10.2, .7, 6.2), glow(ELEC.solar, 3), inv, (d, [x, z]) => d.position.set(x, ty(x, z) + 6.3, z)));
+  const sub = new THREE.Mesh(new THREE.BoxGeometry(90, 14, 50), mat(0xe9edf2)); sub.position.set(0, ty(0, 1210) + 7, 1210); g.add(sub);
+  rovers(g, 24, ELEC.solar, (i, t) => { const row = 1257 + i * 42, x = -800 + ((t * 40 + i * 230) % 1600); return [x, ty(x, row) + .5, row, 0]; }); }
 
-// WIND: tapered blades, nacelles, blinking aviation lights, glowing hubs
+// BATTERY · 80 containers, fan grilles, breathing light strips
+{ const g = sg('battery'), pts = []; for (let i = 0; i < 80; i++) pts.push([960 + (i % 10) * 20, 1290 + Math.floor(i / 10) * 11]);
+  g.add(inst(new THREE.BoxGeometry(16, 6, 6), mat(0xf3f3f5, { roughness: .35 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 3, z)));
+  g.add(inst(new THREE.CylinderGeometry(1.2, 1.2, .3, 16), mat(0x2b2d33), pts.flatMap(([x, z]) => [[x - 4.5, z], [x, z], [x + 4.5, z]]), (d, [x, z]) => d.position.set(x, ty(x, z) + 6.15, z)));
+  const strip = glow(ELEC.battery, 3); g.add(inst(new THREE.BoxGeometry(16.2, .6, .3), strip, pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 4.4, z - 3.1)));
+  const base = strip.color.clone(); ANIM.push((t) => strip.color.copy(base).multiplyScalar(.5 + .5 * (Math.sin(t * 2.2) * .5 + .5))); }
+
+// WIND · 12 turbines on the western ridge
 const blades = [];
-{ const g = sg('wind'), m = mat(0xf8f8f8, { roughness: .3 }), bladeG = new THREE.CylinderGeometry(.5, 2.4, 54, 8); bladeG.scale(1, 1, .28); bladeG.translate(0, 27, 0);
-  for (let i = 0; i < 9; i++) { const x = -880 + i * 210, z = 1040 + Math.sin(i * 1.7) * 40, y = ty(x, z);
-    const tw = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 3.2, 110, 20), m); tw.position.set(x, y + 55, z); g.add(tw);
-    const base = new THREE.Mesh(new THREE.CylinderGeometry(6, 7, 2, 24), mat(0xcfd3d8)); base.position.set(x, y + 1, z); g.add(base);
-    const nac = new THREE.Mesh(new THREE.CapsuleGeometry(3, 10, 6, 12), m); nac.rotation.x = Math.PI / 2; nac.position.set(x, y + 111, z + 2); g.add(nac);
-    const hub = new THREE.Group(); hub.position.set(x, y + 111, z - 5); const sp = new THREE.Group(); hub.add(sp);
-    const cone = new THREE.Mesh(new THREE.SphereGeometry(2.6, 16, 12), m); cone.scale.z = 1.6; sp.add(cone);
-    for (let k = 0; k < 3; k++) { const p = new THREE.Group(), b = new THREE.Mesh(bladeG, m); b.rotation.y = .25; p.add(b); const tip = new THREE.Mesh(new THREE.BoxGeometry(1.2, 4, .5), glow(ELEC.wind, 3)); tip.position.y = 52; p.add(tip); p.rotation.z = k * Math.PI * 2 / 3; sp.add(p); }
-    const ring = new THREE.Mesh(new THREE.TorusGeometry(4.2, .6, 8, 40), glow(ELEC.wind, 3)); hub.add(ring);
-    const red = new THREE.Mesh(new THREE.SphereGeometry(1.1, 8, 6), glow(0xff2a2a, 4)); red.position.set(x, y + 117, z + 4); g.add(red);
+{ const g = sg('wind'), m = mat(0xf8f8f8, { roughness: .3 }), bladeG = new THREE.CylinderGeometry(.6, 3, 62, 8); bladeG.scale(1, 1, .28); bladeG.translate(0, 31, 0);
+  for (let i = 0; i < 12; i++) { const x = -2250 + i * 130, z = 1900 + Math.sin(i * 1.3) * 90, y = ty(x, z);
+    const tw = new THREE.Mesh(new THREE.CylinderGeometry(2, 4, 120, 20), m); tw.position.set(x, y + 60, z); g.add(tw);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(7, 8, 2, 24), mat(0xcfd3d8)); base.position.set(x, y + 1, z); g.add(base);
+    const nac = new THREE.Mesh(new THREE.CapsuleGeometry(3.4, 12, 6, 12), m); nac.rotation.x = Math.PI / 2; nac.position.set(x, y + 121, z + 2); g.add(nac);
+    const hub = new THREE.Group(); hub.position.set(x, y + 121, z - 6); const sp = new THREE.Group(); hub.add(sp);
+    const cone = new THREE.Mesh(new THREE.SphereGeometry(3, 16, 12), m); cone.scale.z = 1.6; sp.add(cone);
+    for (let k = 0; k < 3; k++) { const p = new THREE.Group(), b = new THREE.Mesh(bladeG, m); b.rotation.y = .25; p.add(b); const tip = new THREE.Mesh(new THREE.BoxGeometry(1.4, 5, .6), glow(ELEC.wind, 3)); tip.position.y = 60; p.add(tip); p.rotation.z = k * Math.PI * 2 / 3; sp.add(p); }
+    hub.add(new THREE.Mesh(new THREE.TorusGeometry(4.8, .7, 8, 40), glow(ELEC.wind, 3)));
+    const red = new THREE.Mesh(new THREE.SphereGeometry(1.3, 8, 6), glow(0xff2a2a, 4)); red.position.set(x, y + 128, z + 4); g.add(red);
     ANIM.push((t) => (red.visible = (t + i * .17) % 1.6 < .25));
     g.add(hub); blades.push(sp); } }
 
-// BATTERY: containers with fan grilles and breathing magenta light strips
-{ const g = sg('battery'), pts = []; for (let i = 0; i < 24; i++) pts.push([470 + (i % 6) * 18, 1150 + Math.floor(i / 6) * 9]);
-  g.add(inst(new THREE.BoxGeometry(15, 5, 5), mat(0xf3f3f5, { roughness: .35 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 2.5, z)));
-  g.add(inst(new THREE.CylinderGeometry(1.1, 1.1, .3, 16), mat(0x2b2d33), pts.flatMap(([x, z]) => [[x - 4, z], [x, z], [x + 4, z]]), (d, [x, z]) => d.position.set(x, ty(x, z) + 5.15, z)));
-  const strip = glow(ELEC.battery, 3); g.add(inst(new THREE.BoxGeometry(15.2, .5, .3), strip, pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 3.8, z - 2.6)));
-  const base = strip.color.clone(); ANIM.push((t) => strip.color.copy(base).multiplyScalar(.5 + .5 * (Math.sin(t * 2.2) * .5 + .5))); }
+// DESALINATION · tanks, process hall, intake pier
+{ const g = sg('desal'), [x0, z0] = C.desal, m = mat(0xf0f2f3, { roughness: .4 }), y0 = ty(x0, z0);
+  const tanks = []; for (let i = 0; i < 12; i++) tanks.push([x0 + (i % 4) * 30, z0 + 40 + Math.floor(i / 4) * 30]);
+  g.add(inst(new THREE.CylinderGeometry(12, 12, 20, 40), m, tanks, (d, [x, z]) => d.position.set(x, y0 + 10, z)));
+  for (const k of [5, 11, 17]) g.add(inst(new THREE.TorusGeometry(12.1, .45, 6, 40), glow(ELEC.desal, 2.6), tanks, (d, [x, z]) => { d.position.set(x, y0 + k, z); d.rotation.x = Math.PI / 2; }));
+  const h = new THREE.Mesh(new THREE.BoxGeometry(150, 22, 50), mat(0xe6e4de)); h.position.set(x0 - 120, y0 + 11, z0 + 70); g.add(h);
+  const win = new THREE.Mesh(new THREE.BoxGeometry(150.4, 2.4, 50.4), glow(ELEC.desal, 2)); win.position.set(x0 - 120, y0 + 15, z0 + 70); g.add(win);
+  const pier = new THREE.Mesh(new THREE.BoxGeometry(8, 2, 360), mat(0xbfc4c8)); pier.position.set(x0 + 40, 1, z0 - 180); g.add(pier);
+  const pipe = new THREE.Mesh(new THREE.CylinderGeometry(2, 2, 360, 10), glow(ELEC.desal, 2.4)); pipe.rotation.x = Math.PI / 2; pipe.position.set(x0 + 40, 3, z0 - 180); g.add(pipe);
+  const head = new THREE.Mesh(new THREE.CylinderGeometry(9, 9, 5, 24), m); head.position.set(x0 + 40, 2, z0 - 362); g.add(head); }
 
-// DESALINATION: ribbed tanks, an intake pier into the sea, glowing aqua headers
-{ const g = sg('desal'), x0 = 1180, z0 = bayP(1180) + 40, m = mat(0xf0f2f3, { roughness: .4 }), y0 = ty(x0, z0);
-  const tanks = [0, 1, 2, 3, 4, 5].map((i) => [x0 + (i % 3) * 22, z0 + Math.floor(i / 3) * 22]);
-  g.add(inst(new THREE.CylinderGeometry(9, 9, 16, 40), m, tanks, (d, [x, z]) => d.position.set(x, y0 + 8, z)));
-  for (const k of [4, 9, 14]) g.add(inst(new THREE.TorusGeometry(9.1, .35, 6, 40), glow(ELEC.desal, 2.6), tanks, (d, [x, z]) => { d.position.set(x, y0 + k, z); d.rotation.x = Math.PI / 2; }));
-  const h = new THREE.Mesh(new THREE.BoxGeometry(70, 18, 34), mat(0xe6e4de)); h.position.set(x0 - 60, y0 + 9, z0 + 10); g.add(h);
-  const win = new THREE.Mesh(new THREE.BoxGeometry(70.4, 2, 34.4), glow(ELEC.desal, 2)); win.position.set(x0 - 60, y0 + 12, z0 + 10); g.add(win);
-  const pier = new THREE.Mesh(new THREE.BoxGeometry(6, 2, 200), mat(0xbfc4c8)); pier.position.set(x0 + 20, 1, z0 - 110); g.add(pier);
-  const pipe = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.6, 200, 10), glow(ELEC.desal, 2.4)); pipe.rotation.x = Math.PI / 2; pipe.position.set(x0 + 20, 2.6, z0 - 110); g.add(pipe);
-  const head = new THREE.Mesh(new THREE.CylinderGeometry(6, 6, 4, 24), m); head.position.set(x0 + 20, 2, z0 - 212); g.add(head); }
-
-// GREENHOUSES: ribbed glass, rows of plants, pulsing grow lights inside
+// GREENHOUSES · ~40 ha of glass, plants and grow lights
 { const g = sg('green'), glass = new THREE.MeshPhysicalMaterial({ color: 0xeaf6f2, roughness: .04, transmission: .55, transparent: true, opacity: .45 });
-  const gg = new THREE.CylinderGeometry(8, 8, 90, 28, 1, true, 0, Math.PI); gg.rotateZ(Math.PI / 2); gg.rotateY(Math.PI / 2);
-  const pts = []; for (let i = 0; i < 24; i++) pts.push([1150 + (i % 8) * 19, 260 + Math.floor(i / 8) * 105]);
+  const gg = new THREE.CylinderGeometry(9, 9, 110, 24, 1, true, 0, Math.PI); gg.rotateZ(Math.PI / 2); gg.rotateY(Math.PI / 2);
+  const pts = []; for (let r = 0; r < 4; r++) for (let c = 0; c < 30; c++) pts.push([1400 + c * 22, 160 + r * 125]);
   g.add(inst(gg, glass, pts, (d, [x, z]) => d.position.set(x, ty(x, z), z)));
-  const ribs = []; pts.forEach(([x, z]) => { for (let k = -4; k <= 4; k++) ribs.push([x, z + k * 10.5]); });
-  g.add(inst(new THREE.TorusGeometry(8, .25, 4, 24, Math.PI), mat(0xffffff, { metalness: .5, roughness: .3 }), ribs, (d, [x, z]) => { d.position.set(x, ty(x, z), z); }));
-  g.add(inst(new THREE.BoxGeometry(15, .6, 88), mat(0x3e6d2a, { roughness: 1 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + .4, z)));
-  const plants = []; pts.forEach(([x, z]) => { for (let r = -2; r <= 2; r++) for (let k = 0; k < 14; k++) plants.push([x + r * 2.8, z - 40 + k * 6.2]); });
-  g.add(inst(new THREE.IcosahedronGeometry(1.3, 1), mat(0x5fae3a, { roughness: .8 }), plants, (d, [x, z]) => { d.position.set(x, ty(x, z) + 1.6, z); d.scale.y = 1.4; }));
-  const lamp = glow(0xff4fd8, 2.6); g.add(inst(new THREE.BoxGeometry(12, .4, 86), lamp, pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 6.5, z)));
+  const ribs = []; pts.forEach(([x, z]) => { for (let k = -5; k <= 5; k++) ribs.push([x, z + k * 10.5]); });
+  g.add(inst(new THREE.TorusGeometry(9, .25, 4, 20, Math.PI), mat(0xffffff, { metalness: .5, roughness: .3 }), ribs, (d, [x, z]) => d.position.set(x, ty(x, z), z)));
+  g.add(inst(new THREE.BoxGeometry(17, .6, 108), mat(0x3e6d2a, { roughness: 1 }), pts, (d, [x, z]) => d.position.set(x, ty(x, z) + .4, z)));
+  const plants = []; pts.forEach(([x, z]) => { for (let r = -2; r <= 2; r++) for (let k = 0; k < 16; k++) plants.push([x + r * 3.1, z - 50 + k * 6.6]); });
+  g.add(inst(new THREE.IcosahedronGeometry(1.4, 0), mat(0x5fae3a, { roughness: .8 }), plants, (d, [x, z]) => { d.position.set(x, ty(x, z) + 1.6, z); d.scale.y = 1.4; }));
+  const lamp = glow(0xff4fd8, 2.6); g.add(inst(new THREE.BoxGeometry(13, .4, 106), lamp, pts, (d, [x, z]) => d.position.set(x, ty(x, z) + 7.4, z)));
   const lb = lamp.color.clone(); ANIM.push((t) => lamp.color.copy(lb).multiplyScalar(.6 + .4 * Math.sin(t * 1.3))); }
 
-// FIELDS: crop rows and harvest robots crossing them
-{ const g = sg('fields'), cols = [0x8fae4a, 0xb3a659, 0x6f9440, 0xc7b867, 0x7ea046];
-  for (let i = 0; i < 20; i++) { const x = 1160 + (i % 4) * 46, z = 620 + Math.floor(i / 4) * 40; const f = new THREE.Mesh(new THREE.BoxGeometry(42, .6, 36), mat(cols[i % 5], { roughness: 1 })); f.position.set(x, ty(x, z) + .3, z); f.receiveShadow = true; g.add(f);
-    const rows = []; for (let r = 0; r < 8; r++) rows.push(z - 15 + r * 4.3); g.add(inst(new THREE.BoxGeometry(40, .9, 1.2), mat(new THREE.Color(cols[i % 5]).multiplyScalar(.7)), rows, (d, rz) => d.position.set(x, ty(x, rz) + .8, rz))); }
-  rovers(g, 8, ELEC.fields, (i, t) => { const col = i % 4, x0 = 1160 + col * 46, z = 620 + Math.floor(i / 4) * 80 + ((t * 8 + i * 13) % 34) - 17; const x = x0 - 18 + ((t * 14 + i * 7) % 36); return [x, ty(x, z) + .5, z, Math.PI / 2]; }); }
+// FIELDS · ~1 km² of crops with stripes and harvest robots
+{ const g = sg('fields'), pts = [], cols = [0x8fae4a, 0xb3a659, 0x6f9440, 0xc7b867, 0x7ea046, 0xa7b45a];
+  for (let x = 1420; x <= 2380; x += 48) for (let z = 760; z <= 1700; z += 44) pts.push([x, z]);
+  const fm = mat(0xffffff, { roughness: 1 });
+  fm.onBeforeCompile = (sh) => { sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vW2;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvW2=(modelMatrix*instanceMatrix*vec4(position,1.)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vW2;').replace('#include <color_fragment>', '#include <color_fragment>\ndiffuseColor.rgb*=.78+.22*smoothstep(.3,.7,abs(fract(vW2.z/4.)-.5)*2.);'); };
+  fm.customProgramCacheKey = () => 'rows';
+  const im = inst(new THREE.BoxGeometry(46, .8, 42), fm, pts, (d, [x, z]) => d.position.set(x, ty(x, z) + .3, z)); pts.forEach((p, i) => im.setColorAt(i, new THREE.Color(cols[(i * 7) % 6]))); g.add(im);
+  rovers(g, 30, ELEC.fields, (i, t) => { const x = 1420 + (i % 6) * 190 + ((t * 10 + i * 9) % 40) - 20, z = 760 + Math.floor(i / 6) * 190 + ((t * 18 + i * 13) % 900); return [x, ty(x, z) + .6, z, 0]; }, 1.4); }
 
-// WORKS: sawtooth roofs, violet window bands, robot arms at work, a moving crane
-{ const g = sg('works'), m = mat(0xe4e8ef, { roughness: .45 }), x0 = -1290, z0 = 420, y = ty(x0, z0);
-  for (let i = 0; i < 3; i++) { const zz = z0 - 45 + i * 45; const b = new THREE.Mesh(new THREE.BoxGeometry(120, 18, 36), m); b.position.set(x0, y + 9, zz); g.add(b);
-    const band = new THREE.Mesh(new THREE.BoxGeometry(120.4, 2.4, 36.4), glow(ELEC.works, 2.4)); band.position.set(x0, y + 12, zz); g.add(band);
-    const teeth = []; for (let k = 0; k < 8; k++) teeth.push(x0 - 52 + k * 15); const tg = new THREE.CylinderGeometry(0, 9, 9, 3); tg.rotateZ(Math.PI / 2); tg.scale(1, 1, 4);
-    g.add(inst(tg, m, teeth, (d, x) => { d.position.set(x, y + 22.5, zz); })); }
-  const arms = []; for (let i = 0; i < 6; i++) { const a = new THREE.Group(); a.position.set(x0 - 50 + i * 20, y, z0 + 75); const base = new THREE.Mesh(new THREE.CylinderGeometry(2.2, 2.6, 2, 16), mat(0x2d2f36)); a.add(base);
-    const s1 = new THREE.Group(); s1.position.y = 2; const l1 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 12, 1.6), mat(0xffb020)); l1.position.y = 6; s1.add(l1);
-    const s2 = new THREE.Group(); s2.position.y = 12; const l2 = new THREE.Mesh(new THREE.BoxGeometry(1.3, 9, 1.3), mat(0xffb020)); l2.position.y = 4.5; s2.add(l2); const tip = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), glow(ELEC.works, 4)); tip.position.y = 9; s2.add(tip);
+// WORKS · four automated halls, robot arms, conveyor, crane, robot fleet
+{ const g = sg('works'), [x0, z0] = C.works, m = mat(0xe4e8ef, { roughness: .45 }), y = ty(x0, z0);
+  for (let i = 0; i < 4; i++) { const zz = z0 - 135 + i * 90; const b = new THREE.Mesh(new THREE.BoxGeometry(360, 26, 64), m); b.position.set(x0, y + 13, zz); g.add(b);
+    const band = new THREE.Mesh(new THREE.BoxGeometry(360.4, 3, 64.4), glow(ELEC.works, 2.4)); band.position.set(x0, y + 17, zz); g.add(band);
+    const teeth = []; for (let k = 0; k < 22; k++) teeth.push(x0 - 168 + k * 16); const tg = new THREE.CylinderGeometry(0, 10, 10, 3); tg.rotateZ(Math.PI / 2); tg.scale(1, 1, 6.2);
+    g.add(inst(tg, m, teeth, (d, x) => d.position.set(x, y + 31, zz))); }
+  const arms = []; for (let i = 0; i < 14; i++) { const a = new THREE.Group(); a.position.set(x0 - 170 + i * 26, y, z0 + 230); a.add(new THREE.Mesh(new THREE.CylinderGeometry(3, 3.4, 2, 16), mat(0x2d2f36)));
+    const s1 = new THREE.Group(); s1.position.y = 2; const l1 = new THREE.Mesh(new THREE.BoxGeometry(2, 16, 2), mat(0xffb020)); l1.position.y = 8; s1.add(l1);
+    const s2 = new THREE.Group(); s2.position.y = 16; const l2 = new THREE.Mesh(new THREE.BoxGeometry(1.6, 12, 1.6), mat(0xffb020)); l2.position.y = 6; s2.add(l2); const tip = new THREE.Mesh(new THREE.SphereGeometry(1.3, 10, 8), glow(ELEC.works, 4)); tip.position.y = 12; s2.add(tip);
     s1.add(s2); a.add(s1); g.add(a); arms.push([a, s1, s2, i]); }
+  const conv = new THREE.Mesh(new THREE.BoxGeometry(380, 1.5, 6), glow(ELEC.works, 1.4)); conv.position.set(x0, y + 1, z0 + 214); g.add(conv);
   ANIM.push((t) => arms.forEach(([a, s1, s2, i]) => { a.rotation.y = Math.sin(t * .9 + i) * 1.2; s1.rotation.z = -.5 + Math.sin(t * 1.4 + i) * .4; s2.rotation.z = -1 + Math.sin(t * 1.9 + i * 2) * .6; }));
-  const mast = new THREE.Mesh(new THREE.BoxGeometry(3, 80, 3), mat(0xffc21a)); mast.position.set(x0 + 80, y + 40, z0); g.add(mast);
-  const jib = new THREE.Group(); jib.position.set(x0 + 80, y + 80, z0); const jb = new THREE.Mesh(new THREE.BoxGeometry(70, 2.5, 2.5), mat(0xffc21a)); jb.position.x = -25; jib.add(jb); g.add(jib);
+  const mast = new THREE.Mesh(new THREE.BoxGeometry(4, 110, 4), mat(0xffc21a)); mast.position.set(x0 + 220, y + 55, z0); g.add(mast);
+  const jib = new THREE.Group(); jib.position.set(x0 + 220, y + 110, z0); const jb = new THREE.Mesh(new THREE.BoxGeometry(120, 3, 3), mat(0xffc21a)); jb.position.x = -45; jib.add(jb); g.add(jib);
   ANIM.push((t) => (jib.rotation.y = Math.sin(t * .25) * 1.4));
-  rovers(g, 8, ELEC.works, (i, t) => { const a = t * .3 + i * .785; return [x0 + Math.cos(a) * 85, y + .3, z0 + Math.sin(a) * 85, -a]; }); }
+  rovers(g, 20, ELEC.works, (i, t) => { const a = t * .15 + i * .314; return [x0 + Math.cos(a) * 240, y + .3, z0 + Math.sin(a) * 240, -a]; }, 1.5); }
 
-// DIGESTER: ribbed domes, pipes and a flickering gas flare
-{ const g = sg('digester'), m = mat(0xece5d8, { roughness: .5 }), x0 = -1260, z0 = 120, y = ty(x0, z0);
-  const ds = [0, 1, 2, 3].map((i) => [x0 + (i % 2) * 38, z0 + Math.floor(i / 2) * 38]);
-  g.add(inst(new THREE.SphereGeometry(15, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), m, ds, (d, [x, z]) => d.position.set(x, y, z)));
-  g.add(inst(new THREE.TorusGeometry(15.05, .4, 6, 48), glow(ELEC.digester, 2.4), ds, (d, [x, z]) => { d.position.set(x, y + 1, z); d.rotation.x = Math.PI / 2; }));
-  const st = new THREE.Mesh(new THREE.CylinderGeometry(1.2, 1.6, 34, 12), mat(0x9a9a9a, { metalness: .6 })); st.position.set(x0 + 70, y + 17, z0 + 19); g.add(st);
-  const flame = new THREE.Mesh(new THREE.ConeGeometry(2.6, 9, 12), glow(0xff7a1a, 4)); flame.position.set(x0 + 70, y + 38, z0 + 19); g.add(flame);
+// DIGESTER · ribbed domes, pipes, gas flare
+{ const g = sg('digester'), [x0, z0] = C.digester, m = mat(0xece5d8, { roughness: .5 }), y = ty(x0, z0);
+  const ds = []; for (let i = 0; i < 6; i++) ds.push([x0 + (i % 3) * 52, z0 + Math.floor(i / 3) * 52]);
+  g.add(inst(new THREE.SphereGeometry(20, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2), m, ds, (d, [x, z]) => d.position.set(x, y, z)));
+  g.add(inst(new THREE.TorusGeometry(20.05, .5, 6, 48), glow(ELEC.digester, 2.4), ds, (d, [x, z]) => { d.position.set(x, y + 1, z); d.rotation.x = Math.PI / 2; }));
+  const st = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 2, 46, 12), mat(0x9a9a9a, { metalness: .6 })); st.position.set(x0 + 150, y + 23, z0 + 26); g.add(st);
+  const flame = new THREE.Mesh(new THREE.ConeGeometry(3.4, 12, 12), glow(0xff7a1a, 4)); flame.position.set(x0 + 150, y + 52, z0 + 26); g.add(flame);
   ANIM.push((t) => { const k = 1 + .25 * Math.sin(t * 17) + .15 * Math.sin(t * 29); flame.scale.set(k, 1.2 * k, k); }); }
+
+// THE MIND · a superintelligence core above the Capitol, linked to every system and district
+{ const g = sg('ai'), core = new THREE.Group(); core.position.set(0, 230, 230); g.add(core);
+  const shell = new THREE.Mesh(new THREE.IcosahedronGeometry(30, 1), new THREE.MeshBasicMaterial({ color: new THREE.Color(ELEC.ai).multiplyScalar(1.1), wireframe: true, toneMapped: false, transparent: true, opacity: .8 })); core.add(shell);
+  const orb = new THREE.Mesh(new THREE.SphereGeometry(12, 32, 24), glow(0xdff4ff, 1.5)); core.add(orb);
+  const rings = [0, 1, 2].map((k) => { const r = new THREE.Mesh(new THREE.TorusGeometry(44 + k * 10, .7, 8, 96), glow(ELEC.ai, 1.4)); r.rotation.x = Math.PI / 2 + k * .5; core.add(r); return r; });
+  const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 6, 200, 16, 1, true), new THREE.MeshBasicMaterial({ color: new THREE.Color(ELEC.ai).multiplyScalar(1.6), transparent: true, opacity: .14, toneMapped: false, side: THREE.DoubleSide, depthWrite: false })); beam.position.y = -100; core.add(beam);
+  ANIM.push((t) => { shell.rotation.y = t * .3; shell.rotation.x = t * .17; rings.forEach((r, k) => (r.rotation.z = t * (.4 + k * .25))); orb.scale.setScalar(1 + .08 * Math.sin(t * 2.6)); }); }
 SYS.traverse((o) => { if (o.isMesh && !o.isInstancedMesh) { o.castShadow = true; o.receiveShadow = true; } });
 
-// live cables: light pulses travel from each system into the city
-const CABLES = [];
-const cableMat = (c) => new THREE.ShaderMaterial({ uniforms: { uT: UT, uC: { value: new THREE.Color(c) } }, transparent: true, depthWrite: false, toneMapped: false,
+// live cables with travelling light pulses
+const lineMat = (c, speed = .7) => new THREE.ShaderMaterial({ uniforms: { uT: UT, uC: { value: new THREE.Color(c) }, uS: { value: speed } }, transparent: true, depthWrite: false, toneMapped: false,
   vertexShader: 'varying vec2 vU;void main(){vU=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}',
-  fragmentShader: 'uniform float uT;uniform vec3 uC;varying vec2 vU;void main(){float p=smoothstep(.08,0.,abs(fract(vU.x*5.-uT*.7)-.5)-.38);gl_FragColor=vec4(uC*(1.1+p*4.),.55+p*.45);}' });
-const cable = (id, a, b, h) => { const A = new THREE.Vector3(a[0], ty(a[0], a[1]) + 6, a[1]), B = new THREE.Vector3(b[0], ty(b[0], b[1]) + 6, b[1]);
-  const M = A.clone().lerp(B, .5); M.y += h; const t = new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(A, M, B), 120, 2.2, 8), cableMat(ELEC[id])); SYSG[id].add(t); CABLES.push(t); };
-cable('solar', [0, 1130], [0, 640], 90); cable('solar', [-300, 1130], [-260, 560], 70); cable('wind', [-450, 1040], [-430, 420], 120);
-cable('battery', [515, 1150], [300, 560], 80); cable('desal', [1120, bayP(1180) + 50], [620, 90], 40); cable('green', [1150, 365], [700, 260], 50);
-cable('fields', [1160, 700], [760, 520], 50); cable('works', [-1230, 420], [-760, 300], 60); cable('digester', [-1200, 140], [-760, 110], 40);
+  fragmentShader: 'uniform float uT,uS;uniform vec3 uC;varying vec2 vU;void main(){float p=smoothstep(.08,0.,abs(fract(vU.x*5.-uT*uS)-.5)-.38);gl_FragColor=vec4(uC*(1.1+p*4.),.5+p*.5);}' });
+const link = (grp, c, a, b, h, r = 2.4, speed) => { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), M = A.clone().lerp(B, .5); M.y += h;
+  grp.add(new THREE.Mesh(new THREE.TubeGeometry(new THREE.QuadraticBezierCurve3(A, M, B), 140, r, 8), lineMat(c, speed))); };
+const at = (x, z, dy = 8) => [x, ty(x, z) + dy, z];
+link(SYSG.solar, ELEC.solar, at(0, 1240), at(0, 640), 140, 3); link(SYSG.solar, ELEC.solar, at(-500, 1240), at(-260, 560), 120, 3);
+link(SYSG.wind, ELEC.wind, at(-1500, 1880), at(-430, 420), 260); link(SYSG.battery, ELEC.battery, at(960, 1290), at(300, 560), 140);
+link(SYSG.desal, ELEC.desal, at(1530, bayP(1650) + 120), at(620, 90), 60); link(SYSG.green, ELEC.green, at(1400, 400), at(700, 260), 80);
+link(SYSG.fields, ELEC.fields, at(1420, 1100), at(760, 520), 90); link(SYSG.works, ELEC.works, at(-1570, 420), at(-760, 300), 90); link(SYSG.digester, ELEC.digester, at(-1500, -20), at(-760, 110), 60);
+// the mind talks to everything
+[...Object.values(C).filter((p) => p !== C.ai), ...DISTRICTS].forEach(([x, z]) => link(SYSG.ai, new THREE.Color(ELEC.ai).multiplyScalar(.32), [0, 230, 230], at(x, z, 30), 160, .9, 1.4));
+// light pools: the city areas each system powers glow in its colour
+const poolTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
+const pool = (id, x, z, r) => { const m = new THREE.MeshBasicMaterial({ map: poolTex, color: new THREE.Color(ELEC[id]).multiplyScalar(1.3), transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(r * 2, r * 2), m); p.rotation.x = -Math.PI / 2; p.position.set(x, ty(x, z) + 3, z); SYSG[id].add(p); const ph = Math.random() * 6; ANIM.push((t) => (m.opacity = .4 + .2 * Math.sin(t * 1.5 + ph))); };
+pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 300, 300); pool('battery', 300, 520, 260); pool('desal', 600, 90, 260); pool('green', 700, 260, 220); pool('fields', 760, 520, 220); pool('works', -760, 260, 280); pool('digester', -760, 110, 220); pool('ai', 0, 300, 420);
+
+// city life: trams of light on the ring, boats in the bay
+{ const tm = glow(0xfff2c8, 2.2), trams = new THREE.InstancedMesh(new THREE.BoxGeometry(24, 4, 4), tm, 10); S.add(trams); trams.visible = false;
+  const boats = new THREE.InstancedMesh(new THREE.BoxGeometry(8, 3, 22), mat(0xffffff, { roughness: .3 }), 14); boats.castShadow = true; S.add(boats); boats.visible = false;
+  ANIM.push((t) => { trams.visible = boats.visible = UP.value > .55;
+    for (let i = 0; i < 10; i++) { const a = t * .06 + i * .628; _o.position.set(DOWN[0] + Math.cos(a) * 170 * 1.35, 3, DOWN[1] + Math.sin(a) * 170); _o.rotation.set(0, -Math.atan2(Math.cos(a) * 170, -Math.sin(a) * 229.5), 0); _o.updateMatrix(); trams.setMatrixAt(i, _o.matrix); }
+    for (let i = 0; i < 14; i++) { const u = ((t * .01 + i / 14) % 1) * 2 - 1, x = u * 1500, z = bayP(x) - 140 - (i % 3) * 90; _o.position.set(x, .8 + Math.sin(t * 1.5 + i) * .3, z); _o.rotation.set(0, Math.PI / 2, 0); _o.updateMatrix(); boats.setMatrixAt(i, _o.matrix); }
+    trams.instanceMatrix.needsUpdate = boats.instanceMatrix.needsUpdate = true; }); }
 
 // ── places you can tap ──
 const P = (x, z, y = 12) => [x, Math.max(terrainP(x, z), 0) + y, z];
@@ -270,22 +318,24 @@ const ITEMS = {
   port: { cat: 'Coast', name: 'Port', pin: P(380, bayP(380) - 60, 10), desc: 'Piers, a breakwater and harbour warehouses on the east side of the bay.', stats: [['Piers', '4'], ['Warehouses', '12']] },
   lighthouse: { cat: 'Coast', name: 'Lighthouse', pin: [-980, 50, bayP(-980) - 10], desc: 'The lighthouse at the west point of the bay, the first thing you see arriving by sea.', stats: [['Height', '43 m']] },
 };
+const PIN = (k, dy) => [C[k][0], ty(...C[k]) + dy, C[k][1]];
 Object.assign(ITEMS, {
-  solar: { cat: 'Energy', name: 'Solar Field', pin: [0, ty(0, 1250) + 30, 1250], desc: 'Rows of panels behind the hills produce more electricity than the city uses in a year. The sun pays the floor of life.', stats: [['Capacity', '320 MW'], ['Share of demand', '~85%']] },
-  wind: { cat: 'Energy', name: 'Wind Ridge', pin: [-50, ty(-50, 1040) + 150, 1040], desc: 'Turbines on the ridge keep producing at night and in cloudy weeks, when the sun cannot.', stats: [['Turbines', '9'], ['Capacity', '60 MW']] },
-  battery: { cat: 'Energy', name: 'Battery Storage', pin: [515, ty(515, 1165) + 20, 1165], desc: 'Stores the afternoon sun for the night. The city can run a full day without sun or wind.', stats: [['Storage', '1.2 GWh'], ['Autonomy', '~24 h']] },
-  desal: { cat: 'Water', name: 'Desalination Plant', pin: [1150, 40, bayP(1180) + 50], desc: 'Turns sea water into drinking water with solar power. Every litre used in homes is treated and returned to the fields.', stats: [['Output', '15,000 m³/day'], ['Wastewater reused', '100%']] },
-  green: { cat: 'Food', name: 'Greenhouses', pin: [1220, 40, 365], desc: 'Glass greenhouses grow vegetables and fruit all year with recycled water and the city’s own compost.', stats: [['Area', '40 ha'], ['Harvest', 'All year']] },
-  fields: { cat: 'Food', name: 'Fields & Orchards', pin: [1230, 25, 700], desc: 'Fields and orchards for grains, fruit and olives, irrigated with treated water from the city.', stats: [['Area', '600 ha'], ['Irrigation', 'Recycled']] },
-  works: { cat: 'Automation', name: 'Automated Works', pin: [-1290, 70, 420], desc: 'The machines that make life free. Robots build homes, make goods, repair the city and run the farms around the clock. Nobody has to work to live.', stats: [['Robots', '2,400'], ['Runs', '24 / 7 on solar'], ['Hours a resident must work', '0']] },
-  digester: { cat: 'Waste', name: 'Biodigester', pin: [-1240, 40, 140], desc: 'Food scraps and sewage become biogas for kitchens and compost for the fields. Glass, metal and stone are rebuilt into the city. No landfill.', stats: [['Organic waste', '→ Gas + compost'], ['Landfill', '0']] },
+  ai: { cat: 'Superintelligence', name: 'The Mind', pin: [0, 230, 230], desc: 'The intelligence that runs Anthropos. It balances energy, water and food minute by minute, dispatches the robots, routes the trams and keeps every system in the loop. Citizens set the goals in the charter; the Mind carries them out.', stats: [['Linked systems', 'All'], ['Decisions', 'Every second'], ['Governed by', 'The charter']] },
+  solar: { cat: 'Energy', name: 'Solar Field', pin: PIN('solar', 40), desc: 'A 1.6 × 1 km field of panels behind the hills. It produces more electricity than the city uses in a year. The sun pays the floor of life.', stats: [['Size', '~160 ha'], ['Capacity', '320 MW'], ['Share of demand', '~85%']] },
+  wind: { cat: 'Energy', name: 'Wind Ridge', pin: PIN('wind', 170), desc: 'Twelve turbines on the western ridge keep producing at night and in cloudy weeks, when the sun cannot.', stats: [['Turbines', '12'], ['Hub height', '120 m'], ['Capacity', '60 MW']] },
+  battery: { cat: 'Energy', name: 'Battery Storage', pin: PIN('battery', 30), desc: 'Eighty storage containers hold the afternoon sun for the night. The city can run a full day without sun or wind.', stats: [['Storage', '1.2 GWh'], ['Autonomy', '~24 h']] },
+  desal: { cat: 'Water', name: 'Desalination Plant', pin: PIN('desal', 50), desc: 'Turns sea water into drinking water with solar power. Every litre used in homes is treated and returned to the fields.', stats: [['Output', '15,000 m³/day'], ['Wastewater reused', '100%']] },
+  green: { cat: 'Food', name: 'Greenhouses', pin: PIN('green', 40), desc: 'One hundred and twenty glass greenhouses grow vegetables and fruit all year with recycled water and the city’s own compost.', stats: [['Area', '~40 ha'], ['Harvest', 'All year']] },
+  fields: { cat: 'Food', name: 'Fields & Orchards', pin: PIN('fields', 30), desc: 'Fields and orchards for grains, fruit and olives, irrigated with treated water and tended by harvest robots.', stats: [['Area', '~100 ha'], ['Irrigation', 'Recycled']] },
+  works: { cat: 'Automation', name: 'Automated Works', pin: PIN('works', 80), desc: 'The machines that make life free. Robots build homes, make goods, repair the city and run the farms around the clock. Nobody has to work to live.', stats: [['Robots', '2,400'], ['Runs', '24 / 7 on solar'], ['Hours a resident must work', '0']] },
+  digester: { cat: 'Waste', name: 'Biodigester', pin: PIN('digester', 60), desc: 'Food scraps and sewage become biogas for kitchens and compost for the fields. Glass, metal and stone are rebuilt into the city. No landfill.', stats: [['Organic waste', '→ Gas + compost'], ['Landfill', '0']] },
 });
 const ORDER = Object.keys(ITEMS);
-const CATS = [['All', null], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
+const CATS = [['All', null], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['ai', 'solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
 
 // ── post ──
 const composer = new EffectComposer(R); composer.addPass(new RenderPass(S, cam));
-if (!MOBILE) composer.addPass(new UnrealBloomPass(new THREE.Vector2(512, 512), .7, .5, 1.5));
+if (!MOBILE) composer.addPass(new UnrealBloomPass(new THREE.Vector2(512, 512), .5, .45, 1.6));
 composer.addPass(new OutputPass());
 
 // ── controls ──
@@ -369,15 +419,15 @@ cap.innerHTML = '<span class="k" id="bk">Anthropos · 00</span><h2 id="bc">The l
 const pr = document.createElement('div'); pr.className = 'prog'; pr.innerHTML = '<i id="pi"></i>'; $('#stage').appendChild(pr);
 $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false;
 const SC = $('#scrolly'); const sizeSC = () => (SC.style.height = innerHeight * 11 + 'px'); sizeSC(); addEventListener('resize', sizeSC);
-const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester'];
-const SYS0 = .62, SYSW = .0375;
+const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester', 'ai'];
+const SYS0 = .62, SYSW = .034;
 const K = [[0, 0, 0, 400, 1800, 1200, -2.3], [.05, 0, 20, 230, 230, 110, -1.7], [.13, 0, 25, 270, 520, 260, -.3], [.24, 0, 0, 330, 1350, 950, 1.3],
   [.34, 60, 0, 480, 380, 170, 2.9], [.42, river(380), 0, 380, 260, 70, 4.2], [.5, 0, 0, -30, 650, 110, 5.3], [.58, 0, 40, 860, 620, 380, 6.5]];
-SYSORDER.forEach((id, i) => { const [x, y, z] = ITEMS[id].pin; K.push([SYS0 + (i + .5) * SYSW, x, y * .4, z, id === 'solar' || id === 'wind' ? 700 : 520, 300, 7.4 + i * .95]); });
-K.push([.95, 0, 0, 520, 2100, 1600, 15.2], [1, 0, 0, 450, 1500, 1050, 16]);
+SYSORDER.forEach((id, i) => { const [x, y, z] = ITEMS[id].pin; const RR = { solar: 1500, wind: 1100, battery: 520, desal: 800, green: 900, fields: 1200, works: 950, digester: 600, ai: 520 }[id]; K.push([SYS0 + (i + .5) * SYSW, x, id === 'ai' ? 150 : y * .3, z, RR, RR * .55, 7.4 + i * .95]); });
+K.push([.95, 0, 0, 1000, 3100, 950, 17.28], [1, 0, 0, 800, 2500, 800, 17.7]);
 const CAPS = [[0, 'The land.'], [.04, 'First, the Capitol.'], [.11, 'Downtown rises.'], [.21, 'The districts.'], [.31, 'Park and river.'], [.46, 'The coast.'], [.55, 'The hills.']];
-const SYSCAP = ['The sun pays.', 'The wind, at night.', 'Power, stored.', 'Water from the sea.', 'Food, grown here.', 'Fields and orchards.', 'Machines do the work.', 'Nothing is wasted.'];
-SYSORDER.forEach((id, i) => CAPS.push([SYS0 + i * SYSW, SYSCAP[i]])); CAPS.push([.93, 'Anthropos.']);
+const SYSCAP = ['The sun pays.', 'The wind, at night.', 'Power, stored.', 'Water from the sea.', 'Food, grown here.', 'Fields and orchards.', 'Machines do the work.', 'Nothing is wasted.', 'And a mind that runs it all.'];
+SYSORDER.forEach((id, i) => CAPS.push([SYS0 + i * SYSW, SYSCAP[i]])); CAPS.push([.94, 'Anthropos.']);
 const sm = (k) => k * k * (3 - 2 * k), clamp01 = (x) => Math.min(1, Math.max(0, x));
 const easeB = (k) => (k <= 0 ? .001 : 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2));
 function pose(q) { let i = 0; while (i < K.length - 2 && q > K[i + 1][0]) i++; const a = K[i], b = K[i + 1], k = sm(clamp01((q - a[0]) / (b[0] - a[0])));

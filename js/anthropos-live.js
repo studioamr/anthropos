@@ -60,7 +60,7 @@ const UP = { value: 0 };
 const M = ink.marks, NM = M.length;
 function btFor(count, key) { const a = new Float32Array(count); let k = 0;
   for (let v = 0; v < count; v++) { while (k < NM - 1 && v >= (M[k][key] ?? 0)) k++; a[v] = M[k].d < 0 ? 0 : k / NM; } return a; }
-const GROW = `if(distance(position.xz,vec2(120.,820.))<92.||(abs(position.x)<64.&&position.z>192.&&position.z<268.&&position.y>1.))transformed.y=-60.;float gk=clamp((uP*1.12-bt)*16.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
+const GROW = `if(position.z>-80.&&abs(position.x-(-170.+70.*sin(position.z/160.)+30.*sin(position.z/61.)))<40.&&position.y<6.)transformed.y=-60.;if(distance(position.xz,vec2(120.,820.))<92.||(abs(position.x)<64.&&position.z>192.&&position.z<268.&&position.y>1.))transformed.y=-60.;float gk=clamp((uP*1.12-bt)*16.,0.,1.);float ge=gk<=0.?0.0001:1.+2.7*pow(gk-1.,3.)+1.7*pow(gk-1.,2.);transformed.y*=max(ge,.0001);`;
 function grow(mat, key) {
   const prev = mat.onBeforeCompile; mat.customProgramCacheKey = () => 'grow' + key;
   mat.onBeforeCompile = (sh, r) => { sh.uniforms.uP = UP;
@@ -119,6 +119,42 @@ if (ink._tf) { const g = geo(ink._tf); g.computeVertexNormals(); g.setAttribute(
 { const g = geo(ink.edges); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.edges.length / 3, 'e'), 1)); city.add(new THREE.LineSegments(g, grow(new THREE.LineBasicMaterial({ color: 0x5a4a52, transparent: true, opacity: .06 }), 'e'))); }
 { const g = geo(ink.details); g.setAttribute('bt', new THREE.BufferAttribute(btFor(ink.details.length / 3, 'l'), 1)); city.add(new THREE.LineSegments(g, grow(new THREE.LineBasicMaterial({ color: 0x7a6a62, transparent: true, opacity: .1 }), 'l'))); }
 
+// ── road network: district grids, ring, radials, promenade (same rules in JS and GLSL) ──
+const PU = 58, PV = 46, ST = 11, STAD = [640, 420];
+const DTH = DISTRICTS.map((c, i) => (i ? Math.atan2(c[1] - DOWN[1], c[0] - DOWN[0]) : 0));
+const segT = (x, z, a, b) => { const dx = b[0] - a[0], dz = b[1] - a[1], L2 = dx * dx + dz * dz, t = Math.max(0, Math.min(1, ((x - a[0]) * dx + (z - a[1]) * dz) / L2)); return [Math.hypot(x - a[0] - t * dx, z - a[1] - t * dz), t, Math.sqrt(L2)]; };
+const noRoad = (x, z) => (x - PARK.x) ** 2 / (PARK.rx + 6) ** 2 + (z - PARK.z) ** 2 / (PARK.rz + 6) ** 2 < 1 || (Math.abs(x - DOWN[0]) < 90 && z > DOWN[1] - 120 && z < DOWN[1] + 58) || (Math.abs(x - DOWN[0]) < 42 && z > DOWN[1] && z < PARK.z) || Math.hypot(x - STAD[0], z - STAD[1]) < 96 || Math.hypot(x - 120, z - 820) < 96;
+function roadAt(x, z) {
+  const pz = z - bayP(x); if (pz > 52 && pz < 70 && Math.abs(x) < 1080) return 1;
+  if (pz < 50 || noRoad(x, z)) return 0;
+  let k = 0, best = 1e9; DISTRICTS.forEach((c, i) => { const d = Math.hypot(x - c[0], z - c[1]) / DRAD[i]; if (d < best) { best = d; k = i; } });
+  if (best < .98) { const c = DISTRICTS[k], th = DTH[k], qx = x - c[0], qz = z - c[1], uu = qx * Math.cos(th) + qz * Math.sin(th) - (k ? PU / 2 : 0), vv = -qx * Math.sin(th) + qz * Math.cos(th) - (k ? PV / 2 : 0);
+    const du = Math.abs(((uu / PU + .5) % 1 + 1) % 1 - .5) * PU, dv = Math.abs(((vv / PV + .5) % 1 + 1) % 1 - .5) * PV; if (du > PU / 2 - ST / 2 || dv > PV / 2 - ST / 2) return 1; }
+  if (Math.abs(Math.hypot((x - DOWN[0]) / 1.35, z - DOWN[1]) - 170) < 9) return 2;
+  for (let i = 1; i < DISTRICTS.length; i++) { const [d, t, L] = segT(x, z, DOWN, DISTRICTS[i]); if (d < 11 && t > 95 / L && t < 1 - 46 / L) return 2; }
+  return 0; }
+function roadShader(mat) { mat.customProgramCacheKey = () => 'roads';
+  mat.onBeforeCompile = (sh) => { Object.assign(sh.uniforms, { uD: { value: DISTRICTS.map((d) => new THREE.Vector2(...d)) }, uR: { value: DRAD.slice() }, uTh: { value: DTH }, uDown: { value: new THREE.Vector2(...DOWN) }, uPark: { value: new THREE.Vector4(PARK.x, PARK.z, PARK.rx, PARK.rz) } });
+    sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vRW;').replace('#include <begin_vertex>', '#include <begin_vertex>\nvRW=(modelMatrix*vec4(position,1.)).xyz;');
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', `#include <common>
+      varying vec3 vRW;uniform vec2 uD[7];uniform float uR[7];uniform float uTh[7];uniform vec2 uDown;uniform vec4 uPark;
+      float bayQ(float x){return -60.-120.*pow(x/1100.,2.)-10.*sin(x*.006);}
+      float segd(vec2 p,vec2 a,vec2 b,out float t){vec2 d=b-a;t=clamp(dot(p-a,d)/dot(d,d),0.,1.);return length(p-a-t*d);}`)
+      .replace('#include <color_fragment>', `#include <color_fragment>
+      vec2 p=vRW.xz;float road=0.,edge=0.,mark=0.;float pz=p.y-bayQ(p.x);
+      bool blocked=pow((p.x-uPark.x)/(uPark.z+6.),2.)+pow((p.y-uPark.y)/(uPark.w+6.),2.)<1.||(abs(p.x-uDown.x)<90.&&p.y>uDown.y-120.&&p.y<uDown.y+58.)||(abs(p.x-uDown.x)<42.&&p.y>uDown.y&&p.y<uPark.y)||length(p-vec2(640.,420.))<96.||length(p-vec2(120.,820.))<96.;
+      if(vRW.y>-.8&&pz>50.){
+        if(!blocked){int k=0;float best=1e9;for(int i=0;i<7;i++){float d=length(p-uD[i])/uR[i];if(d<best){best=d;k=i;}}
+          if(best<.98){vec2 c=uD[k];float th=uTh[k];vec2 q=p-c;float off=k>0?1.:0.;float uu=dot(q,vec2(cos(th),sin(th)))-off*29.,vv=dot(q,vec2(-sin(th),cos(th)))-off*23.;
+            float du=abs(fract(uu/58.+.5)-.5)*58.,dv=abs(fract(vv/46.+.5)-.5)*46.;float a=step(23.5,du),b=step(17.5,dv);road=max(a,b);
+            edge=road*(1.-max(a*step(25.,du),b*step(19.,dv)));
+            mark=max(a*step(28.85,du),b*step(22.85,dv))*step(.5,fract((a>.5?vv:uu)/6.));}
+          float rr=abs(length(vec2((p.x-uDown.x)/1.35,p.y-uDown.y))-170.);if(rr<9.){road=1.;edge=step(7.5,rr);mark=step(rr,.25)*step(.5,fract(atan(p.y-uDown.y,p.x-uDown.x)*40.));}
+          for(int i=1;i<7;i++){float t;float d=segd(p,uDown,uD[i],t);float L=length(uD[i]-uDown);if(d<11.&&t>95./L&&t<1.-46./L){road=1.;edge=step(9.5,d);mark=step(d,.25)*step(.5,fract(t*L/6.));}}}
+        if(pz>52.&&pz<70.&&abs(p.x)<1080.){road=1.;edge=step(68.,pz)+(1.-step(54.,pz));mark=0.;}}
+      diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.2,.21,.22),road);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.74,.72,.68),road*edge);diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.95,.93,.86),road*mark*(1.-edge));`); };
+  return mat; }
+
 // ── terrain surface under the drawing ──
 prog(75, 'Shaping the bay…');
 const vh = (x, z) => { const s = Math.sin(x * 127.1 + z * 311.7) * 43758.5453; return s - Math.floor(s); };
@@ -150,7 +186,7 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
     p.setY(i, y); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b;
   }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeVertexNormals();
-  const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 })); m.receiveShadow = true; S.add(m); }
+  const m = new THREE.Mesh(g, roadShader(new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 }))); m.receiveShadow = true; S.add(m); }
 // the wider world: plains, the western ridge and a mountain wall behind; the sea only in front
 { const N = MOBILE ? 200 : 360, g = new THREE.PlaneGeometry(11000, 8000, N, Math.round(N * .73)); g.rotateX(-Math.PI / 2); g.translate(0, 0, 1800);
   const p = g.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Color();
@@ -161,6 +197,19 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
     const inner = Math.abs(x) < 1690 && z > -810 && z < 1470; p.setY(i, inner ? Math.min(y, 0) - 6 : y - .45); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeVertexNormals();
   const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 })); m.receiveShadow = true; S.add(m); }
+// ── bridges: wherever a road meets both banks ──
+const BRIDGES = new THREE.Group(); S.add(BRIDGES); BRIDGES.visible = false;
+{ const deckM = new THREE.MeshStandardMaterial({ color: 0x9a978f, roughness: .7 }), topM = new THREE.MeshStandardMaterial({ color: 0x34363a, roughness: .9 }), railM = new THREE.MeshStandardMaterial({ color: 0xdedcd6, roughness: .5, metalness: .3 });
+  let run = null; const spans = [];
+  for (let z = bayP(river(0)) + 30; z <= 1040; z += 1.5) { const x = river(z), hit = roadAt(x - 30, z) && roadAt(x + 30, z);
+    if (hit && !run) run = { z0: z }; if (!hit && run) { if (z - run.z0 > 6) spans.push([run.z0, z]); run = null; } }
+  spans.forEach(([z0, z1]) => { const zc = (z0 + z1) / 2, w = z1 - z0 + 3, xc = river(zc), L = 76;
+    const deck = new THREE.Mesh(new THREE.BoxGeometry(L, 1.8, w), deckM); deck.position.set(xc, 1.6, zc); BRIDGES.add(deck);
+    const top = new THREE.Mesh(new THREE.BoxGeometry(L, .12, w - 3), topM); top.position.set(xc, 2.56, zc); BRIDGES.add(top);
+    for (const sgn of [-1, 1]) { const r = new THREE.Mesh(new THREE.BoxGeometry(L, 1.1, .35), railM); r.position.set(xc, 3.1, zc + sgn * (w / 2 - .3)); BRIDGES.add(r); }
+    for (const px of [-18, 0, 18]) { const pier = new THREE.Mesh(new THREE.CylinderGeometry(1.6, 1.9, 5, 12), deckM); pier.position.set(xc + px, -1.6, zc); BRIDGES.add(pier); } });
+  BRIDGES.traverse((o) => { if (o.isMesh) { o.castShadow = o.receiveShadow = true; } }); }
+
 // ── urban forest: trees in every street, courtyard and gap ──
 { const CS = 3, X0 = -1300, Z0 = -500, NX = Math.ceil(2600 / CS), NZ = Math.ceil(1600 / CS), occ = new Uint8Array(NX * NZ);
   const F = ink.faces;
@@ -171,7 +220,7 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
   const T = [], N = MOBILE ? 7000 : 15000; let tries = 0;
   while (T.length < N && tries++ < N * 12) { const x = X0 + Math.random() * 2600, z = Z0 + Math.random() * 1600;
     const coast = bayP(x); if (z < coast + 58) continue; const gx = Math.floor((x - X0) / CS), gz = Math.floor((z - Z0) / CS); if (occ[gz * NX + gx]) continue;
-    if (RIV(x, z) < 22 || LAKE(x, z) < 1.15) continue; if (Math.hypot(x - UNI[0], z - UNI[1]) < 95) continue;
+    if (RIV(x, z) < 22 || LAKE(x, z) < 1.15 || roadAt(x, z) || roadAt(x + 3, z) || roadAt(x - 3, z) || roadAt(x, z + 3) || roadAt(x, z - 3)) continue; if (Math.hypot(x - UNI[0], z - UNI[1]) < 95) continue;
     const inCity = DISTRICTS.some((d, k) => Math.hypot(x - d[0], z - d[1]) < DRAD[k] * 1.1); if (!inCity && Math.random() < .6) continue;
     T.push([x, HW(x, z), z, .7 + Math.random() * .9]); }
   const leafM = new THREE.MeshStandardMaterial({ roughness: .85 }), trunkM = new THREE.MeshStandardMaterial({ color: 0x6b4f38, roughness: 1 });
@@ -405,8 +454,8 @@ link(SYSG.fields, ELEC.fields, at(1420, 1100), at(760, 520), 90); link(SYSG.work
 // light pools: the city areas each system powers glow in its colour
 const poolTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
 const pool = (id, x, z, r) => { const m = new THREE.MeshBasicMaterial({ map: poolTex, color: new THREE.Color(ELEC[id]).multiplyScalar(1.3), transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
-  const p = new THREE.Mesh(new THREE.PlaneGeometry(r * 2, r * 2), m); p.rotation.x = -Math.PI / 2; p.position.set(x, ty(x, z) + 3, z); SYSG[id].add(p); const ph = Math.random() * 6; ANIM.push((t) => (m.opacity = .4 + .2 * Math.sin(t * 1.5 + ph))); };
-pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 300, 300); pool('battery', 300, 520, 260); pool('desal', 600, 90, 260); pool('green', 700, 260, 220); pool('fields', 760, 520, 220); pool('works', -760, 260, 280); pool('digester', -760, 110, 220); pool('ai', 0, 300, 420);
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(r * 2, r * 2), m); p.rotation.x = -Math.PI / 2; p.position.set(x, ty(x, z) + 3, z); SYSG[id].add(p); const ph = Math.random() * 6; ANIM.push((t) => (m.opacity = .14 + .08 * Math.sin(t * 1.5 + ph))); };
+pool('solar', 0, 560, 320); pool('solar', -260, 420, 260); pool('wind', -430, 300, 300); pool('battery', 300, 520, 260); pool('desal', 600, 90, 260); pool('green', 700, 260, 220); pool('fields', 760, 520, 220); pool('works', -760, 260, 280); pool('digester', -760, 110, 220);
 
 // city life: trams of light on the ring, boats in the bay
 { const tm = glow(0xfff2c8, 2.2), trams = new THREE.InstancedMesh(new THREE.BoxGeometry(24, 4, 4), tm, 10); S.add(trams); trams.visible = false;
@@ -573,7 +622,7 @@ new IntersectionObserver((e) => (visible = e[0].isIntersecting)).observe($('#sta
 function frame() {
   requestAnimationFrame(frame); if (!visible) return;
   const dt = Math.min(clock.getDelta(), .05);
-  water.material.uniforms.time.value += dt * .4; buildTick(dt); blades.forEach((b, i) => (b.rotation.z += dt * (1 + i * .05))); UT.value += dt; ANIM.forEach((f) => f(UT.value));
+  water.material.uniforms.time.value += dt * .4; BRIDGES.visible = UP.value > .3; buildTick(dt); blades.forEach((b, i) => (b.rotation.z += dt * (1 + i * .05))); UT.value += dt; ANIM.forEach((f) => f(UT.value));
   const w = canvas.clientWidth, h = canvas.clientHeight;
   ORDER.forEach((id) => { const e = pinEls[id]; tv.set(...ITEMS[id].pin).project(cam); const vis = tv.z < 1 && Math.abs(tv.x) < 1.02 && Math.abs(tv.y) < 1.02;
     e.classList.toggle('hide', !vis); e.classList.toggle('dimmed', !!filter && !filter.includes(id)); e.style.transform = `translate(${(tv.x * .5 + .5) * w - 9}px,${(-tv.y * .5 + .5) * h - 9}px)`; });

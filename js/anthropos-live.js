@@ -11,7 +11,7 @@ import { buildPolis, bayP, terrainP, river, PARK, DISTRICTS, DRAD, DOWN } from '
 
 const $ = (s) => document.querySelector(s);
 const MOBILE = matchMedia('(max-width:760px)').matches || matchMedia('(hover:none)').matches;
-const prog = (p, t) => { $('#lb').style.width = p + '%'; if (t) $('#lt').textContent = t; };
+const prog = (p) => { $('#lb').style.width = p + '%'; };
 
 // grain
 (() => { const c = $('#grain'), x = c.getContext('2d'); c.width = 256; c.height = 256; const id = x.createImageData(256, 256);
@@ -293,7 +293,7 @@ function buildTick(dt) {
     if (build.t - BUILD_T > SYSORDER.length * .9 + 2.5) finishBuild(); }
   sysPop.forEach((s) => { s.t += dt; const k = Math.min(1, s.t / .7); s.g.scale.y = Math.max(.001, ease(k)); });
 }
-prog(100, 'Ready'); setTimeout(() => $('#load').classList.add('gone'), 400);
+prog(100); build.t = -1.8 - 3.6; setTimeout(() => $('#load').classList.add('gone'), 3600);
 frame();
 
 $('#f').onsubmit = (e) => { e.preventDefault(); location.href = 'mailto:hello@anthroposcities.com?subject=Founding%20citizen&body=' + encodeURIComponent(e.target[0].value); $('#ok').textContent = 'Thank you. Your mail app will open to confirm.'; };

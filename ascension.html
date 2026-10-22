@@ -29,7 +29,11 @@ sup{font-size:.45em;vertical-align:top;position:relative;top:.2em;margin-left:.0
 
 #load{position:absolute;inset:0;z-index:40;background:#071a33;display:grid;place-items:center;transition:opacity 1.4s,visibility 0s 1.4s}
 #load.gone{opacity:0;visibility:hidden}
-#load .w{font-weight:900;font-size:16px;letter-spacing:-.04em}
+#load .ph{text-align:center;padding:0 var(--g)}
+#load .ph p{font-size:clamp(30px,5.2vw,84px);font-weight:600;letter-spacing:-.05em;line-height:1.02;opacity:0;transform:translateY(24px);filter:blur(8px);animation:ph 1.2s cubic-bezier(.2,.7,.2,1) forwards}
+#load .ph .l1{animation-delay:.2s}#load .ph .l2{animation-delay:1s;background:linear-gradient(180deg,#fff,#9fb8d4);-webkit-background-clip:text;color:transparent;padding-bottom:.08em}
+#load .ph .l3{animation-delay:2.1s;font-size:clamp(14px,1.4vw,20px);font-weight:500;letter-spacing:.02em;color:var(--dim);margin-top:1.2em}
+@keyframes ph{to{opacity:1;transform:none;filter:none}}
 #load .bar{position:absolute;left:var(--g);right:var(--g);bottom:var(--g);height:1px;background:var(--line)}
 #load .bar i{display:block;height:100%;width:0;background:#fff;transition:width .3s}
 #load .t{position:absolute;left:var(--g);bottom:calc(var(--g) + 10px);font-size:11px;color:var(--dim)}
@@ -166,7 +170,7 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
   <div id="pins"></div>
   <div class="tourbar" id="tourbar"></div>
 
-  <div id="load"><span class="w">NORTHPOINT CITIES</span><span class="t" id="lt">Building the city…</span><div class="bar"><i id="lb"></i></div></div>
+  <div id="load"><div class="ph"><p class="l1">Every civilization began</p><p class="l2">on empty land.</p><p class="l3">This is how ours rises.</p></div><span class="t" id="lt">Anthropos · NorthPoint Cities</span><div class="bar"><i id="lb"></i></div></div>
 
   <nav>
     <a class="brand" href="#">NORTHPOINT CITIES<sup>®</sup></a>
@@ -228,6 +232,6 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
   <div class="bw">ANTHROPOS</div>
 </footer>
 
-<script type="module" src="js/anthropos-live.js"></script>
+<script type="module" src="js/anthropos-live.js?v=3"></script>
 </body>
 </html>

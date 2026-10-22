@@ -144,6 +144,38 @@ footer{display:grid;grid-template-columns:repeat(6,1fr);gap:var(--g);padding:var
 footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.075em;line-height:.8;margin:6vh 0 2vh;background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent;white-space:nowrap}
 
 
+
+.flow{position:relative;margin-top:8vh}
+.flowline{position:absolute;left:0;right:0;top:-30px;width:100%;height:calc(100% + 60px);pointer-events:none}
+.runner{animation:run 9s linear infinite}@keyframes run{to{stroke-dashoffset:-2720}}
+.steps{list-style:none;display:grid;grid-template-columns:repeat(6,1fr);position:relative}
+.steps li{padding:28px 18px 28px 22px;border-left:1px solid rgba(255,255,255,.14)}
+.steps i{font-style:normal;font-size:clamp(34px,3.6vw,60px);font-weight:600;letter-spacing:-.04em;background:linear-gradient(180deg,#fff,#7d828e);-webkit-background-clip:text;color:transparent;display:block}
+.steps strong{display:block;font-size:20px;letter-spacing:-.02em;margin:.5em 0 .4em}.steps span{font-size:13px;line-height:1.5;color:rgba(255,255,255,.6)}
+.cols3{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:4vw;margin-top:4vh}
+.facts{list-style:none;border-top:1px solid var(--line)}.facts li{display:flex;justify-content:space-between;gap:12px;padding:14px 0;border-bottom:1px solid var(--line);font-size:14px}.facts span{color:rgba(255,255,255,.6)}.facts em{font-style:normal;font-weight:600}
+.walk{border:1px solid var(--line);margin-top:2vh}
+.tabs{display:flex;border-bottom:1px solid var(--line)}.tabs button{all:unset;cursor:pointer;flex:1;padding:16px 20px;font-size:13px;color:rgba(255,255,255,.6);border-right:1px solid var(--line);transition:.3s}.tabs button:last-child{border:0}.tabs button.on{color:#000;background:#fff}
+.panes{position:relative;min-height:300px}.pane{position:absolute;inset:0;padding:34px;opacity:0;transform:translateY(10px);transition:.5s;pointer-events:none}.pane.on{opacity:1;transform:none;pointer-events:auto}
+.pane h3{font-size:clamp(22px,2.2vw,32px);letter-spacing:-.03em}.pane p{color:rgba(255,255,255,.7);margin:.6em 0 1.6em;max-width:60ch}
+.bars div{display:grid;grid-template-columns:200px 1fr 50px;gap:14px;align-items:center;padding:8px 0;font-size:13px}.bars i{height:4px;background:rgba(255,255,255,.12);position:relative}.bars i:after{content:"";position:absolute;inset:0;width:var(--w);background:#fff;transition:width 1.2s}.bars em{font-style:normal;text-align:right}
+.prop{display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line)}.prop div{padding:18px;border-right:1px solid var(--line)}.prop div:last-child{border:0}.prop b{display:block;font-size:12px;color:rgba(255,255,255,.55);margin-bottom:6px;font-weight:500}
+.tl{list-style:none;display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid #fff}.tl li{padding:14px 10px 0 0;font-size:15px}.tl b{display:block;font-size:11px;color:rgba(255,255,255,.55);font-weight:500;margin-bottom:4px}
+.cardwrap{perspective:1200px;display:flex;flex-direction:column;align-items:center;gap:18px}
+.ccard{width:min(420px,86vw);aspect-ratio:1.586;position:relative;transform-style:preserve-3d;transition:transform .9s cubic-bezier(.2,.7,.2,1);cursor:pointer}
+.ccard.flip{transform:rotateY(180deg)}
+.cf{position:absolute;inset:0;border-radius:16px;backface-visibility:hidden;padding:24px;background:linear-gradient(135deg,#f4f5f7 0%,#9aa0ab 35%,#e9ebee 55%,#6f7480 80%,#d9dce1 100%);color:#15171b;box-shadow:0 30px 60px rgba(0,0,0,.45),inset 0 1px 0 rgba(255,255,255,.8);overflow:hidden}
+.cf:after{content:"";position:absolute;inset:0;background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.55) 45%,transparent 60%);transform:translateX(var(--sh,-60%));transition:transform .3s}
+.cf .cl{font-weight:900;letter-spacing:-.04em;font-size:22px}.cf .cn{position:absolute;left:24px;bottom:52px;font-size:15px;font-weight:600}.cf .cno{position:absolute;left:24px;bottom:28px;font-size:12px;letter-spacing:.2em}
+.cf .chip{position:absolute;right:24px;top:70px;width:48px;height:36px;border-radius:6px;background:linear-gradient(135deg,#d9c38a,#8a7340)}.cf .cy{position:absolute;right:24px;bottom:28px;font-size:11px;letter-spacing:.3em}
+.cf.back{transform:rotateY(180deg)}.cf.back p{margin-top:28px;font-size:14px;line-height:1.5;max-width:30ch}
+.cbtn{display:flex;gap:8px}.cbtn button{all:unset;cursor:pointer;border:1px solid var(--line);padding:8px 16px;font-size:12px}.cbtn button:hover{border-color:#fff}
+.feat{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:4vh}.feat article{border-top:1px solid #fff;padding-top:18px}.feat b{font-size:11px;color:rgba(255,255,255,.5)}.feat h3{font-size:19px;letter-spacing:-.02em;margin:.5em 0}.feat p{font-size:14px;line-height:1.5;color:rgba(255,255,255,.65)}
+.cta{display:inline-block;margin-top:6vh;border:1px solid #fff;padding:14px 22px;font-size:14px;transition:.3s}.cta:hover{background:#fff;color:#000}
+.ideas{border-top:1px solid var(--line);margin-top:3vh}.ideas a{display:grid;grid-template-columns:120px 1fr auto;align-items:baseline;padding:22px 0;border-bottom:1px solid var(--line);transition:padding .4s}.ideas a:hover{padding-left:14px}
+.ideas span{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:rgba(255,255,255,.55)}.ideas b{font-size:clamp(22px,2.6vw,40px);letter-spacing:-.04em;font-weight:600}.ideas i{font-style:normal;font-size:22px}
+@media(max-width:760px){.steps{grid-template-columns:1fr 1fr}.flowline{display:none}.cols3,.feat{grid-template-columns:1fr}.bars div{grid-template-columns:120px 1fr 40px}.prop,.tl{grid-template-columns:1fr}.tabs{flex-direction:column}.ideas a{grid-template-columns:1fr auto}.ideas span{display:none}}
+
 /* editorial sections */
 .ed{padding:18vh var(--g);border-top:1px solid var(--line);position:relative;overflow:hidden}
 .ed-in{max-width:1240px;margin:0 auto}
@@ -253,88 +285,124 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
 
 <section class="ed loopx" id="loop">
   <div class="ed-in">
-    <div class="ed-k rv">03 · The loop</div>
+    <div class="ed-k rv">The loop</div>
     <h2 class="ed-h rv">One closed circle,<br>from the sun back to the soil.</h2>
-    <div class="loopwrap">
-      <svg class="ring rv" viewBox="0 0 600 600" aria-hidden="true">
-        <defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#2f7bff"/><stop offset=".35" stop-color="#00d9ff"/><stop offset=".6" stop-color="#7dff2e"/><stop offset=".85" stop-color="#ff8a1f"/><stop offset="1" stop-color="#2f7bff"/></linearGradient></defs>
-        <circle cx="300" cy="300" r="220" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="44"/>
-        <circle class="arc" cx="300" cy="300" r="220" fill="none" stroke="url(#lg)" stroke-width="3" stroke-dasharray="6 10"/>
-        <circle class="spark" r="7" fill="#fff"><animateMotion dur="9s" repeatCount="indefinite" path="M300,80 a220,220 0 1,1 -0.1,0"/></circle>
-        <text x="300" y="292" text-anchor="middle" class="rt">ANTHROPOS</text><text x="300" y="322" text-anchor="middle" class="rs">runs on its own loop</text>
+    <div class="flow rv">
+      <svg class="flowline" viewBox="0 0 1200 260" preserveAspectRatio="none" aria-hidden="true">
+        <path id="fl" d="M40 60 H1160 C1200 60 1200 220 1160 220 H40 C0 220 0 60 40 60" fill="none" stroke="rgba(255,255,255,.22)" stroke-width="1"/>
+        <path d="M40 60 H1160 C1200 60 1200 220 1160 220 H40 C0 220 0 60 40 60" fill="none" stroke="#fff" stroke-width="1.4" stroke-dasharray="120 2600" class="runner"/>
       </svg>
-      <ol class="nodes">
-        <li style="--c:#2f7bff;--a:-90deg"><b>01</b><strong>Sun</strong><span>Solar field + wind ridge</span></li>
-        <li style="--c:#ff2bd6;--a:-30deg"><b>02</b><strong>Power</strong><span>Microgrid + batteries</span></li>
-        <li style="--c:#00d9ff;--a:30deg"><b>03</b><strong>Water</strong><span>Desalination + rain</span></li>
-        <li style="--c:#7dff2e;--a:90deg"><b>04</b><strong>Food</strong><span>Greenhouses + fields + bay</span></li>
-        <li style="--c:#ff8a1f;--a:150deg"><b>05</b><strong>Waste</strong><span>Sorting + biodigester</span></li>
-        <li style="--c:#c8ff3a;--a:210deg"><b>06</b><strong>Soil</strong><span>Compost back to the fields</span></li>
+      <ol class="steps">
+        <li><i>I</i><strong>Sun</strong><span>A solar field and a wind ridge make more power than the city uses.</span></li>
+        <li><i>II</i><strong>Power</strong><span>A microgrid and batteries carry the afternoon into the night.</span></li>
+        <li><i>III</i><strong>Water</strong><span>The sea and the rain become drinking water, and every litre is reused.</span></li>
+        <li><i>IV</i><strong>Food</strong><span>Greenhouses, fields and the bay feed the city within sight.</span></li>
+        <li><i>V</i><strong>Waste</strong><span>Nothing leaves: scraps become gas, materials become buildings.</span></li>
+        <li><i>VI</i><strong>Soil</strong><span>Compost returns to the fields, and the circle begins again.</span></li>
       </ol>
     </div>
   </div>
 </section>
 
-<section class="ed" id="return">
+<section class="ed" id="residences">
   <div class="ed-in two">
-    <div><div class="ed-k rv">01 · The return</div><h2 class="ed-h chrome rv">Rome gave the world the forum, the bath, the theater and the stadium.</h2></div>
-    <div class="ed-p rv"><p class="lead">The factory took them away. Superintelligence will give them back.</p>
-      <p>For most of history, a free life was lived in public: arguing in the forum, training in the gymnasium, bathing, making art, governing the city. The Industrial Revolution traded that life for a wage. Anthropos is a bet that the trade is about to be reversed.</p></div>
+    <div><div class="ed-k rv">Anthropos I · Residences</div><h2 class="ed-h chrome rv">Residences and resorts built to last centuries.</h2></div>
+    <div class="ed-p rv"><p class="lead">Modern architecture with classical discipline. Stone, bronze, timber and water.</p>
+      <p>Our first project is a coastal neighbourhood of private residences, a resort and members’ clubs, built to the standard of the world’s finest hotels and designed to outlive their builders. Every home has a garden, a view of the sea and the forum within a short walk.</p></div>
   </div>
 </section>
 
-<section class="ed" id="after">
+<section class="ed" id="phase">
   <div class="ed-in">
-    <div class="ed-k rv">02 · After labor</div>
-    <h2 class="ed-h chrome big rv">A human on earth.</h2>
-    <p class="ed-p wide rv">Two hundred years ago we left the fields and the forums for the factory. We learned to live by the clock, to commute, to call ourselves by our jobs. Superintelligence and abundant energy can end that arrangement. We are building the first cities designed for what comes after it.</p>
-    <div class="eras">
-      <article class="rv"><i>I</i><h3>Before the factory</h3><p>Life was organized around family, faith, the city and the seasons. Work was part of a day, not the whole of a life. A Roman citizen spent the afternoon in the baths, the forum and the theater.</p></article>
-      <article class="rv"><i>II</i><h3>The Industrial Revolution</h3><p>The steam engine moved people from the land to the mill. Time began to belong to the clock. Cities were built around jobs, families scattered to follow wages, and a person became what they did for a living. We still live inside that arrangement.</p></article>
-      <article class="rv"><i>III</i><h3>Self-sustaining cities</h3><p>Machines and superintelligence can now run what the factory needed us for. An Anthropos city makes its own energy from the sun, its own water from the sea, its own food from autonomous farms, and runs its services with intelligent systems. The city works so its citizens don’t have to.</p></article>
-      <article class="rv"><i>IV</i><h3>The return</h3><p>Freed from labor, we return to what Rome understood: the forum, the bath, the theater, the gymnasium, the academy. A life measured by excellence, beauty, friendship and the common good. Not leisure. Purpose.</p></article>
+    <div class="ed-k rv">Phase I</div>
+    <h2 class="ed-h chrome big rv">Starting by the sea.</h2>
+    <div class="cols3">
+      <p class="ed-p rv">A coastal quarter with private residences, a resort, and spaces for art and music. The first residents move in while the rest of the city takes shape around them.</p>
+      <ul class="facts rv"><li><span>Homes</span><em>~400</em></li><li><span>Resort</span><em>120 keys</em></li><li><span>Members’ club</span><em>1</em></li><li><span>Site</span><em>Under evaluation</em></li></ul>
+      <ul class="facts rv"><li><span>Energy</span><em>Solar from day one</em></li><li><span>Water</span><em>Desalinated + recycled</em></li><li><span>Streets</span><em>Car-free</em></li><li><span>Opening</span><em>After land is secured</em></li></ul>
     </div>
   </div>
 </section>
 
-<section class="ed" id="why">
+<section class="ed" id="mind">
   <div class="ed-in">
-    <div class="ed-k rv">04 · The opportunity</div>
-    <h2 class="ed-h chrome big rv">Why now.</h2>
-    <p class="ed-p wide rv">The superintelligence economy is about to create more wealth, and more free time, than any economy in history. Almost nobody is building the places where that life will be lived.</p>
-    <div class="cards">
-      <article class="rv"><b>01</b><h3>Work is ending</h3><p>Intelligent systems are automating knowledge and service work faster than any previous technology. Millions of people will need a new answer to how and where to live.</p></article>
-      <article class="rv"><b>02</b><h3>Wealth is concentrating</h3><p>The founders, engineers and investors of this economy are accumulating unprecedented wealth, and they are looking for places worth belonging to.</p></article>
-      <article class="rv"><b>03</b><h3>Great places are scarce</h3><p>As wealth grows, exceptional land with a living culture becomes the scarcest asset of all. A city with a soul cannot be copied.</p></article>
+    <div class="ed-k rv">A self-governing city</div>
+    <h2 class="ed-h chrome rv">Superintelligence for collective action.</h2>
+    <p class="ed-p wide rv">Anthropos uses superintelligence to understand its citizens, coordinate shared goals and improve with every campaign. It proposes; people decide. Everything it does is bound by a written charter and human oversight.</p>
+    <div class="walk rv">
+      <div class="tabs"><button class="on" data-s="0">I · Gather preferences</button><button data-s="1">II · Draft a proposal</button><button data-s="2">III · Execute</button></div>
+      <div class="panes">
+        <div class="pane on"><h3>Who would move, and what would it take?</h3><p>The Mind connects friends, budgets and shared needs to find the city’s first residents.</p>
+          <div class="bars"><div><span>Homes by the sea</span><i style="--w:86%"></i><em>86%</em></div><div><span>A school for the kids</span><i style="--w:71%"></i><em>71%</em></div><div><span>A studio for artists</span><i style="--w:58%"></i><em>58%</em></div><div><span>A members’ club</span><i style="--w:44%"></i><em>44%</em></div></div></div>
+        <div class="pane"><h3>A plan everyone can read.</h3><p>Preferences become a costed proposal: what to build, where, in what order and who pays.</p>
+          <div class="prop"><div><b>Proposal 014</b><span>First quarter · 400 homes, school, studios</span></div><div><b>Budget</b><span>Within the Phase I envelope</span></div><div><b>Vote</b><span>Citizens · 14 days</span></div></div></div>
+        <div class="pane"><h3>Then the city builds it.</h3><p>Once approved, the Mind dispatches the work: robots, suppliers and permits, with every step logged and public.</p>
+          <ol class="tl"><li><b>Week 1</b>Site prepared</li><li><b>Month 3</b>Foundations</li><li><b>Month 9</b>First homes</li><li><b>Month 14</b>Residents move in</li></ol></div>
+      </div>
     </div>
-    <div class="earn rv"><div><span class="ed-k">A new kind of city company</span><p>Anthropos holds the master plan, the brand and the community, and earns across the whole life of the city.</p></div>
-      <ul><li>Residences</li><li>Resorts &amp; hospitality</li><li>Citizenship &amp; membership</li><li>Energy, water &amp; data services</li><li>Land value</li></ul></div>
   </div>
 </section>
 
-<section class="ed" id="life">
+<section class="ed" id="culture">
   <div class="ed-in two">
-    <div><div class="ed-k rv">05 · Life in Anthropos</div><h2 class="ed-h chrome rv">A society, not a development.</h2></div>
-    <div class="ed-p rv"><p class="lead">Founders, artists, musicians, athletes and scholars, living side by side.</p><p>Dinners that run late, music in the courtyards, the sea every morning, an argument in the forum every afternoon. This is the life the city is designed around, and the reason people will move to it.</p></div>
+    <div><div class="ed-k rv">Life in practice</div><h2 class="ed-h chrome rv">Turning new wealth into culture.</h2></div>
+    <div class="ed-p rv"><p class="lead">A home for a new generation of founders, artists, musicians and designers.</p>
+      <p>The people building the superintelligence economy want a culture to belong to. Anthropos brings them together to turn that wealth into art, music, film, food and nightlife, and into the rooms where all of it happens.</p></div>
   </div>
 </section>
 
-<section class="ed decl" id="declaration">
-  <div class="ed-in">
-    <div class="ed-k rv">06 · Declaration</div>
-    <h2 class="dh rv">Declaration of Return</h2><div class="dy rv">MMXXVI</div>
-    <div class="dt">
-      <p class="rv first">When the work that once filled a human life can be done by machines, a people may choose what to do with the life that is returned to them. We choose to build.</p>
-      <p class="rv">We hold that a life is not measured by its output; that the city exists for its citizens and not for its economy; and that every generation is free to found the institutions its age makes possible.</p>
-      <p class="rv">For two centuries our cities were organized around the factory and the office. They taught us to live by the clock, to scatter our families after wages, and to name ourselves by our jobs. That order is ending.</p>
-      <p class="rv">We, the founding citizens of Anthropos, declare our intent to build self-sustaining cities: cities that make their own energy, water and food, run their services with intelligent systems, and give their people the time that labor took.</p>
-      <p class="rv">We look back to Rome not for its conquests but for its forum, its baths, its theaters and its schools: the rooms where free people became excellent together. We mean to build those rooms again.</p>
-      <ol class="vows rv"><li>To cultivate excellence, beauty and friendship in every part of life.</li><li>To build cities that sustain themselves and serve their citizens.</li><li>To keep every binding decision in human hands, under a written charter.</li><li>To welcome anyone who shares these aims, whatever their origin.</li><li>To live under the laws of every country that hosts us, and to enrich it.</li><li>To pass these cities on, better than we found them, to those who come after.</li></ol>
-      <p class="sig rv">Signed by the founding citizens of Anthropos, in the year two thousand and twenty-six.</p>
-    </div>
-    <p class="note">Concept model. Figures are design targets for a city of 100,000 residents, not a built project. This page does not offer securities, tokens or returns.</p>
+<section class="ed" id="card">
+  <div class="ed-in two">
+    <div class="cardwrap rv"><div class="ccard" id="ccard"><div class="cf front"><span class="cl">ANTHROPOS</span><span class="cn">Founding Citizen</span><span class="cno">No. 0001</span><span class="chip"></span><span class="cy">MMXXVI</span></div>
+      <div class="cf back"><span class="cl">ANTHROPOS</span><p>The bearer is a founding citizen of Anthropos, entitled to its forum, its baths, its schools and its vote, under the charter.</p><span class="cy">Valid for life</span></div></div>
+      <div class="cbtn"><button id="flip">Flip</button><button id="tilt">Reset</button></div></div>
+    <div><div class="ed-k rv">Citizenship</div><h2 class="ed-h chrome rv">The Founding Citizen card.</h2>
+      <p class="ed-p rv">Included with founding membership. Your key to the forum, the baths, the schools and the vote, in every Anthropos city.</p></div>
   </div>
 </section>
+
+<section class="ed" id="member">
+  <div class="ed-in">
+    <div class="ed-k rv">Membership</div>
+    <h2 class="ed-h chrome rv">The Anthropos app connects the community, online and around the world.</h2>
+    <div class="feat">
+      <article class="rv"><b>01</b><h3>Private messaging</h3><p>End-to-end encrypted conversations between members.</p></article>
+      <article class="rv"><b>02</b><h3>Introductions</h3><p>The Mind introduces members who should meet and helps run community life.</p></article>
+      <article class="rv"><b>03</b><h3>Campaigns</h3><p>Join collective efforts and build alongside other citizens.</p></article>
+      <article class="rv"><b>04</b><h3>Events and spaces</h3><p>Meet members in cities around the world.</p></article>
+    </div>
+    <a class="cta rv" href="#join">Join Anthropos →</a>
+  </div>
+</section>
+
+<section class="ed" id="realestate">
+  <div class="ed-in two">
+    <div><div class="ed-k rv">Development</div><h2 class="ed-h chrome rv">Real estate in the age of superintelligence.</h2></div>
+    <div class="ed-p rv"><p class="lead">As superintelligence creates more wealth, the best places to live stay scarce.</p><p>We believe that makes exceptional land more valuable over time. Anthropos plans to acquire land and develop homes, neighbourhoods and cities around a shared culture.</p></div>
+  </div>
+</section>
+
+<section class="ed" id="gov">
+  <div class="ed-in two">
+    <div><div class="ed-k rv">Government partnerships</div><h2 class="ed-h chrome rv">Bring the superintelligence economy to your country.</h2></div>
+    <div class="ed-p rv"><p class="lead">Partner with Anthropos to attract foreign investment, superintelligence companies and the people shaping technology and culture.</p><p>Our ambition is to turn the wealth of this new economy into new companies, new jobs and places where people want to live, under the laws of every country that hosts us.</p></div>
+  </div>
+</section>
+
+<section class="ed" id="ideas">
+  <div class="ed-in">
+    <div class="ed-k rv">Ideas</div>
+    <div class="ideas">
+      <a class="rv" href="article.html?a=thinking-state"><span>Essay</span><b>The Thinking State</b><i>→</i></a>
+      <a class="rv" href="article.html?a=after-the-office"><span>Essay</span><b>After the Office</b><i>→</i></a>
+      <a class="rv" href="article.html?a=the-last-committee"><span>Essay</span><b>The Last Committee</b><i>→</i></a>
+      <a class="rv" href="article.html?a=charter"><span>Charter</span><b>Draft Charter, Version One</b><i>→</i></a>
+    </div>
+    <a class="cta rv" href="content.html">All content →</a>
+    <p class="note">Concept model. Figures are design targets, not a built project. This page does not offer securities, tokens or returns.</p>
+  </div>
+</section>
+
 
 
 <section class="join" id="join">
@@ -349,6 +417,9 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
 </footer>
 
 <script>{const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.15});document.querySelectorAll(".rv").forEach(el=>io.observe(el))}</script>
+<script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
+const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
+c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
 <script type="module" src="js/anthropos-live.js?v=25"></script>
 </body>
 </html>

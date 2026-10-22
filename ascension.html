@@ -27,17 +27,7 @@ sup{font-size:.45em;vertical-align:top;position:relative;top:.2em;margin-left:.0
 #grain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.05;mix-blend-mode:overlay;z-index:4}
 .shade{position:absolute;inset:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(6,20,40,.55),transparent 18%,transparent 62%,rgba(6,20,40,.7)),linear-gradient(90deg,rgba(6,20,40,.6),transparent 45%)}
 
-#load{position:fixed;inset:0;z-index:200;background:#071a33;display:grid;place-items:center;transition:opacity 1.4s,visibility 0s 1.4s}
-#load.gone{opacity:0;visibility:hidden}
-#load .ph{text-align:center;padding:0 var(--g)}
-#load .ph p{font-size:clamp(54px,13vw,240px);font-weight:900;letter-spacing:-.075em;line-height:.82;background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent;padding:0 .04em .06em 0;opacity:0;transform:translateY(40px) scale(1.04);filter:blur(10px);animation:ph 1.3s cubic-bezier(.2,.7,.2,1) forwards}
-#load .ph .l1{animation-delay:.2s}#load .ph .l1.b{animation-delay:.75s}#load .ph .l2{animation-delay:1.35s}
-#load .ph .l3{animation-delay:2.4s;font-size:clamp(13px,1.3vw,18px);font-weight:500;letter-spacing:.04em;line-height:1.3;background:none;color:rgba(255,255,255,.7);margin-top:1.6em}
-#load{background:#05080d}
 @keyframes ph{to{opacity:1;transform:none;filter:none}}
-#load .bar{position:absolute;left:var(--g);right:var(--g);bottom:var(--g);height:1px;background:var(--line)}
-#load .bar i{display:block;height:100%;width:0;background:#fff;transition:width .3s}
-#load .t{position:absolute;left:var(--g);bottom:calc(var(--g) + 10px);font-size:11px;color:var(--dim)}
 
 nav{position:absolute;top:0;left:0;right:0;z-index:20;display:grid;grid-template-columns:1fr 1fr 1fr 2fr 1fr;gap:var(--g);padding:var(--g);font-size:12px}
 nav .brand{font-weight:900;letter-spacing:-.03em}
@@ -225,6 +215,23 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 .ix-sec .ix-h,.ix-sec .ix-p,.ix-sec figure{opacity:0;transform:translateY(30px);transition:opacity 1.1s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.2,.7,.2,1)}.ix-sec.in .ix-h,.ix-sec.in .ix-p,.ix-sec.in figure{opacity:1;transform:none}
 .ix-sec.in figure:nth-child(2){transition-delay:.12s}.ix-sec.in figure:nth-child(3){transition-delay:.24s}.ix-sec.in figure:nth-child(4){transition-delay:.36s}
 @media(max-width:760px){.ix-in.two,.ix-grid3{grid-template-columns:1fr}.ix-grid4{grid-template-columns:1fr 1fr}}
+#load{position:fixed;inset:0;z-index:200;background:#05080d;display:grid;place-items:center;overflow:hidden;transition:transform 1.25s cubic-bezier(.76,0,.24,1),visibility 0s 1.3s}
+#load.out{transform:translateY(-100%);visibility:hidden}
+#load .ph{text-align:center;padding:0 var(--g);transition:transform 1.25s cubic-bezier(.76,0,.24,1)}#load.out .ph{transform:translateY(30vh)}
+#load .ln{display:block;line-height:.86}
+#load .w{display:inline-block;overflow:hidden;vertical-align:top;padding:0 .02em .07em;margin:0 .06em}
+#load .w i{display:inline-block;font-style:normal;font-size:clamp(54px,13vw,240px);font-weight:900;letter-spacing:-.075em;transform:translateY(110%) rotate(4deg);background:linear-gradient(100deg,#7d828e 0%,#fff 22%,#9aa0b0 45%,#2a2c33 62%,#e9ebee 80%,#fff 100%);background-size:250% 100%;background-position:100% 0;-webkit-background-clip:text;color:transparent;will-change:transform}
+#load.go .w i{animation:wup 1.05s cubic-bezier(.16,1,.3,1) forwards,sheen 2.6s cubic-bezier(.4,0,.2,1) forwards;animation-delay:var(--d),calc(var(--d) + .4s)}
+@keyframes wup{to{transform:none}}@keyframes sheen{to{background-position:0 0}}
+#load .bar{position:absolute;left:var(--g);right:var(--g);bottom:var(--g);height:1px;background:rgba(255,255,255,.12)}
+#load .bar i{display:block;height:100%;width:0;background:#fff;transition:width .3s}
+#load.go .bar{opacity:0;transition:opacity .6s}
+.ix-sec{position:sticky;top:0;height:100vh;height:100svh;display:flex;align-items:center;overflow:hidden;scroll-snap-align:start;box-shadow:0 -40px 80px rgba(0,0,0,.18);padding:10vh var(--g)}
+.ix-sec>.ix-in{width:100%;transform-origin:50% 0;will-change:transform,filter}
+.ix-sec.dark{background:#0d1014;color:#f3f1ec}.ix-sec.dark .ix-p,.ix-sec.dark p{color:rgba(243,241,236,.7)!important}.ix-sec.stone{background:#e6e1d6}
+.ix-grid4 .ixi{aspect-ratio:4/3}
+html{scroll-snap-type:y proximity}
+.ix-gate{scroll-snap-align:start;position:relative;z-index:2}
 /* editorial sections */
 .ed{padding:18vh var(--g);border-top:1px solid var(--line);position:relative;overflow:hidden}
 .ed-in{max-width:1240px;margin:0 auto}
@@ -286,7 +293,7 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 </script>
 </head>
 <body>
-<div id="load"><div class="ph"><p class="l1">WE WERE</p><p class="l1 b">NOT BORN</p><p class="l2">TO WORK.</p></div><div class="bar"><i id="lb"></i></div></div>
+<div id="load"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.15s">WE</i></span><span class="w"><i style="--d:0.47s">WERE</i></span></span><span class="ln"><span class="w"><i style="--d:0.79s">NOT</i></span><span class="w"><i style="--d:1.11s">BORN</i></span></span><span class="ln"><span class="w"><i style="--d:1.43s">TO</i></span><span class="w"><i style="--d:1.75s">WORK.</i></span></span></div><div class="bar"><i id="lb"></i></div></div>
 
 <div class="introx">
   <section class="ix-sec">
@@ -296,7 +303,7 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
       <figure class="ix-fig"><span class="ixi"><img src="img/era/clock.jpg" alt=""></span><figcaption>THE INDUSTRIAL CITY</figcaption></figure>
     </div>
   </section>
-  <section class="ix-sec">
+  <section class="ix-sec dark">
     <div class="ix-in">
       <div class="ix-lab">II · WHY NOW</div><h2 class="ix-h wide">The work that filled a human life can now be done by machines.</h2>
       <div class="ix-grid3">
@@ -306,7 +313,7 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
       </div>
     </div>
   </section>
-  <section class="ix-sec">
+  <section class="ix-sec stone">
     <div class="ix-in">
       <div class="ix-lab">III · WHAT A FREE PERSON DOES</div><h2 class="ix-h wide">Not leisure. Purpose.</h2>
       <div class="ix-grid4">
@@ -388,11 +395,12 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
   <svg class="bw" viewBox="0 0 1000 150" preserveAspectRatio="xMidYMid meet" aria-label="Anthropos"><defs><linearGradient id="bwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" letter-spacing="-6" fill="url(#bwg)">ANTHROPOS</text></svg>
 </footer>
 
+<script>{const SC=[...document.querySelectorAll(".ix-sec")];let tk=0;const dep=()=>{tk=0;SC.forEach((sc,i)=>{const nx=SC[i+1]||document.querySelector(".ix-gate");if(!nx)return;const r=nx.getBoundingClientRect().top,p=Math.min(1,Math.max(0,1-r/innerHeight));const inn=sc.firstElementChild;inn.style.transform=`scale(${1-p*.08}) translateY(${-p*4}vh)`;inn.style.opacity=1-p*.7})};addEventListener("scroll",()=>{if(!tk){tk=1;requestAnimationFrame(dep)}},{passive:true})}</script>
 <script>{const io2=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io2.unobserve(x.target)}}),{threshold:.2});document.querySelectorAll(".ix-sec,.ix-gate").forEach(el=>io2.observe(el))}</script>
 <script>{const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.15});document.querySelectorAll(".rv").forEach(el=>io.observe(el))}</script>
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=29"></script>
+<script type="module" src="js/anthropos-live.js?v=30"></script>
 </body>
 </html>

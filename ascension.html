@@ -195,6 +195,15 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
 .reg input,.reg select,.reg textarea{background:rgba(255,255,255,.04);border:1px solid var(--line);color:#fff;font:inherit;font-size:15px;padding:14px;outline:none}.reg textarea,.reg button{grid-column:1/-1}.reg select option{color:#000}
 .reg input:focus,.reg select:focus,.reg textarea:focus{border-color:#fff}.reg button{all:unset;cursor:pointer;text-align:center;background:#fff;color:#000;padding:15px;font-size:15px;font-weight:600}
 @media(max-width:760px){.aitem{grid-template-columns:30px 1fr}.ak,.ad,.ar{display:none}.reg{grid-template-columns:1fr}}
+.ideasx{background:#f3f1ec;color:#1b1c1e;padding:12vh var(--g);border-top:1px solid rgba(0,0,0,.08)}
+.ix-in{max-width:1300px;margin:0 auto}.ix-top{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4vh;font-size:13px;letter-spacing:.22em}
+.ix-top button{all:unset;cursor:pointer;font-size:13px;letter-spacing:.18em;border-bottom:1px solid #1b1c1e;padding-bottom:6px}
+.ix-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:24px}.ixc{all:unset;cursor:pointer;display:block}.ixc.more{display:none}.ix-grid.all .ixc.more{display:block}
+.ixi{display:block;aspect-ratio:16/10;overflow:hidden;background:#dfe6ee}
+.ixi img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) invert(1) contrast(.75) brightness(1.18) sepia(.3) hue-rotate(178deg) saturate(1.9);transition:transform 1.2s cubic-bezier(.2,.7,.2,1)}
+.ixc:hover .ixi img{transform:scale(1.05)}
+.ixt{display:block;margin-top:20px;font-size:15px;letter-spacing:.2em;text-transform:uppercase}
+@media(max-width:760px){.ix-grid{grid-template-columns:1fr}}
 /* editorial sections */
 .ed{padding:18vh var(--g);border-top:1px solid var(--line);position:relative;overflow:hidden}
 .ed-in{max-width:1240px;margin:0 auto}
@@ -294,20 +303,13 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
     <button id="zin" aria-label="Zoom in">+</button>
     <button id="zout" aria-label="Zoom out">−</button>
   </div>
-
-  <div class="dock" id="dock">
-    <button class="chip" id="tour"><i></i>▶ Tour the city</button>
-    <span class="sep"></span>
-  </div>
 </div>
 </div>
 
-<section class="ed arts" id="articles">
-  <div class="ed-in">
-    <div class="ed-k rv">Writings</div>
-    <h2 class="ed-h chrome big rv">Ideas.</h2>
-    <p class="ed-p wide rv">Essays on the city we are building, why it is possible now, and how life is lived inside it.</p>
-    <div class="alist" id="alist"></div>
+<section class="ideasx" id="articles">
+  <div class="ix-in">
+    <div class="ix-top"><span>IDEAS</span><button id="ixall">ALL CONTENT</button></div>
+    <div class="ix-grid" id="alist"></div>
   </div>
 </section>
 <div class="reader" id="reader" aria-hidden="true"><div class="rd-in"><button class="rd-x" id="rdx" aria-label="Close">×</button><div id="rdbody"></div></div></div>
@@ -319,24 +321,16 @@ const ARTICLES=[
 {k:'Governance',t:'The Mind and the Forum',d:'An intelligence that proposes, citizens who decide, and a charter above both.',r:'6 min',b:`<p>Every city has an operating system: the people and procedures that keep the water running and the streets clean. In Anthropos that system is an intelligence we call the Mind.</p><p>The Mind balances energy, water and food minute by minute. It dispatches the robots that build and repair the city. It finds the residents who would like to live near each other and drafts the plans to make it possible.</p><h3>It proposes; people decide</h3><p>Every binding decision stays in human hands. The Mind gathers preferences, writes proposals that anyone can read, costs them and shows the trade-offs. Citizens deliberate in the forum and vote. Once a proposal passes, the Mind carries it out and logs every step in public.</p><p>Above both stands a short written charter. It defines what the Mind may never do, what citizens may always do, and how the charter itself can change. An intelligence that serves the forum, and never the other way round.</p>`},
 {k:'Architecture',t:'Built to Last Five Hundred Years',d:'Why we build in stone, bronze and water, and why the streets have no cars.',r:'5 min',b:`<p>The cities people cross oceans to visit were built to outlive their builders. Anthropos is designed in that spirit.</p><p>Buildings are low and dense around courtyards, faced in stone, bronze and timber, with gardens on most roofs. Streets are for walking and cycling; trams circle the center and run out along six linear parks. Cars stop at the edge.</p><p>The Capitol stands at the heart of the plan: a white platform with a dome for the Senate, an open bowl for the Assembly and twin towers for the offices that serve them, rising from a reflecting pool toward the sea. From it, a mall runs to the great park, the lake and the amphitheater.</p><p>We would rather build less and build it to last. A city is the longest-lived thing a society makes.</p>`},
 {k:'Citizenship',t:'Joining a City',d:'What it means to be a founding citizen, and how the first residents arrive.',r:'4 min',b:`<p>Citizenship of Anthropos is chosen, not inherited. Founding citizens are people who share the aims of the city: excellence, beauty, friendship and the common good.</p><p>They receive a founding citizen card, access to the forum, the baths and the schools, and a vote under the charter. Membership also connects them online: private messaging, introductions made by the Mind, collective campaigns and events in cities around the world.</p><p>The first residents arrive in phases, as the first neighbourhood is completed by the sea. The site is under evaluation and will be announced when the land is secured. Until then, registering below is the way to follow the city as it takes shape.</p>`}];
-{const L=document.getElementById('alist');ARTICLES.forEach((a,i)=>{const e=document.createElement('button');e.className='aitem rv';e.innerHTML=`<span class="an">${String(i+1).padStart(2,'0')}</span><span class="ak">${a.k}</span><span class="at">${a.t}</span><span class="ad">${a.d}</span><span class="ar">${a.r} →</span>`;e.onclick=()=>{document.getElementById('rdbody').innerHTML=`<div class="ed-k">${a.k} · ${a.r}</div><h2>${a.t}</h2><p class="rdl">${a.d}</p>${a.b}<p class="rdf">Anthropos · NorthPoint Cities · MMXXVI</p>`;const R=document.getElementById('reader');R.classList.add('on');R.scrollTop=0;document.body.style.overflow='hidden'};L.appendChild(e)});
-const close=()=>{document.getElementById('reader').classList.remove('on');document.body.style.overflow=''};document.getElementById('rdx').onclick=close;document.getElementById('reader').onclick=e=>{if(e.target.id==='reader')close()};addEventListener('keydown',e=>{if(e.key==='Escape')close()})}
+{const IMG=['looms','theater','harvest','forum','masons','piazza'];const L=document.getElementById('alist');ARTICLES.forEach((a,i)=>{const e=document.createElement('button');e.className='ixc'+(i>2?' more':'');e.innerHTML=`<span class="ixi"><img src="img/era/${IMG[i]}.jpg" alt="" loading="lazy"></span><span class="ixt">${a.t}</span>`;e.onclick=()=>{document.getElementById('rdbody').innerHTML=`<div class="ed-k">${a.k} · ${a.r}</div><h2>${a.t}</h2><p class="rdl">${a.d}</p>${a.b}<p class="rdf">Anthropos · NorthPoint Cities · MMXXVI</p>`;const R=document.getElementById('reader');R.classList.add('on');R.scrollTop=0;document.body.style.overflow='hidden'};L.appendChild(e)});
+const close=()=>{document.getElementById('reader').classList.remove('on');document.body.style.overflow=''};document.getElementById('rdx').onclick=close;document.getElementById('ixall').onclick=e=>{const g=document.getElementById('alist');g.classList.toggle('all');e.target.textContent=g.classList.contains('all')?'SHOW LESS':'ALL CONTENT'};document.getElementById('reader').onclick=e=>{if(e.target.id==='reader')close()};addEventListener('keydown',e=>{if(e.key==='Escape')close()})}
 </script>
 
 
 
 
 <section class="join" id="join">
-  <div class="ed-k" style="justify-content:center">Register</div>
-  <h2>Be among the first citizens.</h2>
-  <form id="f" class="reg">
-    <input name="name" required placeholder="Full name" aria-label="Full name">
-    <input name="email" type="email" required placeholder="Email" aria-label="Email">
-    <input name="country" placeholder="Country of residence" aria-label="Country">
-    <select name="as" aria-label="I am interested as"><option>Future resident</option><option>Founding investor</option><option>Artist or scholar</option><option>Government or partner</option></select>
-    <textarea name="note" rows="3" placeholder="What would you build in Anthropos? (optional)" aria-label="Note"></textarea>
-    <button>Register →</button>
-  </form>
+  <h2>Be first to know where the city will be.</h2>
+  <form id="f"><input type="email" required placeholder="Your email" aria-label="Email"><button>Join →</button></form>
   <p class="ok" id="ok"></p>
 </section>
 
@@ -349,6 +343,6 @@ const close=()=>{document.getElementById('reader').classList.remove('on');docume
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=28"></script>
+<script type="module" src="js/anthropos-live.js?v=29"></script>
 </body>
 </html>

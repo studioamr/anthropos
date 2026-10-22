@@ -275,7 +275,7 @@ export const CONCEPTS = [
     },
   },
   {
-    id: 'castrum', name: 'The Forum', kind: 'Grid', tagline: 'A Roman grid with the forum where the two main streets cross.',
+    id: 'castrum', name: 'The Forum', kind: 'Grid', tagline: 'A grid with the main square where the two main streets cross.',
     desc: 'Two main streets cross at right angles: the cardo runs down to a pier and the decumanus runs along the coast. Where they meet there is a forum with a long basilica and a temple. The rest of the city is courtyard blocks of three and four floors, easy to grow by adding one more row. Villas climb the hills behind.',
     pros: ['The easiest to build in phases', 'Clear, cheap infrastructure'], cons: ['Less iconic from the air'],
     build() {

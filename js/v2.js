@@ -97,7 +97,7 @@ function cycler(root, pool, n, { every = 1700, capEl = null } = {}) {
   setInterval(() => { if (!vis || document.hidden) return; let k = next, g = 0; while (shown.has(k) && g++ < pool.length) k = (k + 1) % pool.length; next = (k + 1) % pool.length; put(tiles[(Math.random() * tiles.length) | 0], k); }, every);
 }
 const E = (k, c) => ['img/era/' + k + '.jpg', c], I = (k, c) => ['img/' + k + '.jpg', c];
-const ERA = [E('mill', '1850 · the mill'), E('looms', '1880 · the looms'), E('assembly', '1920 · the line'), E('clock', '1950 · the clock'), E('cubicles', '1995 · the cubicle'), E('commute', '2010 · the commute'), E('screens', '2025 · the screens'),
+const ERA = [E('mill', '1850 · the mill'), E('looms', '1880 · the looms'), E('assembly', '1920 · the line'), E('clock', '1950 · the clock'), E('cubicles', '1995 · the cubicle'), E('commute', '2010 · the commute'),
   E('piazza', 'Next · the piazza'), I('essay-4', 'Next · the colonnade'), I('res-pool', 'Next · the baths, again'), I('res-sculpture', 'Next · the sculpture court'), I('soc/dinner', 'Next · the long table'), I('soc/gallery', 'Next · the gallery'), I('soc/sea', 'Next · the sea'), I('soc/friends', 'Next · each other')];
 cycler($('#eraGrid'), ERA, 8, { every: 1500, capEl: $('#eraCap') });
 const S = (k, c) => ['img/soc/' + k + '.jpg', c];

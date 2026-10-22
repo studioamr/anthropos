@@ -4,7 +4,7 @@ const p = (...xs) => xs.map((x) => (x.startsWith('<') ? x : `<p>${x}</p>`)).join
 export const ESSAYS = [
   {
     slug: 'thinking-state', n: 'I', kicker: 'Essay', home: true, date: 'October 16, 2026',
-    title: 'The Thinking State', cover: 'img/era/screens.jpg',
+    title: 'The Thinking State', cover: 'img/res-aerial-2.jpg',
     dek: 'Every great polity was built around its scarcest resource. Ours will be built around intelligence, and it should own its own.',
     body: p(
       'Every polity that mattered was organized around whatever was scarcest in its age. River kingdoms were organized around water, and the officials who measured the flood became priests. Maritime republics were organized around ships, so their senates were full of captains and insurers. The industrial nation-state was organized around labor: it counted workers, schooled them, taxed their wages, and drafted their sons.',
@@ -127,7 +127,7 @@ export const DISPATCHES = [
     body: p(
       'We have published the Declaration of Return: the founding statement of Anthropos. It says what we believe and what we commit to.',
       '<blockquote>We hold that a life is not measured by its output.</blockquote>',
-      'It looks back to Rome for the rooms where free people became excellent together, the forum, the baths, the theater and the schools, and forward to cities that make their own energy, water and food, so that their citizens can live for something other than a wage.',
+      'It looks forward to cities that make their own energy, water and food, so that their citizens can live for something other than a wage.',
       '<p><a class="lnk" href="index.html#declaration">Read the declaration →</a></p>'
     ),
   },

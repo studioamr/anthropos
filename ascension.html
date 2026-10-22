@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Anthropos — Polis</title>
-<meta name="description" content="Explore Polis, the self-sustaining Anthropos city: energy, water, food, homes and the forum, running live.">
+<title>Anthropos City — NorthPoint Cities</title>
+<meta name="description" content="Explore Anthropos City by NorthPoint Cities, a self-sustaining city: energy, water, food, homes and the forum, running live.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;800;900&display=swap" rel="stylesheet">
 <style>
@@ -134,19 +134,19 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
   <div id="pins"></div>
   <div class="tourbar" id="tourbar"></div>
 
-  <div id="load"><span class="w">ANTHROPOS</span><span class="t" id="lt">Building the city…</span><div class="bar"><i id="lb"></i></div></div>
+  <div id="load"><span class="w">NORTHPOINT CITIES</span><span class="t" id="lt">Building the city…</span><div class="bar"><i id="lb"></i></div></div>
 
   <nav>
-    <a class="brand" href="#">ANTHROPOS<sup>®</sup></a>
+    <a class="brand" href="#">NORTHPOINT CITIES<sup>®</sup></a>
     <a class="hide" href="#loop">The Loop</a>
     <a class="hide" href="index.html">Main site</a>
-    <div class="meta hide">“POLIS” — First City, concept<br>Self-sustaining · Live model<br>Drag to orbit · Pinch to zoom · Tap anything</div>
+    <div class="meta hide">“ANTHROPOS CITY” — First City, concept<br>Self-sustaining · Live model<br>Drag to orbit · Pinch to zoom · Tap anything</div>
     <a class="r" href="#join">Join</a>
   </nav>
 
   <div class="title">
     <span class="k">● Live model — Concept</span>
-    <h1>Polis</h1>
+    <h1>Anthropos<br>City</h1>
     <p>A city that powers, waters and feeds itself. Drag to look around. Tap any building, field or machine to see what it does.</p>
   </div>
 
@@ -191,7 +191,7 @@ footer .bw{grid-column:1/-1;font-weight:900;font-size:19.5vw;letter-spacing:-.07
 </section>
 
 <footer>
-  <span>©2026 Anthropos Cities</span><a href="privacy.html">Privacy Policy</a><a href="index.html">Main site</a><a href="news.html">Dispatches</a><a href="#">Back to top ↑</a><span style="text-align:right">Polis — MMXXVI</span>
+  <span>©2026 NorthPoint Cities</span><a href="privacy.html">Privacy Policy</a><a href="index.html">Main site</a><a href="news.html">Dispatches</a><a href="#">Back to top ↑</a><span style="text-align:right">Anthropos City — MMXXVI</span>
   <div class="bw">ANTHROPOS</div>
 </footer>
 
@@ -234,20 +234,20 @@ const canvas=$('#gl');
 const R=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'});
 R.setPixelRatio(Math.min(devicePixelRatio,MOBILE?1.5:2));R.toneMapping=THREE.NoToneMapping;
 const S=new THREE.Scene();S.background=new THREE.Color(0x030405);
-const cam=new THREE.PerspectiveCamera(40,1,1,8000);cam.position.set(420,300,460);
+const cam=new THREE.PerspectiveCamera(40,1,1,8000);cam.position.set(170,165,190);
 const U={time:{value:0}};
 function facade(m){return m}
 const OCC=new THREE.MeshBasicMaterial({color:0x030405,polygonOffset:true,polygonOffsetFactor:2,polygonOffsetUnits:2});
 
 // point-cloud shaders
-const PV=`attribute float rnd;uniform float uTime,uHi,uDim,uSize,uPR;varying vec3 vC;varying float vA;
+const PV=`attribute float rnd;uniform float uTime,uHi,uDim,uSize,uPR,uBase;varying vec3 vC;varying float vA;
 void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;float d=-mv.z;
 float tw=.78+.22*sin(uTime*1.6+rnd*60.);
 gl_PointSize=clamp(uSize*uPR*(.7+rnd*.6)*(1.+uHi*.3)*(300./d),1.,9.);
 float fade=1.-smoothstep(800.,2600.,d);
-vA=(.5+uHi*.25)*tw*fade*mix(1.,.13,uDim);vC=color*(1.+uHi*.35);}`;
+vA=(.5+uHi*.25)*tw*fade*mix(1.,.13,uDim)*uBase;vC=color*(1.+uHi*.35);}`;
 const PF=`varying vec3 vC;varying float vA;void main(){float r=length(gl_PointCoord-.5);if(r>.5)discard;gl_FragColor=vec4(vC,vA*smoothstep(.5,.08,r));}`;
-const pmat=size=>new THREE.ShaderMaterial({uniforms:{uTime:U.time,uHi:{value:0},uDim:{value:0},uSize:{value:size},uPR:{value:R.getPixelRatio()}},vertexShader:PV,fragmentShader:PF,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
+const pmat=size=>new THREE.ShaderMaterial({uniforms:{uTime:U.time,uBase:{value:1},uHi:{value:0},uDim:{value:0},uSize:{value:size},uPR:{value:R.getPixelRatio()}},vertexShader:PV,fragmentShader:PF,vertexColors:true,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending});
 function cloud(P,C,Rn,mat){const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('color',new THREE.Float32BufferAttribute(C,3));g.setAttribute('rnd',new THREE.Float32BufferAttribute(Rn,1));const p=new THREE.Points(g,mat);p.frustumCulled=false;p.raycast=()=>{};return p}
 
 // ---------- terrain: black occluder + topographic dust
@@ -281,7 +281,7 @@ const G=()=>new THREE.Group();
 
 // ---------- items
 item('forum',{cat:'Civic heart',name:'The Forum',pin:[0,30,0],
-  desc:'The center of Polis. A great round square with the assembly hall under the dome, where citizens meet, debate and vote on the city charter. Every street in the city leads here.',
+  desc:'The center of Anthropos City. A great round square with the assembly hall under the dome, where citizens meet, debate and vote on the city charter. Every street in the city leads here.',
   stats:[['Square diameter','120 m'],['Assembly seats','3,000'],['Walk from any home','≤ 15 min']],flow:'Powered by <b>the microgrid</b> · cooled by <b>sea breeze</b>'});
 item('theater',{cat:'Culture',name:'Open-air Theater',pin:[58,14,-22],desc:'A stone amphitheater facing the sea. Concerts, plays and public lectures every night of the week, free for residents.',stats:[['Seats','4,500'],['Season','All year']],flow:'Part of <b>the Forum</b>'});
 item('baths',{cat:'Wellbeing',name:'Public Baths',pin:[-58,12,-20],desc:'Thermal baths, pools and gardens open to every resident. Heated with surplus solar energy and filled with recycled, filtered water.',stats:[['Pools','6'],['Heat source','Solar surplus'],['Water','Recycled']],flow:'Uses <b>surplus energy</b> + <b>recycled water</b>'});
@@ -345,9 +345,9 @@ for(let gx=-120;gx<=120;gx+=10.5)for(let gz=-120;gz<=120;gz+=10.5){
   if(Math.abs(x)<7||Math.abs(z)<7)continue; // avenues
   if(Math.abs(Math.hypot(x,z)-84)<5)continue; // tram ring
   if(reserved.some(([a,b,r])=>Math.hypot(x-a,z-b)<r))continue;
-  if(rnd()<.12)continue; // courtyards/parks
+  if(rnd()<.07)continue; // courtyards/parks
   const r=Math.hypot(x,z),core=1-(r-38)/80;
-  const w=6.5+rnd()*2.5,d=6.5+rnd()*2.5,fl=Math.max(2,Math.round(2+core*3.5+rnd()*1.6)),h=fl*3.1+.6;
+  const w=6.5+rnd()*2.5,d=6.5+rnd()*2.5,fl=Math.max(2,Math.round(2+core*6+rnd()*2.5)),h=fl*3.1+.6;
   B.push({x,z,w,d,h,rot:Math.round(Math.atan2(z,x)/(Math.PI/2))*(Math.PI/2)*0})}
 const pal=[0xe9e1d0,0xe2d6bf,0xd9cdb5,0xefe8da,0xd3c4a8,0xe6d9c4].map(c=>new THREE.Color(c));
 {const g=G();
@@ -510,11 +510,12 @@ flow(['digester','fields','green'],[[150,12,135],[200,14,95],[250,8,70]],60,0xd6
 
 // ---------- turn every surface into light
 prog(92,'Turning the city into light…');
-const COL={energy:0xffa51f,water:0x22d8ff,food:0x86ff3c,waste:0xc46bff,civic:0xff5733,compute:0x8f8cff,move:0xf4f4f4,homes:0xd6d6d6,belt:0xa9b8a9};
+const COL={energy:0xffa51f,water:0x22d8ff,food:0x86ff3c,waste:0xc46bff,civic:0xff5733,compute:0x8f8cff,move:0xf4f4f4,homes:0x9fa7b3,belt:0xa9b8a9};
 const CATOF={solar:'energy',wind:'energy',battery:'energy',compute:'compute',desal:'water',reservoir:'water',canals:'water',green:'food',fields:'food',fish:'food',market:'civic',digester:'waste',tram:'move',harbor:'move',forum:'civic',theater:'civic',baths:'civic',library:'civic',school:'civic',clinic:'civic',homes:'homes',belt:'belt'};
-const DENS={homes:.5,belt:.32,solar:.32,fields:.45,green:.8,forum:1.4,theater:1.2};
+const DENS={homes:.7,belt:.32,solar:.32,fields:.45,green:.8,forum:1.4,theater:1.2};
 const PM={},LM={};
-function matFor(id){const k=id||'_';if(!PM[k]){PM[k]=pmat(id==='belt'?1.4:1.6);const op=id==='homes'?.16:id==='solar'?.14:id?.4:.12;
+const CITY=['homes','forum','theater','baths','library','market','tram'];
+function matFor(id){const k=id||'_';if(!PM[k]){PM[k]=pmat(id==='belt'?1.4:1.6);PM[k].uniforms.uBase.value=id==='homes'?.8:!id||CITY.includes(id)?1.15:.55;const op=id==='homes'?.2:id==='solar'?.08:CITY.includes(id)?.45:id?.22:.12;
   LM[k]=new THREE.LineBasicMaterial({color:id?COL[CATOF[id]]:0x8a8a8a,transparent:true,opacity:op,blending:THREE.AdditiveBlending,depthWrite:false});LM[k].userData.base=op}return PM[k]}
 const DK=MOBILE?.45:1;
 const _a=new THREE.Vector3(),_b=new THREE.Vector3(),_c=new THREE.Vector3(),_e=new THREE.Vector3(),_f=new THREE.Vector3();
@@ -590,7 +591,7 @@ function select(id){if(sel)glow(sel,0);sel=id;const it=ITEMS[id];glow(id,.32);
   $('#stage').classList.add('sel');Object.entries(pinEls).forEach(([k,e])=>e.classList.toggle('on',k===id));
   ctl.autoRotate=false;fly(it)}
 function deselect(){if(sel)glow(sel,0);sel=null;$('#stage').classList.remove('sel');Object.values(pinEls).forEach(e=>e.classList.remove('on'));
-  flight={fromP:cam.position.clone(),fromT:ctl.target.clone(),toP:new THREE.Vector3(380,230,420),toT:new THREE.Vector3(0,0,0),t:0,dur:2.2};ctl.autoRotate=true}
+  flight={fromP:cam.position.clone(),fromT:ctl.target.clone(),toP:new THREE.Vector3(170,165,190),toT:new THREE.Vector3(0,8,0),t:0,dur:2.2};ctl.autoRotate=true}
 $('#iClose').onclick=()=>{stopTour();deselect()};
 const step=d=>{const list=filter||ORDER;let i=list.indexOf(sel);i=(i+d+list.length)%list.length;select(list[i])};
 $('#iNext').onclick=()=>{stopTour();step(1)};$('#iPrev').onclick=()=>{stopTour();step(-1)};
@@ -616,6 +617,31 @@ function resize(){const w=canvas.clientWidth,h=canvas.clientHeight;R.setSize(w,h
 addEventListener('resize',resize);resize();
 
 // ---------- loop
+// ---------- LIFE: windows, people, forum pulse
+const DOT=`varying vec3 vC;varying float vA;void main(){float r=length(gl_PointCoord-.5);if(r>.5)discard;gl_FragColor=vec4(vC,vA*smoothstep(.5,.05,r));}`;
+{// windows that switch on and off
+  const P=[],A=[];for(const b of B){const n=Math.round(b.h*2.6);for(let i=0;i<n;i++){const f=Math.floor(rnd()*4),fl=Math.floor(rnd()*(b.h/3.1));
+    const y=1.2+fl*3.1+1.8,u=(rnd()-.5)*.8;let x=b.x,z=b.z;if(f===0)x+=b.w/2+.05;if(f===1)x-=b.w/2+.05;if(f===2)z+=b.d/2+.05;if(f===3)z-=b.d/2+.05;
+    if(f<2)z+=u*b.d;else x+=u*b.w;if(y>b.h+1)continue;P.push(x,y,z);A.push(rnd())}}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('rnd',new THREE.Float32BufferAttribute(A,1));
+  const m=new THREE.ShaderMaterial({uniforms:{uTime:U.time,uPR:{value:R.getPixelRatio()},uDim:{value:0}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fragmentShader:DOT,
+    vertexShader:`attribute float rnd;uniform float uTime,uPR,uDim;varying vec3 vC;varying float vA;void main(){vec4 mv=modelViewMatrix*vec4(position,1.);gl_Position=projectionMatrix*mv;
+    float on=step(.35,fract(sin(floor(uTime*.15+rnd*9.)*12.9898+rnd*78.233)*43758.5));gl_PointSize=clamp(4.2*uPR*(300./-mv.z),2.,16.);
+    vA=on*(.55+.45*sin(uTime*.7+rnd*30.))*(1.-uDim*.8);vC=mix(vec3(1.,.72,.38),vec3(1.,.9,.7),rnd);}`});
+  const w=new THREE.Points(g,m);w.frustumCulled=false;w.raycast=()=>{};S.add(w);var winMat=m}
+{// people walking the streets
+  const N=MOBILE?1500:4500,P=[],L=[];const lanes=[];for(let k=-12;k<=11;k++)lanes.push((k+.5)*10.5);lanes.push(-3.5,3.5);
+  for(let i=0;i<N;i++){P.push(0,0,0);L.push(rnd()<.5?0:1,lanes[Math.floor(rnd()*lanes.length)]+(rnd()-.5)*1.2,(rnd()<.5?-1:1)*(1.2+rnd()*1.6),rnd()*260)}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.Float32BufferAttribute(P,3));g.setAttribute('lane',new THREE.Float32BufferAttribute(L,4));
+  const m=new THREE.ShaderMaterial({uniforms:{uTime:U.time,uPR:{value:R.getPixelRatio()},uDim:{value:0}},transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,fragmentShader:DOT,
+    vertexShader:`attribute vec4 lane;uniform float uTime,uPR,uDim;varying vec3 vC;varying float vA;void main(){float a=mod(lane.w+uTime*lane.z,260.)-130.;
+    vec3 p=lane.x<.5?vec3(a,1.9,lane.y):vec3(lane.y,1.9,a);float r=length(p.xz);
+    vec4 mv=modelViewMatrix*vec4(p,1.);gl_Position=projectionMatrix*mv;gl_PointSize=clamp(2.2*uPR*(300./-mv.z),1.,7.);
+    vA=step(r,122.)*(1.-step(abs(r-84.),2.))*.9*(1.-uDim*.7);vC=vec3(1.,.95,.85);}`});
+  const pp=new THREE.Points(g,m);pp.frustumCulled=false;pp.raycast=()=>{};S.add(pp);var pplMat=m}
+// forum heartbeat rings
+const pulses=[];for(let i=0;i<3;i++){const m=new THREE.Mesh(new THREE.RingGeometry(.96,1,160),new THREE.MeshBasicMaterial({color:0xff6a3d,transparent:true,opacity:0,blending:THREE.AdditiveBlending,depthWrite:false,side:THREE.DoubleSide}));
+  m.rotation.x=-Math.PI/2;m.position.y=2.2;m.raycast=()=>{};S.add(m);pulses.push(m)}
 const clock=new THREE.Clock(),tv=new THREE.Vector3();let visible=true;
 new IntersectionObserver(e=>visible=e[0].isIntersecting).observe($('#stage'));
 function frame(){
@@ -625,6 +651,8 @@ function frame(){
     const hi=id&&(id===sel||id===hov)?1:inF?.55:0;const dim=(sel||filter)&&!(id===sel)&&!inF?1:0;
     const u=PM[k].uniforms;u.uHi.value+=(hi-u.uHi.value)*.07;u.uDim.value+=(dim*.85-u.uDim.value)*.07;
     LM[k].opacity=LM[k].userData.base*(1+u.uHi.value*2.2)*(1-u.uDim.value*.75)});
+  pulses.forEach((m,i)=>{const k=((t*.12+i/3)%1);const r=30+k*170;m.scale.set(r,r,1);m.material.opacity=(1-k)*.55*(sel?.3:1)});
+  {const d=(sel&&!CITY.includes(sel))?1:0;winMat.uniforms.uDim.value+=(d-winMat.uniforms.uDim.value)*.06;pplMat.uniforms.uDim.value=winMat.uniforms.uDim.value}
   terrainMat.uniforms.uDim.value+=(((sel||filter)?.45:0)-terrainMat.uniforms.uDim.value)*.05;
   blades.forEach((b,i)=>b.rotation.z+=dt*(1.1+i*.05));
   trams.forEach((tr,i)=>{const a=t*.05+i*Math.PI/3;tr.position.set(Math.cos(a)*RING,0,Math.sin(a)*RING);tr.rotation.y=-a});

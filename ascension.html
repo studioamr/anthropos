@@ -27,7 +27,7 @@ sup{font-size:.45em;vertical-align:top;position:relative;top:.2em;margin-left:.0
 #grain{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;opacity:.05;mix-blend-mode:overlay;z-index:4}
 .shade{position:absolute;inset:0;pointer-events:none;z-index:2;background:linear-gradient(180deg,rgba(6,20,40,.55),transparent 18%,transparent 62%,rgba(6,20,40,.7)),linear-gradient(90deg,rgba(6,20,40,.6),transparent 45%)}
 
-#load{position:absolute;inset:0;z-index:40;background:#071a33;display:grid;place-items:center;transition:opacity 1.4s,visibility 0s 1.4s}
+#load{position:fixed;inset:0;z-index:200;background:#071a33;display:grid;place-items:center;transition:opacity 1.4s,visibility 0s 1.4s}
 #load.gone{opacity:0;visibility:hidden}
 #load .ph{text-align:center;padding:0 var(--g)}
 #load .ph p{font-size:clamp(54px,13vw,240px);font-weight:900;letter-spacing:-.075em;line-height:.82;background:linear-gradient(180deg,#fff 0%,#9aa0b0 45%,#2a2c33 70%,#fff 100%);-webkit-background-clip:text;color:transparent;padding:0 .04em .06em 0;opacity:0;transform:translateY(40px) scale(1.04);filter:blur(10px);animation:ph 1.3s cubic-bezier(.2,.7,.2,1) forwards}
@@ -204,6 +204,27 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 .ixc:hover .ixi img{transform:scale(1.05)}
 .ixt{display:block;margin-top:20px;font-size:15px;letter-spacing:.2em;text-transform:uppercase}
 @media(max-width:760px){.ix-grid{grid-template-columns:1fr}}
+.introx{position:relative;z-index:3}
+.ix-sec{background:#f3f1ec;color:#1b1c1e;padding:16vh var(--g);border-bottom:1px solid rgba(0,0,0,.08)}
+.ix-in{max-width:1300px;margin:0 auto}.ix-in.two{display:grid;grid-template-columns:1fr 1.1fr;gap:6vw;align-items:center}
+.ix-lab{font-size:13px;letter-spacing:.22em}.ix-h{font-size:clamp(36px,5vw,84px);font-weight:600;letter-spacing:-.05em;line-height:.98;margin:.5em 0 .5em;max-width:14ch}.ix-h.wide{max-width:22ch}
+.ix-p{font-family:Georgia,serif;font-size:clamp(18px,1.4vw,21px);line-height:1.6;color:#3a3d42;max-width:44ch}
+.ix-fig figcaption,.ix-grid3 figcaption,.ix-grid4 figcaption{margin-top:16px;font-size:14px;letter-spacing:.2em}
+.ix-grid3,.ix-grid4{display:grid;gap:24px;margin-top:5vh}.ix-grid3{grid-template-columns:repeat(3,1fr)}.ix-grid4{grid-template-columns:repeat(4,1fr)}
+.ix-grid3 p,.ix-grid4 p{font-size:14px;color:#5b5e64;margin-top:6px}
+.ix-sec .ixi{display:block;aspect-ratio:16/10;overflow:hidden;background:#dfe6ee}
+.ix-sec .ixi img{width:100%;height:100%;object-fit:cover;filter:grayscale(1) invert(1) contrast(.75) brightness(1.18) sepia(.3) hue-rotate(178deg) saturate(1.9);transition:transform 1.4s cubic-bezier(.2,.7,.2,1)}
+.ix-sec figure:hover .ixi img{transform:scale(1.05)}
+.ix-gate{min-height:160vh;background:linear-gradient(180deg,#f3f1ec 0%,#05080d 22%,#05080d 72%,#0b2440 100%);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4vh;padding:20vh var(--g);text-align:center}
+.ix-gate .g1{font-size:clamp(18px,1.6vw,24px);color:rgba(255,255,255,.6);font-family:Georgia,serif;font-style:italic}
+.ix-gate .g2{font-size:clamp(40px,6vw,104px);font-weight:600;letter-spacing:-.055em;line-height:1}
+.ix-gate .g3{width:min(1300px,94vw);height:auto;margin-top:6vh;filter:drop-shadow(0 0 40px rgba(180,200,255,.18))}
+.ix-gate .g4{font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(255,255,255,.6);margin-top:4vh}
+.ix-gate>*{opacity:0;transform:translateY(40px) scale(.98);transition:opacity 1.4s cubic-bezier(.2,.7,.2,1),transform 1.4s cubic-bezier(.2,.7,.2,1)}.ix-gate.in>*{opacity:1;transform:none}
+.ix-gate.in .g2{transition-delay:.4s}.ix-gate.in .g3{transition-delay:.9s}.ix-gate.in .g4{transition-delay:1.6s}
+.ix-sec .ix-h,.ix-sec .ix-p,.ix-sec figure{opacity:0;transform:translateY(30px);transition:opacity 1.1s cubic-bezier(.2,.7,.2,1),transform 1.1s cubic-bezier(.2,.7,.2,1)}.ix-sec.in .ix-h,.ix-sec.in .ix-p,.ix-sec.in figure{opacity:1;transform:none}
+.ix-sec.in figure:nth-child(2){transition-delay:.12s}.ix-sec.in figure:nth-child(3){transition-delay:.24s}.ix-sec.in figure:nth-child(4){transition-delay:.36s}
+@media(max-width:760px){.ix-in.two,.ix-grid3{grid-template-columns:1fr}.ix-grid4{grid-template-columns:1fr 1fr}}
 /* editorial sections */
 .ed{padding:18vh var(--g);border-top:1px solid var(--line);position:relative;overflow:hidden}
 .ed-in{max-width:1240px;margin:0 auto}
@@ -265,7 +286,44 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
 </script>
 </head>
 <body>
+<div id="load"><div class="ph"><p class="l1">WE WERE</p><p class="l1 b">NOT BORN</p><p class="l2">TO WORK.</p></div><div class="bar"><i id="lb"></i></div></div>
 
+<div class="introx">
+  <section class="ix-sec">
+    <div class="ix-in two">
+      <div><div class="ix-lab">I · THE ARRANGEMENT</div><h2 class="ix-h">For two hundred years we lived by the clock.</h2>
+        <p class="ix-p">The steam engine moved us from the fields to the mill. Cities were built around jobs, families scattered to follow wages, and a person became what they did for a living. We still live inside that arrangement.</p></div>
+      <figure class="ix-fig"><span class="ixi"><img src="img/era/clock.jpg" alt=""></span><figcaption>THE INDUSTRIAL CITY</figcaption></figure>
+    </div>
+  </section>
+  <section class="ix-sec">
+    <div class="ix-in">
+      <div class="ix-lab">II · WHY NOW</div><h2 class="ix-h wide">The work that filled a human life can now be done by machines.</h2>
+      <div class="ix-grid3">
+        <figure><span class="ixi"><img src="img/era/screens.jpg" alt=""></span><figcaption>INTELLIGENCE</figcaption><p>Systems that draft, design, diagnose and coordinate.</p></figure>
+        <figure><span class="ixi"><img src="img/era/energy.jpg" alt=""></span><figcaption>ENERGY</figcaption><p>Power from the sun, cheaper every year.</p></figure>
+        <figure><span class="ixi"><img src="img/era/workshop.jpg" alt=""></span><figcaption>MACHINES</figcaption><p>Robots that build, farm, repair and deliver.</p></figure>
+      </div>
+    </div>
+  </section>
+  <section class="ix-sec">
+    <div class="ix-in">
+      <div class="ix-lab">III · WHAT A FREE PERSON DOES</div><h2 class="ix-h wide">Not leisure. Purpose.</h2>
+      <div class="ix-grid4">
+        <figure><span class="ixi"><img src="img/era/theater.jpg" alt=""></span><figcaption>ARS</figcaption><p>The arts.</p></figure>
+        <figure><span class="ixi"><img src="img/era/looms.jpg" alt=""></span><figcaption>SCIENTIA</figcaption><p>Knowledge.</p></figure>
+        <figure><span class="ixi"><img src="img/era/stadium.jpg" alt=""></span><figcaption>VIRTUS</figcaption><p>Honor.</p></figure>
+        <figure><span class="ixi"><img src="img/era/forum.jpg" alt=""></span><figcaption>RES PUBLICA</figcaption><p>The forum.</p></figure>
+      </div>
+    </div>
+  </section>
+  <section class="ix-gate">
+    <p class="g1">Nobody built a place for what comes after.</p>
+    <p class="g2">So we are building one.</p>
+    <svg class="g3" viewBox="0 0 1000 150" aria-label="Anthropos"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" fill="url(#gg)">ANTHROPOS</text></svg>
+    <span class="g4">Scroll to build the city ↓</span>
+  </section>
+</div>
 <div class="scrolly" id="scrolly">
 <div class="stage" id="stage">
   <canvas id="gl"></canvas>
@@ -273,8 +331,6 @@ footer .bw{grid-column:1/-1;width:100%;height:auto;display:block;margin:6vh 0 1v
   <canvas id="grain"></canvas>
   <div id="pins"></div>
   <div class="tourbar" id="tourbar"></div>
-
-  <div id="load"><div class="ph"><p class="l1">WE WERE</p><p class="l1 b">NOT BORN</p><p class="l2">TO WORK.</p></div><div class="bar"><i id="lb"></i></div></div>
 
   <nav>
     <a class="brand" href="#">NORTHPOINT CITIES<sup>®</sup></a>
@@ -332,6 +388,7 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
   <svg class="bw" viewBox="0 0 1000 150" preserveAspectRatio="xMidYMid meet" aria-label="Anthropos"><defs><linearGradient id="bwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" letter-spacing="-6" fill="url(#bwg)">ANTHROPOS</text></svg>
 </footer>
 
+<script>{const io2=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io2.unobserve(x.target)}}),{threshold:.2});document.querySelectorAll(".ix-sec,.ix-gate").forEach(el=>io2.observe(el))}</script>
 <script>{const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.15});document.querySelectorAll(".rv").forEach(el=>io.observe(el))}</script>
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};

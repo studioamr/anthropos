@@ -409,3 +409,6 @@ figcaption{position:absolute;left:16px;bottom:14px;color:#fff;text-shadow:0 1px 
 .go-btn i{font-style:normal}
 .int.done{display:block}
 @media (max-width:900px){.int{grid-template-columns:1fr}}
+.trio{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.trio img{width:100%;aspect-ratio:4/5;object-fit:cover}
+@media (max-width:700px){.trio{grid-template-columns:1fr}}

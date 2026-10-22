@@ -44,7 +44,8 @@ const S = new THREE.Scene();
   const pm = new THREE.PMREMGenerator(R); S.environment = pm.fromEquirectangular(t).texture; }
 S.fog = new THREE.Fog(0xb8bcc4, 3200, 12000);
 const cam = new THREE.PerspectiveCamera(36, 1, 2, 16000);
-S.add(new THREE.HemisphereLight(0xe8ebf0, 0x3a3c42, .5));
+const HEMI = new THREE.HemisphereLight(0xe8ebf0, 0x3a3c42, .5); S.add(HEMI);
+const NIGHT = { value: 0 };
 const SUN = new THREE.DirectionalLight(0xffffff, 3.6); SUN.position.set(-2200, 1700, -900); SUN.castShadow = true;
 SUN.shadow.mapSize.set(4096, 4096); Object.assign(SUN.shadow.camera, { left: -2600, right: 2600, top: 1800, bottom: -1800, near: 50, far: 7000 });
 SUN.shadow.bias = -.0004; SUN.shadow.normalBias = 1.2; SUN.target.position.set(0, 0, 800); S.add(SUN, SUN.target);
@@ -70,11 +71,11 @@ function grow(mat, key) {
 // windows on vertical faces (no textures, pure shader)
 function windows(mat) {
   mat.customProgramCacheKey = () => 'win';
-  mat.onBeforeCompile = (sh) => {
+  mat.onBeforeCompile = (sh) => { sh.uniforms.uNight = NIGHT;
     sh.vertexShader = sh.vertexShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP;varying vec3 vWN;')
       .replace('#include <begin_vertex>', '#include <begin_vertex>\nvWP=(modelMatrix*vec4(position,1.)).xyz;vWN=normalize(mat3(modelMatrix)*normal);');
     sh.vertexShader = sh.vertexShader.replace('vWP=(modelMatrix*vec4(position,1.)).xyz;', 'vWP=(modelMatrix*vec4(transformed,1.)).xyz;');
-    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP;varying vec3 vWN;')
+    sh.fragmentShader = sh.fragmentShader.replace('#include <common>', '#include <common>\nvarying vec3 vWP;varying vec3 vWN;uniform float uNight;')
       .replace('#include <color_fragment>', `#include <color_fragment>
         float side=1.-smoothstep(.3,.6,abs(vWN.y));
         vec2 q=vec2(abs(vWN.x)>abs(vWN.z)?vWP.z:vWP.x,vWP.y);
@@ -84,7 +85,9 @@ function windows(mat) {
         win=max(win,side*tower*smoothstep(.05,.12,f.y)*smoothstep(.98,.9,f.y));
         diffuseColor.rgb*=mix(.82,1.,smoothstep(0.,9.,vWP.y));
         float band=side*(1.-step(3.2,vWP.y));diffuseColor.rgb=mix(diffuseColor.rgb,diffuseColor.rgb*.62,band);
-        diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.07,.075,.085),win*.92);`)
+        diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.07,.075,.085),win*.92);
+        float lit=step(.42,fract(sin(dot(floor(q/vec2(2.6,3.1))+floor(vWP.xz*.03)*7.,vec2(12.9898,78.233)))*43758.5453));
+        totalEmissiveRadiance+=win*lit*uNight*vec3(1.,.76,.45)*2.4;`)
       .replace('#include <roughnessmap_fragment>', '#include <roughnessmap_fragment>\nroughnessFactor=mix(roughnessFactor,.04,win);')
       .replace('#include <metalnessmap_fragment>', '#include <metalnessmap_fragment>\nmetalnessFactor=mix(metalnessFactor,.92,win);');
   };
@@ -129,7 +132,7 @@ const RIV = (x, z) => (z > bayP(x) - 10 ? Math.abs(x - river(z)) : 1e9);
 const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36 ** 2;
 { const N = MOBILE ? 220 : 380, g = new THREE.PlaneGeometry(3400, 2300, N, Math.round(N * .68)); g.rotateX(-Math.PI / 2); g.translate(0, 0, 330);
   const p = g.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Color();
-  const sand = new THREE.Color(0xd4d6da), sage = new THREE.Color(0x8e9299), deep = new THREE.Color(0x63676e), dry = new THREE.Color(0xa6a9af), pave = new THREE.Color(0xc4c7cc), park = new THREE.Color(0x585c63), bed = new THREE.Color(0x1d2024);
+  const sand = new THREE.Color(0xd4d6da), sage = new THREE.Color(0x8e9299), deep = new THREE.Color(0x63676e), dry = new THREE.Color(0xa6a9af), pave = new THREE.Color(0xc4c7cc), park = new THREE.Color(0x585c63), bed = new THREE.Color(0x1d4f7a);
   for (let i = 0; i < p.count; i++) {
     const x = p.getX(i), z = p.getZ(i), coast = bayP(x); let y;
     if (z < coast) { y = -2 - Math.min(14, (coast - z) * .05); c.copy(bed); }
@@ -149,7 +152,7 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
 // the wider world: plains, the western ridge and a mountain wall behind; the sea only in front
 { const N = MOBILE ? 200 : 360, g = new THREE.PlaneGeometry(11000, 8000, N, Math.round(N * .73)); g.rotateX(-Math.PI / 2); g.translate(0, 0, 1800);
   const p = g.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Color();
-  const sand = new THREE.Color(0xd4d6da), sage = new THREE.Color(0x8e9299), forest = new THREE.Color(0x4c5056), rock = new THREE.Color(0x777b82), snow = new THREE.Color(0xf4f5f7), bed = new THREE.Color(0x1d2024);
+  const sand = new THREE.Color(0xd4d6da), sage = new THREE.Color(0x8e9299), forest = new THREE.Color(0x4c5056), rock = new THREE.Color(0x777b82), snow = new THREE.Color(0xf4f5f7), bed = new THREE.Color(0x1d4f7a);
   for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), coast = bayP(x), y = HW(x, z);
     if (z < coast) c.copy(bed); else if (z < coast + 52) c.copy(sand);
     else { c.copy(sage).lerp(forest, sstep(60, 260, y) * .8 + vn(x * .004, z * .004) * .15).lerp(rock, sstep(380, 700, y)).lerp(snow, sstep(780, 980, y)); }
@@ -182,7 +185,7 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
 
 const wn = new THREE.TextureLoader().load('img/tex/waternormals.jpg', (t) => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
 const water = new Water(new THREE.PlaneGeometry(12000, 12000), { textureWidth: MOBILE ? 256 : 1024, textureHeight: MOBILE ? 256 : 1024, waterNormals: wn,
-  sunDirection: SUN.position.clone().normalize(), sunColor: 0xfff0d8, waterColor: 0x1a1d22, distortionScale: 3, fog: true });
+  sunDirection: SUN.position.clone().normalize(), sunColor: 0xfff0d8, waterColor: 0x1a6fa8, distortionScale: 3, fog: true });
 water.rotation.x = -Math.PI / 2; water.position.y = -.3; S.add(water);
 
 // ── what makes it self-sustaining: real scale, detailed and alive ──
@@ -393,6 +396,38 @@ Object.assign(ITEMS, {
 });
 const ORDER = Object.keys(ITEMS);
 const CATS = [['All', null], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['ai', 'solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
+
+// ── time of day: dawn · day · sunset · night ──
+const PM2 = new THREE.PMREMGenerator(R), TOD = {};
+const TIMES = {
+  dawn:   { az: 75, el: 7, stops: [[0, '#28365f'], [.3, '#6a6aa8'], [.42, '#d993b4'], [.48, '#ffc49a'], [.5, '#fff0d0'], [.53, '#c9a6b4'], [1, '#2b2d3a']], sun: '#fff1d6', light: 0xffc9a0, li: 2.6, hemi: [0xd9c4ec, 0x4a4652, .55], fog: 0xe8c9c4, exp: 1.0, water: 0x2f6fa6, night: 0 },
+  day:    { az: 210, el: 52, stops: [[0, '#1f5fc4'], [.3, '#4f8fe0'], [.44, '#9cc6f2'], [.5, '#e2f0fb'], [.53, '#a9bccb'], [1, '#2f3640']], sun: '#ffffff', light: 0xfff6e8, li: 3.6, hemi: [0xdfeeff, 0x5a5e66, .6], fog: 0xcfe0f0, exp: 1.0, water: 0x1a78b8, night: 0 },
+  sunset: { az: 250, el: 5, stops: [[0, '#1a2457'], [.28, '#5b3f8e'], [.4, '#c4588a'], [.46, '#ff7a45'], [.5, '#ffd27a'], [.53, '#a8607a'], [1, '#231c2c']], sun: '#fff0c0', light: 0xff9a5e, li: 3.2, hemi: [0xffc2a8, 0x4a3646, .5], fog: 0xf0a487, exp: 1.02, water: 0x1f5f96, night: .15 },
+  night:  { az: 140, el: 34, stops: [[0, '#01030a'], [.3, '#050b20'], [.45, '#0e1a3c'], [.5, '#22345e'], [.53, '#0c1224'], [1, '#04060c']], sun: '#e8eeff', light: 0x8fa8ff, li: .55, hemi: [0x3a4c86, 0x08090e, .3], fog: 0x0c1430, exp: 1.0, water: 0x0b2547, night: 1, stars: 1 } };
+function dirOf(az, el) { const a = az * Math.PI / 180, e = el * Math.PI / 180; return new THREE.Vector3(Math.cos(e) * Math.sin(a), Math.sin(e), -Math.cos(e) * Math.cos(a)); }
+function skyTex(T) { const W = 2048, H = 1024, c = document.createElement('canvas'); c.width = W; c.height = H; const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 0, H);
+  T.stops.forEach(([o, col]) => g.addColorStop(o, col)); x.fillStyle = g; x.fillRect(0, 0, W, H);
+  if (T.stars) for (let i = 0; i < 2600; i++) { const y = Math.random() * H * .48, r = Math.random() * 1.3; x.fillStyle = `rgba(255,255,255,${.3 + Math.random() * .7})`; x.beginPath(); x.arc(Math.random() * W, y, r, 0, 7); x.fill(); }
+  const d = dirOf(T.az, T.el), u = Math.atan2(d.z, d.x) / (2 * Math.PI) + .5, v = Math.asin(d.y) / Math.PI + .5, sx = u * W, sy = (1 - v) * H;
+  const halo = x.createRadialGradient(sx, sy, 0, sx, sy, T.stars ? 90 : 420); halo.addColorStop(0, T.sun); halo.addColorStop(.06, T.sun); halo.addColorStop(.25, T.stars ? 'rgba(200,215,255,.25)' : 'rgba(255,220,170,.45)'); halo.addColorStop(1, 'rgba(255,255,255,0)');
+  x.fillStyle = halo; x.fillRect(0, 0, W, H); x.fillStyle = T.sun; x.beginPath(); x.arc(sx, sy, T.stars ? 9 : 16, 0, 7); x.fill();
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.mapping = THREE.EquirectangularReflectionMapping; return t; }
+let NOW = 'sunset';
+function setTime(name) { NOW = name; const T = TIMES[name]; if (!TOD[name]) { const sk = skyTex(T); TOD[name] = { sk, env: PM2.fromEquirectangular(sk).texture }; }
+  S.background = TOD[name].sk; S.environment = TOD[name].env;
+  const d = dirOf(T.az, T.el); SUN.position.copy(SUN.target.position).addScaledVector(d, 3200); SUN.color.set(T.light); SUN.intensity = T.li;
+  HEMI.color.set(T.hemi[0]); HEMI.groundColor.set(T.hemi[1]); HEMI.intensity = T.hemi[2]; S.fog.color.set(T.fog); R.toneMappingExposure = T.exp; NIGHT.value = T.night;
+  water.material.uniforms.waterColor.value.set(T.water); water.material.uniforms.sunDirection.value.copy(d); water.material.uniforms.sunColor.value.set(T.light);
+  document.querySelectorAll('.tod button').forEach((b) => b.classList.toggle('on', b.dataset.t === name)); }
+{ const st = document.createElement('style'); st.textContent = `.tod{position:absolute;top:64px;right:var(--g);z-index:22;display:flex;gap:4px;background:rgba(10,12,16,.45);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border:1px solid rgba(255,255,255,.18);padding:4px}
+.tod button{all:unset;cursor:pointer;font-size:11px;letter-spacing:.04em;padding:6px 11px;color:rgba(255,255,255,.75);display:flex;gap:6px;align-items:center;transition:background .3s,color .3s}
+.tod button:hover{color:#fff}.tod button.on{background:#fff;color:#000}.tod i{font-style:normal;font-size:13px}
+.veil{position:absolute;inset:0;z-index:21;pointer-events:none;background:#000;opacity:0;transition:opacity .35s}.veil.on{opacity:.55}
+@media(max-width:760px){.tod{top:auto;bottom:64px;right:50%;transform:translateX(50%)}.tod button span{display:none}}`; document.head.appendChild(st);
+  const box = document.createElement('div'); box.className = 'tod'; box.innerHTML = [['dawn', '◒', 'Dawn'], ['day', '☀', 'Day'], ['sunset', '◐', 'Sunset'], ['night', '☾', 'Night']].map(([k, i, n]) => `<button data-t="${k}"><i>${i}</i><span>${n}</span></button>`).join('');
+  $('#stage').appendChild(box); const veil = document.createElement('div'); veil.className = 'veil'; $('#stage').appendChild(veil);
+  box.querySelectorAll('button').forEach((b) => (b.onclick = () => { if (b.dataset.t === NOW) return; veil.classList.add('on'); setTimeout(() => { setTime(b.dataset.t); veil.classList.remove('on'); }, 350); })); }
+setTime('sunset');
 
 // ── post ──
 const composer = new EffectComposer(R); composer.addPass(new RenderPass(S, cam));

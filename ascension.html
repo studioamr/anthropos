@@ -8,6 +8,30 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;800;900&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;1,400&family=IBM+Plex+Mono:wght@400&display=swap');
+.vx-pill{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid #1b1a18}.vx-pill div{padding:34px 28px 40px 0;border-right:1px solid rgba(27,26,24,.25)}.vx-pill div+div{padding-left:28px}.vx-pill div:last-child{border:0}
+.vx-pill b,.vx-day b,.vx-phase b{font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:12px;letter-spacing:.14em;color:#6b6155}
+.vx-pill h4{font-family:"Cormorant Garamond",serif;font-weight:500;font-size:28px;margin:.5em 0 .4em}.vx-pill p,.vx-rows p,.vx-not p,.vx-list li,.vx-phase li{font-family:"Cormorant Garamond",serif;font-size:20px;line-height:1.55;color:#2b2a27}
+.vx-lab.sec{margin-top:14vh}.vox h2.sm{font-size:clamp(36px,4.2vw,70px);margin:.35em 0 6vh}
+.vx-rows article{display:grid;grid-template-columns:110px 1.6fr 1fr;gap:4vw;padding:38px 0;border-top:1px solid rgba(27,26,24,.25)}.vx-rows i{font-family:"Cormorant Garamond",serif;font-style:normal;font-size:64px;line-height:.9}
+.vx-rows h3{font-size:clamp(30px,3vw,46px);letter-spacing:.12em;margin:0 0 .4em}.vx-rows h3 em{font-size:.55em;letter-spacing:0}.vx-rows ul{list-style:none;font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#6b6155}.vx-rows li{padding:12px 0;border-bottom:1px solid rgba(27,26,24,.2)}
+.vx-day{list-style:none;border-top:1px solid #1b1a18}.vx-day li{display:grid;grid-template-columns:140px 1fr;padding:22px 0;border-bottom:1px solid rgba(27,26,24,.2);align-items:baseline}.vx-day span{font-family:"Cormorant Garamond",serif;font-size:clamp(22px,2.2vw,34px)}
+.vx-two{display:grid;grid-template-columns:1fr 1fr;gap:6vw}.vx-list{list-style:none;margin-top:3vh;border-top:1px solid #1b1a18}.vx-list li{padding:14px 0;border-bottom:1px solid rgba(27,26,24,.2)}
+.vx-phase{list-style:none;margin-top:3vh;border-top:1px solid #1b1a18}.vx-phase li{padding:14px 0;border-bottom:1px solid rgba(27,26,24,.2)}.vx-phase b{display:block;margin-bottom:4px}
+.vx-not{display:grid;grid-template-columns:1fr 1fr;gap:20px 6vw;margin-top:3vh}.vx-not s{text-decoration-thickness:1px;color:#7a7066;display:block;font-size:26px}
+.vx-note{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.06em;color:#7a7066;margin-top:10vh}
+@media(max-width:760px){.vx-pill,.vx-two,.vx-not{grid-template-columns:1fr}.vx-pill div+div{padding-left:0}.vx-rows article{grid-template-columns:1fr}.vx-day li{grid-template-columns:90px 1fr}}
+.vox{background:#ece6dc;color:#1b1a18;padding:14vh var(--g) 12vh;position:relative;z-index:2}
+.vx-in{max-width:1300px;margin:0 auto}.vx-top{display:grid;grid-template-columns:1.3fr 1fr;gap:6vw;align-items:start;padding-bottom:6vh;border-bottom:1px solid #1b1a18}
+.vx-lab,.vox small,.vox span{font-family:"IBM Plex Mono",monospace;font-size:12px;letter-spacing:.14em;color:#6b6155}
+.vox h2{font-family:"Cormorant Garamond",serif;font-weight:400;font-size:clamp(44px,5.6vw,92px);letter-spacing:.04em;line-height:1.02;margin-top:.3em}
+.vx-top p{font-family:"Cormorant Garamond",serif;font-size:clamp(20px,1.7vw,25px);line-height:1.5;color:#2b2a27;margin-top:1.4em}
+.vx-cols{display:grid;grid-template-columns:repeat(4,1fr)}.vx-cols article{padding:32px 26px 30px 0;border-right:1px solid rgba(27,26,24,.25);display:flex;flex-direction:column}.vx-cols article+article{padding-left:26px}.vx-cols article:last-child{border:0}
+.vox h3{font-family:"Cormorant Garamond",serif;font-weight:400;font-size:clamp(28px,2.6vw,42px);letter-spacing:.2em;line-height:1.05;margin:.6em 0 .2em}
+.vox em{font-family:"Cormorant Garamond",serif;font-size:21px;color:#7a7066}.vox svg{width:130px;height:110px;margin:30px auto;color:#1b1a18}
+.vox article p{font-family:"Cormorant Garamond",serif;font-size:20px;line-height:1.5;color:#2b2a27;flex:1}.vox span{display:block;margin-top:28px;padding-top:16px;border-top:1px solid rgba(27,26,24,.25);text-transform:uppercase;line-height:1.5}
+@media(max-width:760px){.vx-top{grid-template-columns:1fr}.vx-cols{grid-template-columns:1fr 1fr}.vx-cols article+article{padding-left:0}}
+
 :root{--fg:#fff;--dim:rgba(255,255,255,.6);--line:rgba(255,255,255,.18);--acc:#ffd38a;--g:clamp(14px,1.8vw,26px);--glass:rgba(10,10,12,.55)}
 *{box-sizing:border-box;margin:0;padding:0}
 html,body{background:#071a33;color:var(--fg)}
@@ -351,6 +375,7 @@ html{scroll-snap-type:y proximity}
   </section>
   <section class="ix-born" id="born"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.10s">WE</i></span><span class="w"><i style="--d:0.36s">WERE</i></span></span><span class="ln"><span class="w"><i style="--d:0.62s">NOT</i></span><span class="w"><i style="--d:0.88s">BORN</i></span></span><span class="ln"><span class="w"><i style="--d:1.14s">TO</i></span><span class="w"><i style="--d:1.40s">WORK.</i></span></span></div></section>
   <section class="ix-gate">
+    <p class="g2">So we are building</p>
     <svg class="g3" viewBox="0 0 1000 150" aria-label="Anthropos"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" fill="url(#gg)">ANTHROPOS</text></svg>
     <span class="g4">Scroll to build the city ↓</span>
   </section>
@@ -392,6 +417,49 @@ html{scroll-snap-type:y proximity}
   </div>
 </div>
 </div>
+
+<section class="vox" id="vocations">
+  <div class="vx-in">
+    <div class="vx-top"><div><div class="vx-lab">I · WHAT WE ARE BUILDING</div><h2>A CITY FOR<br>WHAT COMES AFTER</h2></div>
+      <p>Anthropos is a new city for one hundred thousand people, designed from the first stone for a world in which machines do the work. It produces its own energy, water and food. It is coordinated by an intelligence that its citizens own. And it is organized not around jobs, but around the four things a free person does.</p></div>
+    <div class="vx-pill">
+      <div><b>01</b><h4>A city that sustains itself</h4><p>Sun and wind for power, the sea and the rain for water, greenhouses and fields within sight for food, and a closed loop for waste. The floor of life is paid before anyone wakes up.</p></div>
+      <div><b>02</b><h4>A society of free people</h4><p>Founders, artists, scholars, athletes and builders, living side by side, with time to practice, study, compete and create. Not a resort. A culture.</p></div>
+      <div><b>03</b><h4>A republic with a mind</h4><p>An intelligence runs the systems and drafts the proposals. Citizens deliberate in person and decide. A short written charter stands above both.</p></div>
+    </div>
+
+    <div class="vx-lab sec">II · THE FOUR VOCATIONS</div>
+    <h2 class="sm">If the machine produces,<br>the citizen creates.</h2>
+    <div class="vx-rows">
+      <article><i>I</i><div><h3>Ars <em>· the arts</em></h3><p>Music, sculpture, film, architecture, dance and the night. The arts district wraps the great park and the lake. Its courtyards hold studios rented at cost, workshops for wood, metal and stone, rehearsal rooms and small theaters. Patronage is paid for by the wealth the machines produce, so an artist never has to sell their time to make their work.</p></div><ul><li>Studios at cost</li><li>The Amphitheater</li><li>City patronage</li></ul></article>
+      <article><i>II</i><div><h3>Scientia <em>· knowledge</em></h3><p>Philosophy, science and engineering, studied to understand rather than to be employed. The university climbs the first slope of the hills around a glass library that never closes. Laboratories are open to anyone. Above it, the observatory keeps the sky dark enough to see the stars from every roof.</p></div><ul><li>The University</li><li>Open laboratories</li><li>The Observatory</li></ul></article>
+      <article><i>III</i><div><h3>Virtus <em>· honor</em></h3><p>The body as a work. Athletics, fencing, wrestling, swimming, the mountain and the sea. Every district has a gymnasium, the stadium hosts the games and festivals of the city, and the great baths close every day. Compete with honor, lose with dignity, train again.</p></div><ul><li>The Stadium</li><li>Gymnasia</li><li>The Baths</li></ul></article>
+      <article><i>IV</i><div><h3>Res Publica <em>· the forum</em></h3><p>The public thing. At the center stands the Capitol, and around it the squares where citizens meet in person to decide what binds them: what to build, what to protect, who to welcome. The Mind prepares the proposals and answers every question. It never decides.</p></div><ul><li>The Capitol</li><li>The forum</li><li>The charter</li></ul></article>
+    </div>
+
+    <div class="vx-lab sec">III · A DAY IN ANTHROPOS</div>
+    <h2 class="sm">Not leisure. A demanding,<br>beautiful life.</h2>
+    <ol class="vx-day">
+      <li><b>07:00</b><span>The sea at dawn, then the gymnasium.</span></li>
+      <li><b>09:00</b><span>The studio, the laboratory or the library. The work you chose.</span></li>
+      <li><b>13:00</b><span>Lunch from the market, grown a few kilometres away.</span></li>
+      <li><b>16:00</b><span>The baths, and an argument in the forum.</span></li>
+      <li><b>20:00</b><span>The amphitheater, a concert, or a long dinner on the promenade.</span></li>
+      <li><b>23:00</b><span>The observatory is open on clear nights.</span></li>
+    </ol>
+
+    <div class="vx-two">
+      <div><div class="vx-lab sec">IV · WHAT A CITIZEN RECEIVES</div>
+        <ul class="vx-list"><li>A home by the sea, in a quarter built to last centuries</li><li>Energy, water and the city's services, provided by the city itself</li><li>The forum, the baths, the schools and the vote</li><li>Studios, laboratories and gymnasia at cost</li><li>The founding citizen card, valid in every Anthropos city</li><li>A voice in the charter and in every binding decision</li></ul></div>
+      <div><div class="vx-lab sec">V · HOW IT IS BUILT</div>
+        <ol class="vx-phase"><li><b>Founding</b>A community of founding citizens and the master plan.</li><li><b>Land</b>An agreement with a host country and the site, under its laws.</li><li><b>First quarter</b>Homes, a resort, a members' club, and the energy and water systems from day one.</li><li><b>The city</b>Districts, the Capitol, the university and the stadium, quarter by quarter.</li></ol></div>
+    </div>
+
+    <div class="vx-lab sec">VI · WHAT IT IS NOT</div>
+    <div class="vx-not"><p><s>A gated resort.</s> It is a city, open to everyone who shares its aims.</p><p><s>A tax haven or a secession.</s> It lives under the laws of the country that hosts it, and enriches it.</p><p><s>A city run by a machine.</s> The Mind serves the forum. People decide.</p><p><s>A fantasy of leisure.</s> It is a life of practice, study, competition and responsibility.</p></div>
+    <p class="vx-note">Concept. Figures are design targets; the site is under evaluation. This page does not offer securities, tokens or returns.</p>
+  </div>
+</section>
 
 <section class="ideasx" id="articles">
   <div class="ix-in">

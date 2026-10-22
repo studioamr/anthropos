@@ -32,7 +32,7 @@ Ink.prototype.mark = function (d) { _mark.call(this, d); this.marks[this.marks.l
 // ── renderer ──
 const canvas = $('#gl');
 const R = new THREE.WebGLRenderer({ canvas, antialias: true, powerPreference: 'high-performance' });
-R.setPixelRatio(Math.min(devicePixelRatio, MOBILE ? 1.5 : 2));
+R.setPixelRatio(Math.min(devicePixelRatio, MOBILE ? 1.25 : 1.5));
 R.toneMapping = THREE.ACESFilmicToneMapping; R.toneMappingExposure = 1.0;
 R.shadowMap.enabled = !MOBILE; R.shadowMap.type = THREE.PCFSoftShadowMap;
 const S = new THREE.Scene();
@@ -47,7 +47,7 @@ const cam = new THREE.PerspectiveCamera(36, 1, 2, 16000);
 const HEMI = new THREE.HemisphereLight(0xe8ebf0, 0x3a3c42, .5); S.add(HEMI);
 const NIGHT = { value: 0 };
 const SUN = new THREE.DirectionalLight(0xfff2e0, 3.4); SUN.position.set(-2200, 1700, -900); SUN.castShadow = true;
-SUN.shadow.mapSize.set(4096, 4096); Object.assign(SUN.shadow.camera, { left: -2600, right: 2600, top: 1800, bottom: -1800, near: 50, far: 7000 });
+SUN.shadow.mapSize.set(2048, 2048); Object.assign(SUN.shadow.camera, { left: -2600, right: 2600, top: 1800, bottom: -1800, near: 50, far: 7000 });
 SUN.shadow.bias = -.0004; SUN.shadow.normalBias = 1.2; SUN.target.position.set(0, 0, 800); S.add(SUN, SUN.target);
 
 // ── the city ──
@@ -255,8 +255,9 @@ const BRIDGES = new THREE.Group(); S.add(BRIDGES); BRIDGES.visible = false;
   can.castShadow = can.receiveShadow = tr.castShadow = true; S.add(can, tr); }
 
 const wn = new THREE.TextureLoader().load('img/tex/waternormals.jpg', (t) => { t.wrapS = t.wrapT = THREE.RepeatWrapping; });
-const water = new Water(new THREE.PlaneGeometry(12000, 12000), { textureWidth: MOBILE ? 256 : 1024, textureHeight: MOBILE ? 256 : 1024, waterNormals: wn,
-  sunDirection: SUN.position.clone().normalize(), sunColor: 0xfff0d8, waterColor: 0x1a6fa8, distortionScale: 3, fog: true });
+wn.repeat && wn.repeat.set(60, 60);
+const water = new THREE.Mesh(new THREE.PlaneGeometry(12000, 12000), new THREE.MeshStandardMaterial({ color: 0x1a5a80, roughness: .38, metalness: .1, normalMap: wn, normalScale: new THREE.Vector2(.35, .35), envMapIntensity: .55 }));
+water.material.uniforms = { waterColor: { value: water.material.color }, sunDirection: { value: new THREE.Vector3() }, sunColor: { value: new THREE.Color() }, time: { value: 0 } };
 water.rotation.x = -Math.PI / 2; water.position.y = -.3; S.add(water);
 
 // ── what makes it self-sustaining: real scale, detailed and alive ──
@@ -778,7 +779,7 @@ new IntersectionObserver((e) => (visible = e[0].isIntersecting)).observe($('#sta
 function frame() {
   requestAnimationFrame(frame); if (!visible) return;
   const dt = Math.min(clock.getDelta(), .05);
-  water.material.uniforms.time.value += dt * .4; BRIDGES.visible = UP.value > .3; window.__life && window.__life(UT.value); buildTick(dt); blades.forEach((b, i) => (b.rotation.z += dt * (1 + i * .05))); UT.value += dt; ANIM.forEach((f) => f(UT.value));
+  water.material.uniforms.time.value += dt * .4; wn.offset.set(water.material.uniforms.time.value * .004, water.material.uniforms.time.value * .006); BRIDGES.visible = UP.value > .3; window.__life && window.__life(UT.value); buildTick(dt); blades.forEach((b, i) => (b.rotation.z += dt * (1 + i * .05))); UT.value += dt; ANIM.forEach((f) => f(UT.value));
   const w = canvas.clientWidth, h = canvas.clientHeight;
   ORDER.forEach((id) => { const e = pinEls[id]; tv.set(...ITEMS[id].pin).project(cam); const vis = tv.z < 1 && Math.abs(tv.x) < 1.02 && Math.abs(tv.y) < 1.02;
     e.classList.toggle('hide', !vis); e.classList.toggle('dimmed', !!filter && !filter.includes(id)); e.style.transform = `translate(${(tv.x * .5 + .5) * w - 9}px,${(-tv.y * .5 + .5) * h - 9}px)`; });
@@ -824,7 +825,7 @@ function readQ() { const tot = SC.offsetHeight - innerHeight; return clamp01((sc
 function buildTick(dt) {
   const q = build.complete ? 1 : readQ(); build.q += (q - build.q) * Math.min(1, dt * 4); const Q = build.q;
   const interactive = q > .985;
-  if (interactive && !build.done) { build.done = true; build.complete = true; ctl.autoRotateSpeed = .12; { const [hp, ht] = pose(1); HOME.p.copy(hp); HOME.t.copy(ht); } $('#stage').classList.remove('building'); ctl.enabled = true; ctl.autoRotate = true; }
+  if (interactive && !build.done) { build.done = true; build.complete = true; ctl.autoRotateSpeed = .12; setTimeout(() => { R.shadowMap.autoUpdate = false; R.shadowMap.needsUpdate = true; }, 1500); { const [hp, ht] = pose(1); HOME.p.copy(hp); HOME.t.copy(ht); } $('#stage').classList.remove('building'); ctl.enabled = true; ctl.autoRotate = true; }
   if (!interactive && build.done && !build.complete) { build.done = false; $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false; stopTour(); if (sel) { sel = null; $('#stage').classList.remove('sel'); } flight = null; }
   CAPP.value = clamp01((Q - .012) / .075); UP.value = sm(clamp01((Q - .1) / .52));
   SYSORDER.forEach((id, i) => { const k = clamp01((Q - (SYS0 + i * SYSW)) / (SYSW * .6)); const g = SYSG[id]; g.visible = k > 0; g.scale.y = easeB(k); });

@@ -390,12 +390,6 @@ body.lock{overflow:hidden}
     <a class="r" href="#join">Join</a>
   </nav>
 
-  <div class="title">
-    <span class="k">● Live model — Concept</span>
-    <h1>Anthropos</h1>
-    <p>A coastal city for more than one hundred thousand people: seven districts, a river, a bay and a great park. Drag to look around and tap any place to explore it.</p>
-  </div>
-
   <aside class="info" id="info">
     <div class="top"><span id="iCat">System</span><button id="iClose" aria-label="Close">×</button></div>
     <h2 id="iName">—</h2>
@@ -447,6 +441,6 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=34"></script>
+<script type="module" src="js/anthropos-live.js?v=35"></script>
 </body>
 </html>

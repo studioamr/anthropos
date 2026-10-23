@@ -337,37 +337,8 @@ nav .meta{display:none}
 </script>
 </head>
 <body class="lock">
-<div id="load"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.15s">LIFE</i></span><span class="w"><i style="--d:0.47s">IS</i></span><span class="w"><i style="--d:0.79s">A</i></span></span><span class="ln"><span class="w"><i style="--d:1.11s">MIRACLE.</i></span></span></div><div class="bar"><i id="lb"></i></div></div>
+<div id="load"><div class="bar"><i id="lb"></i></div></div>
 
-<div class="introx">
-  <section class="ix-sec">
-    <div class="ix-in">
-      <div class="ix-lab">I · WHY NOW</div><h2 class="ix-h wide">The work that filled a human life can now be done by machines.</h2>
-      <div class="ix-grid3">
-        <figure><span class="ixi"><img src="img/era/screens.jpg" alt=""></span><figcaption>INTELLIGENCE</figcaption><p>Systems that draft, design, diagnose and coordinate.</p></figure>
-        <figure><span class="ixi"><img src="img/era/energy.jpg" alt=""></span><figcaption>ENERGY</figcaption><p>Power from the sun, cheaper every year.</p></figure>
-        <figure><span class="ixi"><img src="img/era/workshop.jpg" alt=""></span><figcaption>MACHINES</figcaption><p>Robots that build, farm, repair and deliver.</p></figure>
-      </div>
-    </div>
-  </section>
-  <section class="ix-sec stone">
-    <div class="ix-in">
-      <div class="ix-lab">II · WHAT A FREE PERSON DOES</div><h2 class="ix-h wide">Not leisure. Purpose.</h2>
-      <div class="ix-grid4">
-        <figure><span class="ixi"><img src="img/era/theater.jpg" alt=""></span><figcaption>ARS</figcaption><p>The arts.</p></figure>
-        <figure><span class="ixi"><img src="img/era/piazza.jpg" alt=""></span><figcaption>SCIENTIA</figcaption><p>Knowledge.</p></figure>
-        <figure><span class="ixi"><img src="img/era/stadium.jpg" alt=""></span><figcaption>VIRTUS</figcaption><p>Honor.</p></figure>
-        <figure><span class="ixi"><img src="img/era/forum.jpg" alt=""></span><figcaption>RES PUBLICA</figcaption><p>The forum.</p></figure>
-      </div>
-    </div>
-  </section>
-  <section class="ix-born" id="born"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.10s">WE</i></span><span class="w"><i style="--d:0.36s">WERE</i></span></span><span class="ln"><span class="w"><i style="--d:0.62s">NOT</i></span><span class="w"><i style="--d:0.88s">BORN</i></span></span><span class="ln"><span class="w"><i style="--d:1.14s">TO</i></span><span class="w"><i style="--d:1.40s">WORK.</i></span></span></div></section>
-  <section class="ix-gate">
-    <p class="g2">So we are building</p>
-    <svg class="g3" viewBox="0 0 1000 150" aria-label="Anthropos"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" fill="url(#gg)">ANTHROPOS</text></svg>
-    <span class="g4">Scroll to build the city ↓</span>
-  </section>
-</div>
 <div class="scrolly" id="scrolly">
 <div class="stage" id="stage">
   <canvas id="gl"></canvas>
@@ -429,12 +400,11 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
 </footer>
 
 <script>{document.getElementById("load").classList.add("go");history.scrollRestoration="manual";scrollTo(0,0);const blk=e=>{if(document.body.classList.contains("lock"))e.preventDefault()};addEventListener("wheel",blk,{passive:false});addEventListener("touchmove",blk,{passive:false});addEventListener("keydown",e=>{if(document.body.classList.contains("lock")&&["ArrowDown","ArrowUp","PageDown","PageUp","Space"," ","End","Home"].includes(e.key))e.preventDefault()})}</script>
-<script>{const SC=[...document.querySelectorAll(".ix-sec")];let tk=0;const dep=()=>{tk=0;SC.forEach((sc,i)=>{const nx=SC[i+1]||document.querySelector(".ix-born");if(!nx)return;const r=nx.getBoundingClientRect().top,p=Math.min(1,Math.max(0,1-r/innerHeight));const inn=sc.firstElementChild;inn.style.transform=`scale(${1-p*.08}) translateY(${-p*4}vh)`;inn.style.opacity=1-p*.7})};addEventListener("scroll",()=>{if(!tk){tk=1;requestAnimationFrame(dep)}},{passive:true})}</script>
 <script>{const io2=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io2.unobserve(x.target)}}),{threshold:.2});document.querySelectorAll(".ix-sec,.ix-gate,.ix-born").forEach(el=>io2.observe(el))}</script>
 <script>{const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.15});document.querySelectorAll(".rv").forEach(el=>io.observe(el))}</script>
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=40"></script>
+<script type="module" src="js/anthropos-live.js?v=41"></script>
 </body>
 </html>

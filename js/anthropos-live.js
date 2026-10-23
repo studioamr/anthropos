@@ -10,7 +10,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { Ink } from './cityengine.js';
 import { buildPolis, bayP, terrainP, river, PARK, DISTRICTS, DRAD, DOWN } from './polis.js';
 
-await new Promise((r) => setTimeout(r, 2900));
+await new Promise((r) => setTimeout(r, 60));
 const $ = (s) => document.querySelector(s);
 const MOBILE = matchMedia('(max-width:760px)').matches || matchMedia('(hover:none)').matches;
 const prog = (p) => { $('#lb').style.width = p + '%'; };

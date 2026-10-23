@@ -502,7 +502,7 @@ link(SYSG.solar, ELEC.solar, at(0, 1240), at(0, 640), 140, 3); link(SYSG.solar, 
 link(SYSG.wind, ELEC.wind, at(-1500, 1880), at(-430, 420), 260); link(SYSG.battery, ELEC.battery, at(960, 1290), at(300, 560), 140);
 link(SYSG.desal, ELEC.desal, at(1530, bayP(1650) + 120), at(620, 90), 60); link(SYSG.green, ELEC.green, at(1400, 400), at(700, 260), 80);
 link(SYSG.fields, ELEC.fields, at(1420, 1100), at(760, 520), 90); link(SYSG.works, ELEC.works, at(-1570, 420), at(-760, 300), 90); link(SYSG.digester, ELEC.digester, at(-1500, -20), at(-760, 110), 60);
-Object.entries(C).filter(([k]) => k !== 'ai').forEach(([, [x, z]]) => link(SYSG.ai, new THREE.Color(ELEC.ai).multiplyScalar(.2), [0, 230, 230], at(x, z, 30), 160, .6, 1.4));
+[...Object.entries(C).filter(([k]) => k !== 'ai').map(([, p]) => p), ...DISTRICTS.slice(1)].forEach(([x, z]) => link(SYSG.ai, new THREE.Color(ELEC.ai).multiplyScalar(.2), [0, 230, 230], at(x, z, 30), 160, .6, 1.4));
 // light pools: the city areas each system powers glow in its colour
 const poolTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
 const pool = (id, x, z, r) => { const m = new THREE.MeshBasicMaterial({ map: poolTex, color: new THREE.Color(ELEC[id]).multiplyScalar(1.3), transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });

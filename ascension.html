@@ -339,6 +339,54 @@ nav .meta{display:none}
 <body class="lock">
 <div id="load"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.15s">LIFE</i></span><span class="w"><i style="--d:0.47s">IS</i></span><span class="w"><i style="--d:0.79s">A</i></span></span><span class="ln"><span class="w"><i style="--d:1.11s">MIRACLE.</i></span></span></div><div class="bar"><i id="lb"></i></div></div>
 
+<div class="introx">
+  <section class="ix-sec">
+    <div class="ix-in two">
+      <div><div class="ix-lab">I · THE ARRANGEMENT</div><h2 class="ix-h">For two hundred years we lived by the clock.</h2>
+        <p class="ix-p">The steam engine moved us from the fields to the mill. Cities were built around jobs, families scattered to follow wages, and a person became what they did for a living. We still live inside that arrangement.</p></div>
+      <figure class="ix-fig"><span class="ixi"><img src="img/era/clock.jpg" alt=""></span><figcaption>THE INDUSTRIAL CITY</figcaption></figure>
+    </div>
+  </section>
+  <section class="ix-sec dark lost">
+    <div class="ix-in">
+      <div class="ix-lab">II · WHAT WE LOST</div>
+      <h2 class="ix-h wide">Somewhere along the way, we forgot what it was all for.</h2>
+      <p class="ix-p">We traded the forum for the commute and the festival for the weekend. We learned to introduce ourselves by our jobs, to measure a life in tasks completed, and to fill what little time was left with screens. We became more productive than any people in history, and less sure of why.</p>
+      <div class="ix-grid3">
+        <figure><span class="ixi"><img src="img/era/mill.jpg" alt=""></span><figcaption>THE MILL</figcaption><p>We left the fields and the squares for the smoke.</p></figure>
+        <figure><span class="ixi"><img src="img/era/commute.jpg" alt=""></span><figcaption>THE COMMUTE</figcaption><p>Two hours a day, going to work and coming back.</p></figure>
+        <figure><span class="ixi"><img src="img/era/cubicles.jpg" alt=""></span><figcaption>THE CUBICLE</figcaption><p>A life measured in tasks, named by a job title.</p></figure>
+      </div>
+    </div>
+  </section>
+  <section class="ix-sec">
+    <div class="ix-in">
+      <div class="ix-lab">III · WHY NOW</div><h2 class="ix-h wide">The work that filled a human life can now be done by machines.</h2>
+      <div class="ix-grid3">
+        <figure><span class="ixi"><img src="img/era/screens.jpg" alt=""></span><figcaption>INTELLIGENCE</figcaption><p>Systems that draft, design, diagnose and coordinate.</p></figure>
+        <figure><span class="ixi"><img src="img/era/energy.jpg" alt=""></span><figcaption>ENERGY</figcaption><p>Power from the sun, cheaper every year.</p></figure>
+        <figure><span class="ixi"><img src="img/era/workshop.jpg" alt=""></span><figcaption>MACHINES</figcaption><p>Robots that build, farm, repair and deliver.</p></figure>
+      </div>
+    </div>
+  </section>
+  <section class="ix-sec stone">
+    <div class="ix-in">
+      <div class="ix-lab">IV · WHAT A FREE PERSON DOES</div><h2 class="ix-h wide">Not leisure. Purpose.</h2>
+      <div class="ix-grid4">
+        <figure><span class="ixi"><img src="img/era/theater.jpg" alt=""></span><figcaption>ARS</figcaption><p>The arts.</p></figure>
+        <figure><span class="ixi"><img src="img/era/piazza.jpg" alt=""></span><figcaption>SCIENTIA</figcaption><p>Knowledge.</p></figure>
+        <figure><span class="ixi"><img src="img/era/stadium.jpg" alt=""></span><figcaption>VIRTUS</figcaption><p>Honor.</p></figure>
+        <figure><span class="ixi"><img src="img/era/forum.jpg" alt=""></span><figcaption>RES PUBLICA</figcaption><p>The forum.</p></figure>
+      </div>
+    </div>
+  </section>
+  <section class="ix-born" id="born"><div class="ph"><span class="ln"><span class="w"><i style="--d:0.10s">WE</i></span><span class="w"><i style="--d:0.36s">WERE</i></span></span><span class="ln"><span class="w"><i style="--d:0.62s">NOT</i></span><span class="w"><i style="--d:0.88s">BORN</i></span></span><span class="ln"><span class="w"><i style="--d:1.14s">TO</i></span><span class="w"><i style="--d:1.40s">WORK.</i></span></span></div></section>
+  <section class="ix-gate">
+    <p class="g2">So we are building</p>
+    <svg class="g3" viewBox="0 0 1000 150" aria-label="Anthropos"><defs><linearGradient id="gg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" fill="url(#gg)">ANTHROPOS</text></svg>
+    <span class="g4">Scroll to build the city ↓</span>
+  </section>
+</div>
 <div class="scrolly" id="scrolly">
 <div class="stage" id="stage">
   <canvas id="gl"></canvas>
@@ -406,6 +454,6 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=38"></script>
+<script type="module" src="js/anthropos-live.js?v=39"></script>
 </body>
 </html>

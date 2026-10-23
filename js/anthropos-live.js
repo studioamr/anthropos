@@ -174,7 +174,7 @@ function HW(x, z) { const coast = bayP(x); if (z < coast) return -2 - Math.min(1
   return h + m * (260 + 900 * ridged(x * .00055, z * .00055)); }
 const RIV = (x, z) => (z > bayP(x) - 10 ? Math.abs(x - river(z)) : 1e9);
 const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36 ** 2;
-{ const N = MOBILE ? 220 : 380, g = new THREE.PlaneGeometry(3400, 2300, N, Math.round(N * .68)); g.rotateX(-Math.PI / 2); g.translate(0, 0, 330);
+{ const N = MOBILE ? 220 : 380, g = new THREE.PlaneGeometry(3800, 2700, N, Math.round(N * .71)); g.rotateX(-Math.PI / 2); g.translate(0, 0, 330);
   const p = g.attributes.position, col = new Float32Array(p.count * 3), c = new THREE.Color();
   const sand = new THREE.Color(0xd8c7a0), sage = new THREE.Color(0x748f4c), deep = new THREE.Color(0x56733a), dry = new THREE.Color(0x9c9068), pave = new THREE.Color(0xbdb7ab), park = new THREE.Color(0x5f8d3c), bed = new THREE.Color(0x1d4f6a);
   for (let i = 0; i < p.count; i++) {
@@ -200,7 +200,7 @@ const LAKE = (x, z) => (x - PARK.x - 40) ** 2 / 76 ** 2 + (z - PARK.z) ** 2 / 36
   for (let i = 0; i < p.count; i++) { const x = p.getX(i), z = p.getZ(i), coast = bayP(x), y = HW(x, z);
     if (z < coast) c.copy(bed); else if (z < coast + 52) c.copy(sand);
     else { c.copy(sage).lerp(forest, sstep(60, 260, y) * .8 + vn(x * .004, z * .004) * .15).lerp(rock, sstep(380, 700, y)).lerp(snow, sstep(780, 980, y)); }
-    const inner = Math.abs(x) < 1690 && z > -810 && z < 1470; p.setY(i, inner ? Math.min(y, 0) - 6 : y - .45); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
+    const inner = Math.abs(x) < 1840 && z > -980 && z < 1640; p.setY(i, inner ? Math.min(y, 0) - 6 : y - .45); col[i * 3] = c.r; col[i * 3 + 1] = c.g; col[i * 3 + 2] = c.b; }
   g.setAttribute('color', new THREE.BufferAttribute(col, 3)); g.computeVertexNormals();
   const m = new THREE.Mesh(g, new THREE.MeshStandardMaterial({ vertexColors: true, roughness: .95 })); m.receiveShadow = true; S.add(m); }
 // ── bridges: wherever a road meets both banks ──
@@ -812,7 +812,7 @@ $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = fal
 const SC = $('#scrolly'); const sizeSC = () => (SC.style.height = innerHeight * 11 + 'px'); sizeSC(); addEventListener('resize', sizeSC);
 const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester', 'ai'];
 const SYS0 = .62, SYSW = .034;
-const K = [[0, 0, 0, 400, 1800, 1200, -2.3], [.05, 0, 20, 230, 230, 110, -1.7], [.13, 0, 25, 270, 520, 260, -.3], [.24, 0, 0, 330, 1350, 950, 1.3],
+const K = [[0, 0, 60, 520, 1600, 520, -2.05], [.05, 0, 20, 230, 230, 110, -1.7], [.13, 0, 25, 270, 520, 260, -.3], [.24, 0, 0, 330, 1350, 950, 1.3],
   [.34, 60, 0, 480, 380, 170, 2.9], [.42, river(380), 0, 380, 260, 70, 4.2], [.5, 0, 0, -30, 650, 110, 5.3], [.58, 0, 40, 860, 620, 380, 6.5]];
 SYSORDER.forEach((id, i) => { const [x, y, z] = ITEMS[id].pin; const RR = { solar: 1500, wind: 1100, battery: 520, desal: 800, green: 900, fields: 1200, works: 950, digester: 600, ai: 520 }[id]; K.push([SYS0 + (i + .5) * SYSW, x, id === 'ai' ? 150 : y * .3, z, RR, RR * .55, 7.4 + i * .95]); });
 K.push([.95, 0, 60, 600, 2300, 900, 16.95], [1, 0, 70, 380, 1050, 240, 17.45]);

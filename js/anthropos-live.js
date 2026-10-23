@@ -10,6 +10,7 @@ import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js'
 import { Ink } from './cityengine.js';
 import { buildPolis, bayP, terrainP, river, PARK, DISTRICTS, DRAD, DOWN } from './polis.js';
 
+await new Promise((r) => setTimeout(r, 2900));
 const $ = (s) => document.querySelector(s);
 const MOBILE = matchMedia('(max-width:760px)').matches || matchMedia('(hover:none)').matches;
 const prog = (p) => { $('#lb').style.width = p + '%'; };
@@ -486,7 +487,9 @@ const blades = [];
   const beam = new THREE.Mesh(new THREE.CylinderGeometry(1.5, 6, 200, 16, 1, true), new THREE.MeshBasicMaterial({ color: new THREE.Color(ELEC.ai).multiplyScalar(1.6), transparent: true, opacity: .14, toneMapped: false, side: THREE.DoubleSide, depthWrite: false })); beam.position.y = -100;
   }
 SYS.traverse((o) => { if (o.isMesh && !o.isInstancedMesh) { o.castShadow = true; o.receiveShadow = true; } });
-SYSG.ai.traverse((o) => { if (o.isMesh) o.castShadow = false; }); S.remove(SYSG.ai); SYS.remove(SYSG.ai);
+{ const core = SYSG.ai.children[0]; const shell = core.children[0], rings = core.children.filter((m) => m.geometry && m.geometry.type === 'TorusGeometry');
+  ANIM.push((t) => { if (!SYSG.ai.visible) return; shell.rotation.y = t * .3; shell.rotation.x = t * .17; rings.forEach((r, k) => (r.rotation.z = t * (.4 + k * .25))); }); }
+SYSG.ai.traverse((o) => { if (o.isMesh) o.castShadow = false; });
 
 // live cables with travelling light pulses
 const lineMat = (c, speed = .7) => new THREE.ShaderMaterial({ uniforms: { uT: UT, uC: { value: new THREE.Color(c) }, uS: { value: speed } }, transparent: true, depthWrite: false, toneMapped: false,
@@ -499,6 +502,7 @@ link(SYSG.solar, ELEC.solar, at(0, 1240), at(0, 640), 140, 3); link(SYSG.solar, 
 link(SYSG.wind, ELEC.wind, at(-1500, 1880), at(-430, 420), 260); link(SYSG.battery, ELEC.battery, at(960, 1290), at(300, 560), 140);
 link(SYSG.desal, ELEC.desal, at(1530, bayP(1650) + 120), at(620, 90), 60); link(SYSG.green, ELEC.green, at(1400, 400), at(700, 260), 80);
 link(SYSG.fields, ELEC.fields, at(1420, 1100), at(760, 520), 90); link(SYSG.works, ELEC.works, at(-1570, 420), at(-760, 300), 90); link(SYSG.digester, ELEC.digester, at(-1500, -20), at(-760, 110), 60);
+Object.entries(C).filter(([k]) => k !== 'ai').forEach(([, [x, z]]) => link(SYSG.ai, new THREE.Color(ELEC.ai).multiplyScalar(.2), [0, 230, 230], at(x, z, 30), 160, .6, 1.4));
 // light pools: the city areas each system powers glow in its colour
 const poolTex = (() => { const c = document.createElement('canvas'); c.width = c.height = 128; const x = c.getContext('2d'), gr = x.createRadialGradient(64, 64, 0, 64, 64, 64); gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(.5, 'rgba(255,255,255,.35)'); gr.addColorStop(1, 'rgba(255,255,255,0)'); x.fillStyle = gr; x.fillRect(0, 0, 128, 128); return new THREE.CanvasTexture(c); })();
 const pool = (id, x, z, r) => { const m = new THREE.MeshBasicMaterial({ map: poolTex, color: new THREE.Color(ELEC[id]).multiplyScalar(1.3), transparent: true, opacity: .55, blending: THREE.AdditiveBlending, depthWrite: false, toneMapped: false });
@@ -663,8 +667,8 @@ Object.assign(ITEMS, {
   observatory: { cat: 'Life', name: 'The Observatory', pin: [420, ty(420, 960) + 32, 960], desc: 'A public observatory on the hills behind the city. Dark-sky rules keep the stars visible from every rooftop.', stats: [['Telescope', '1.5 m'], ['Open nights', 'Every clear night']] },
   market: { cat: 'Life', name: 'The Evening Market', pin: P(300, bayP(300) + 62, 12), desc: 'Every evening the promenade fills with stalls of food grown within sight of the city, and dinners that run late by the sea.', stats: [['Stalls', '~200'], ['Food travels', '< 5 km']] },
 });
-const ORDER = ['capitol', 'respublica', 'downtown', 'ars', 'scientia', 'virtus', 'thermae', 'amphi', 'park', 'mall', 'river', 'ring', 'market', 'beach', 'university', 'observatory', 'stadium', 'west', 'east', 'hills', 'port', 'lighthouse', 'solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester'].filter((k) => ITEMS[k]);
-const CATS = [['All', null], ['Life', ['respublica', 'ars', 'scientia', 'virtus', 'thermae', 'amphi', 'observatory', 'market', 'park', 'beach']], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
+const ORDER = ['capitol', 'respublica', 'downtown', 'ars', 'scientia', 'virtus', 'thermae', 'amphi', 'park', 'mall', 'river', 'ring', 'market', 'beach', 'university', 'observatory', 'stadium', 'west', 'east', 'hills', 'port', 'lighthouse', 'ai', 'solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester'].filter((k) => ITEMS[k]);
+const CATS = [['All', null], ['Life', ['respublica', 'ars', 'scientia', 'virtus', 'thermae', 'amphi', 'observatory', 'market', 'park', 'beach']], ['Civic', ['capitol', 'mall', 'ring', 'university']], ['Districts', ['downtown', 'west', 'east']], ['Nature', ['park', 'river', 'hills']], ['Coast', ['beach', 'port', 'lighthouse']], ['Leisure', ['stadium']], ['Self-sustaining', ['ai', 'solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester']]];
 
 // ── time of day: dawn · day · sunset · night ──
 const PM2 = new THREE.PMREMGenerator(R), TOD = {};
@@ -806,26 +810,26 @@ cap.innerHTML = '<span class="k" id="bk">Anthropos · 00</span><h2 id="bc">The l
 const pr = document.createElement('div'); pr.className = 'prog'; pr.innerHTML = '<i id="pi"></i>'; $('#stage').appendChild(pr);
 $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false;
 const SC = $('#scrolly'); const sizeSC = () => (SC.style.height = innerHeight * 11 + 'px'); sizeSC(); addEventListener('resize', sizeSC);
-const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester'];
+const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester', 'ai'];
 const SYS0 = .62, SYSW = .034;
 const K = [[0, 0, 0, 400, 1800, 1200, -2.3], [.05, 0, 20, 230, 230, 110, -1.7], [.13, 0, 25, 270, 520, 260, -.3], [.24, 0, 0, 330, 1350, 950, 1.3],
   [.34, 60, 0, 480, 380, 170, 2.9], [.42, river(380), 0, 380, 260, 70, 4.2], [.5, 0, 0, -30, 650, 110, 5.3], [.58, 0, 40, 860, 620, 380, 6.5]];
 SYSORDER.forEach((id, i) => { const [x, y, z] = ITEMS[id].pin; const RR = { solar: 1500, wind: 1100, battery: 520, desal: 800, green: 900, fields: 1200, works: 950, digester: 600, ai: 520 }[id]; K.push([SYS0 + (i + .5) * SYSW, x, id === 'ai' ? 150 : y * .3, z, RR, RR * .55, 7.4 + i * .95]); });
-K.push([.95, 0, 0, 900, 2700, 1100, 16.9], [1, 0, 40, 520, 1750, 430, 17.28]);
+K.push([.95, 0, 60, 600, 2300, 900, 16.95], [1, 0, 70, 380, 1050, 240, 17.45]);
 const CAPS = [[0, 'The land.'], [.04, 'First, the Capitol.'], [.11, 'Downtown rises.'], [.21, 'The districts.'], [.31, 'Park and river.'], [.46, 'The coast.'], [.55, 'The hills.']];
-const SYSCAP = ['The sun pays.', 'The wind, at night.', 'Power, stored.', 'Water from the sea.', 'Food, grown here.', 'Fields and orchards.', 'Machines do the work.', 'Nothing is wasted.'];
+const SYSCAP = ['The sun pays.', 'The wind, at night.', 'Power, stored.', 'Water from the sea.', 'Food, grown here.', 'Fields and orchards.', 'Machines do the work.', 'Nothing is wasted.', 'And a mind that runs it all.'];
 SYSORDER.forEach((id, i) => CAPS.push([SYS0 + i * SYSW, SYSCAP[i]])); CAPS.push([.94, 'Anthropos.']);
 const sm = (k) => k * k * (3 - 2 * k), clamp01 = (x) => Math.min(1, Math.max(0, x));
 const easeB = (k) => (k <= 0 ? .001 : 1 + 2.7 * Math.pow(k - 1, 3) + 1.7 * Math.pow(k - 1, 2));
 function pose(q) { let i = 0; while (i < K.length - 2 && q > K[i + 1][0]) i++; const a = K[i], b = K[i + 1], k = sm(clamp01((q - a[0]) / (b[0] - a[0])));
-  const v = a.map((x, j) => x + (b[j] - x) * k); const T = new THREE.Vector3(v[1], v[2], v[3]); return [T.clone().add(new THREE.Vector3(Math.cos(v[6]) * v[4], v[5], Math.sin(v[6]) * v[4])), T]; }
+  const v = a.map((x, j) => x + (b[j] - x) * k); const T = new THREE.Vector3(v[1], v[2], v[3]); const sc = canvas.clientWidth < canvas.clientHeight ? 1.7 : 1; return [T.clone().add(new THREE.Vector3(Math.cos(v[6]) * v[4] * sc, v[5] * sc, Math.sin(v[6]) * v[4] * sc)), T]; }
 let build = { done: false, last: '', q: 0 };
 function setCap(t, q) { if (t === build.last) return; build.last = t; cap.classList.add('out'); setTimeout(() => { $('#bc').textContent = t; $('#bk').textContent = 'Anthropos · ' + String(Math.round(q * 100)).padStart(2, '0'); cap.classList.remove('out'); }, 260); }
 function readQ() { const tot = SC.offsetHeight - innerHeight; return clamp01((scrollY - SC.offsetTop) / tot); }
 function buildTick(dt) {
   const q = build.complete ? 1 : readQ(); build.q += (q - build.q) * Math.min(1, dt * 4); const Q = build.q;
   const interactive = q > .985;
-  if (interactive && !build.done) { build.done = true; build.complete = true; ctl.autoRotateSpeed = .12; setTimeout(() => { R.shadowMap.autoUpdate = false; R.shadowMap.needsUpdate = true; }, 1500); { const [hp, ht] = pose(1); HOME.p.copy(hp); HOME.t.copy(ht); } $('#stage').classList.remove('building'); ctl.enabled = true; ctl.autoRotate = true; }
+  if (interactive && !build.done) { build.done = true; build.complete = true; ctl.autoRotateSpeed = .18; setTimeout(() => { R.shadowMap.autoUpdate = false; R.shadowMap.needsUpdate = true; }, 1500); { const [hp, ht] = pose(1); HOME.p.copy(hp); HOME.t.copy(ht); } $('#stage').classList.remove('building'); ctl.enabled = true; ctl.autoRotate = true; }
   if (!interactive && build.done && !build.complete) { build.done = false; $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = false; stopTour(); if (sel) { sel = null; $('#stage').classList.remove('sel'); } flight = null; }
   CAPP.value = clamp01((Q - .012) / .075); UP.value = sm(clamp01((Q - .1) / .52));
   SYSORDER.forEach((id, i) => { const k = clamp01((Q - (SYS0 + i * SYSW)) / (SYSW * .6)); const g = SYSG[id]; g.visible = k > 0; g.scale.y = easeB(k); });
@@ -835,7 +839,7 @@ function buildTick(dt) {
 if (/[?&]debug/.test(location.search)) window.__F = () => frame(), window.__S = SYSG, window.__B = () => [build, readQ(), UP.value], window.__go = (id, d = 260) => { const it = ITEMS[id]; it.dist = d; fly(it); flight.dur = .01; };
 let U_T = 0; setInterval(() => (U_T += .05), 50);
 prog(100); try { R.compile(S, cam); } catch (e) {}
-requestAnimationFrame(() => requestAnimationFrame(() => { $('#load').classList.add('go'); setTimeout(() => { scrollTo(0, 0); $('#load').classList.add('out'); setTimeout(() => document.body.classList.remove('lock'), 900); }, 3500); }));
+setTimeout(() => { scrollTo(0, 0); $('#load').classList.add('out'); setTimeout(() => document.body.classList.remove('lock'), 900); }, 500);
 frame();
 
 $('#f').onsubmit = (e) => { e.preventDefault(); const f = new FormData(e.target), body = [...f.entries()].map(([k, v]) => k + ': ' + v).join('\n'); location.href = 'mailto:hello@anthroposcities.com?subject=' + encodeURIComponent('Anthropos registration · ' + f.get('as')) + '&body=' + encodeURIComponent(body); $('#ok').textContent = 'Thank you. Your mail app will open to confirm your registration.'; };

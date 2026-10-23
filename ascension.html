@@ -315,6 +315,19 @@ body.lock{overflow:hidden}
   .chain{grid-template-columns:1fr 1fr}.chain div:nth-child(2n){border-right:0}
   footer{grid-template-columns:1fr 1fr}
 }
+@media(max-width:760px){
+.ix-sec{position:relative;height:auto;min-height:100svh;padding:12vh 18px 8vh;box-shadow:none}
+.ix-sec>.ix-in{transform:none!important;opacity:1!important}
+.ix-h{font-size:34px!important}.ix-p{font-size:16px}
+.ix-in.two{grid-template-columns:1fr!important;gap:24px}
+.ix-grid3{grid-template-columns:repeat(3,1fr)!important;gap:8px;margin-top:22px}.ix-grid4{grid-template-columns:1fr 1fr!important;gap:10px;margin-top:22px}
+.ix-grid3 figcaption,.ix-grid4 figcaption{font-size:10px;letter-spacing:.12em;margin-top:8px}.ix-grid3 p{display:none}.ix-grid4 p{font-size:12px}
+.ix-sec .ixi{aspect-ratio:1/1}.lost .ixi{aspect-ratio:1/1}
+html{scroll-snap-type:none}
+#load .w i,.ix-born .w i{font-size:15vw}
+.ix-gate .g2{font-size:34px}
+nav .meta{display:none}
+}
 </style>
 <script type="importmap">
 {"imports":{
@@ -434,13 +447,13 @@ document.getElementById('ixall').onclick=e=>{const g=document.getElementById('al
   <svg class="bw" viewBox="0 0 1000 150" preserveAspectRatio="xMidYMid meet" aria-label="Anthropos"><defs><linearGradient id="bwg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#9aa0b0"/><stop offset=".7" stop-color="#2a2c33"/><stop offset="1" stop-color="#fff"/></linearGradient></defs><text x="500" y="128" text-anchor="middle" textLength="990" lengthAdjust="spacingAndGlyphs" font-family="Inter Tight, Helvetica, Arial, sans-serif" font-weight="900" font-size="168" letter-spacing="-6" fill="url(#bwg)">ANTHROPOS</text></svg>
 </footer>
 
-<script>{history.scrollRestoration="manual";scrollTo(0,0);const blk=e=>{if(document.body.classList.contains("lock"))e.preventDefault()};addEventListener("wheel",blk,{passive:false});addEventListener("touchmove",blk,{passive:false});addEventListener("keydown",e=>{if(document.body.classList.contains("lock")&&["ArrowDown","ArrowUp","PageDown","PageUp","Space"," ","End","Home"].includes(e.key))e.preventDefault()})}</script>
+<script>{document.getElementById("load").classList.add("go");history.scrollRestoration="manual";scrollTo(0,0);const blk=e=>{if(document.body.classList.contains("lock"))e.preventDefault()};addEventListener("wheel",blk,{passive:false});addEventListener("touchmove",blk,{passive:false});addEventListener("keydown",e=>{if(document.body.classList.contains("lock")&&["ArrowDown","ArrowUp","PageDown","PageUp","Space"," ","End","Home"].includes(e.key))e.preventDefault()})}</script>
 <script>{const SC=[...document.querySelectorAll(".ix-sec")];let tk=0;const dep=()=>{tk=0;SC.forEach((sc,i)=>{const nx=SC[i+1]||document.querySelector(".ix-born");if(!nx)return;const r=nx.getBoundingClientRect().top,p=Math.min(1,Math.max(0,1-r/innerHeight));const inn=sc.firstElementChild;inn.style.transform=`scale(${1-p*.08}) translateY(${-p*4}vh)`;inn.style.opacity=1-p*.7})};addEventListener("scroll",()=>{if(!tk){tk=1;requestAnimationFrame(dep)}},{passive:true})}</script>
 <script>{const io2=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io2.unobserve(x.target)}}),{threshold:.2});document.querySelectorAll(".ix-sec,.ix-gate,.ix-born").forEach(el=>io2.observe(el))}</script>
 <script>{const io=new IntersectionObserver(e=>e.forEach(x=>{if(x.isIntersecting){x.target.classList.add("in");io.unobserve(x.target)}}),{threshold:.15});document.querySelectorAll(".rv").forEach(el=>io.observe(el))}</script>
 <script>{document.querySelectorAll('.tabs button').forEach(b=>b.onclick=()=>{document.querySelectorAll('.tabs button').forEach(x=>x.classList.toggle('on',x===b));document.querySelectorAll('.pane').forEach((p,i)=>p.classList.toggle('on',i==b.dataset.s))});
 const c=document.getElementById('ccard');if(c){const f=()=>c.classList.toggle('flip');document.getElementById('flip').onclick=f;c.onclick=f;document.getElementById('tilt').onclick=()=>{c.classList.remove('flip');c.style.transform=''};
 c.parentElement.onmousemove=e=>{const r=c.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;c.style.transform=(c.classList.contains('flip')?'rotateY(180deg) ':'')+`rotateX(${-y*14}deg) rotateY(${x*18}deg)`;c.querySelectorAll('.cf').forEach(el=>el.style.setProperty('--sh',(x*160)+'%'))};c.parentElement.onmouseleave=()=>{c.style.transform=''}}}</script>
-<script type="module" src="js/anthropos-live.js?v=35"></script>
+<script type="module" src="js/anthropos-live.js?v=37"></script>
 </body>
 </html>

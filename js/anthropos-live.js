@@ -812,7 +812,7 @@ $('#stage').classList.add('building'); ctl.enabled = false; ctl.autoRotate = fal
 const SC = $('#scrolly'); const sizeSC = () => (SC.style.height = innerHeight * 11 + 'px'); sizeSC(); addEventListener('resize', sizeSC);
 const SYSORDER = ['solar', 'wind', 'battery', 'desal', 'green', 'fields', 'works', 'digester', 'ai'];
 const SYS0 = .62, SYSW = .034;
-const K = [[0, 0, 60, 520, 1600, 520, -2.05], [.05, 0, 20, 230, 230, 110, -1.7], [.13, 0, 25, 270, 520, 260, -.3], [.24, 0, 0, 330, 1350, 950, 1.3],
+const K = [[0, 0, 40, 380, 2000, 380, -1.75], [.05, 0, 20, 230, 230, 110, -1.7], [.13, 0, 25, 270, 520, 260, -.3], [.24, 0, 0, 330, 1350, 950, 1.3],
   [.34, 60, 0, 480, 380, 170, 2.9], [.42, river(380), 0, 380, 260, 70, 4.2], [.5, 0, 0, -30, 650, 110, 5.3], [.58, 0, 40, 860, 620, 380, 6.5]];
 SYSORDER.forEach((id, i) => { const [x, y, z] = ITEMS[id].pin; const RR = { solar: 1500, wind: 1100, battery: 520, desal: 800, green: 900, fields: 1200, works: 950, digester: 600, ai: 520 }[id]; K.push([SYS0 + (i + .5) * SYSW, x, id === 'ai' ? 150 : y * .3, z, RR, RR * .55, 7.4 + i * .95]); });
 K.push([.95, 0, 60, 600, 2300, 900, 16.95], [1, 0, 70, 380, 1050, 240, 17.45]);
@@ -836,7 +836,7 @@ function buildTick(dt) {
   if (!build.done) { const [cp, ct] = pose(Q); cam.position.lerp(cp, .09); ctl.target.lerp(ct, .09);
     let cur = CAPS[0][1]; for (const [at, t] of CAPS) if (Q >= at) cur = t; setCap(cur, Q); $('#pi').style.height = Q * 100 + '%'; $('#bh').style.opacity = Q < .02 ? .8 : 0; }
 }
-if (/[?&]debug/.test(location.search)) window.__F = () => frame(), window.__S = SYSG, window.__B = () => [build, readQ(), UP.value], window.__go = (id, d = 260) => { const it = ITEMS[id]; it.dist = d; fly(it); flight.dur = .01; };
+if (/[?&]debug/.test(location.search)) window.__F = () => frame(), window.__S = SYSG, window.__K = K, window.__T = setTime, window.__B = () => [build, readQ(), UP.value], window.__go = (id, d = 260) => { const it = ITEMS[id]; it.dist = d; fly(it); flight.dur = .01; };
 let U_T = 0; setInterval(() => (U_T += .05), 50);
 prog(100); try { R.compile(S, cam); } catch (e) {}
 setTimeout(() => { scrollTo(0, 0); $('#load').classList.add('out'); setTimeout(() => document.body.classList.remove('lock'), 900); }, 500);
